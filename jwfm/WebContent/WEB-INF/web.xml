@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" 
+	xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	
+	<display-name>FastDemo</display-name>
+  	<description>Fast平台演示</description>
+  	
+	<filter>
+		<description>Fast平台拦截器</description>
+		<filter-name>fastFilter</filter-name>
+		<filter-class>
+			com.dx.jwfm.framework.core.FastFilter
+		</filter-class>
+		<init-param>
+			<description>默认数据源</description>
+			<param-name>dataSource</param-name>
+			<param-value>java:comp/env/CSMISDS</param-value>
+		</init-param>
+		<!-- <init-param>
+			<description>系统主要数据源对应的数据库方言</description>
+			<param-name>databaseDialect</param-name>
+			<param-value>com.dx.jwfm.framework.core.dao.dialect.impl.OracleDialect</param-value>
+		</init-param> -->
+		<init-param>
+			<description>是否集成Spring框架</description>
+			<param-name>useSpring</param-name>
+			<param-value>false</param-value>
+		</init-param>
+        <init-param>
+			<description>默认字符集，建议设置为UTF-8</description>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<description>正常URL请求的扩展名</description>
+			<param-name>actionExt</param-name>
+			<param-value>action</param-value>
+		</init-param>
+		<init-param>
+			<description>根据用户请求时加载板块的映射路径</description>
+			<param-name>classModelBasePath</param-name>
+			<param-value>/mis</param-value>
+		</init-param>
+		<init-param>
+			<description>根据用户请求时加载板块的基础包路径</description>
+			<param-name>classModelBasePackage</param-name>
+			<param-value>com.ssj.model.mis</param-value>
+		</init-param>
+		<init-param>
+			<description>系统启动后加载升级文件的目录</description>
+			<param-name>updateDir</param-name>
+			<param-value>/modelupd</param-value>
+		</init-param>
+		<init-param>
+			<description>在Action处理前的预处理类，需要继承IFastProcess接口</description>
+			<param-name>ActionProcess</param-name>
+			<param-value></param-value>
+		</init-param>
+		<!--  -->
+		<init-param>
+			<description>在Action处理前的预处理类，需要继承IActionHandel接口</description>
+			<param-name>ActionHandle</param-name>
+			<param-value>com.dx.jwfm.framework.core.handle.ParameterActionHandle</param-value>
+		</init-param>
+		<init-param>
+			<description>框架中发生错误后的转向页面</description>
+			<param-name>errorPage</param-name>
+			<param-value>/fast/error.jsp</param-value>
+		</init-param>
+		<init-param>
+			<description>默认值解析类名，类必须实现IDefaultValueParser接口</description>
+			<param-name>defaultValueParser</param-name>
+			<param-value></param-value>
+		</init-param>
+	</filter>
+    
+    <filter-mapping>
+    	<filter-name>fastFilter</filter-name>
+    	<url-pattern>/jwfm/*</url-pattern>
+    </filter-mapping>
+    
+  	<resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>CSMISDS</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+  	</resource-ref>
+    
+  	<welcome-file-list>
+    	<welcome-file>index.htm</welcome-file>
+  	</welcome-file-list>
+  	
+</web-app>
