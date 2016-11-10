@@ -7,7 +7,6 @@ import java.util.List;
 import com.dx.jwfm.framework.core.dao.model.FastDbObject;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
-import com.dx.jwfm.framework.core.model.edit.EditModel;
 import com.dx.jwfm.framework.core.model.flow.FlowModel;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 

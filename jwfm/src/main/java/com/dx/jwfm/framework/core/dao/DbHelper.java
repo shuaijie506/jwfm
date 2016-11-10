@@ -113,7 +113,7 @@ public class DbHelper {
 				try {
 					st.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error(e);
 				}
 			}
 			if(autoCommit){
@@ -184,7 +184,36 @@ public class DbHelper {
 				val = Integer.parseInt(res);
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			logger.error(e);
+		}
+		return val;
+	}
+
+	/**
+	* 开发人：宋帅杰
+	* 开发日期: 2014-11-27  下午04:31:28
+	* 功能描述: 执行SQL语句查询数据库内容
+	* 方法的参数和返回值: 
+	* @param sql		可执行SQL语句，语句末尾不能带有分号
+	* @return			以整型数字格式返回数据集中的第一行第一列中的数据
+	 * @throws SQLException 
+	*/
+	public long getFirstLongSqlQuery(String sql) throws SQLException{
+		return getFirstLongSqlQuery(sql,emptyParam);
+	}
+
+	public long getFirstLongSqlQuery(String sql,Map<String,Object> params) throws SQLException{
+		return getFirstLongSqlQuery(sql.replaceAll("'?\\$\\{([^\\}]+)\\}'?", "?"),getParams(sql,params));
+	}
+	public long getFirstLongSqlQuery(String sql,Object[] params) throws SQLException{
+		String res = getFirstStringSqlQuery(sql,params);
+		long val = 0;
+		try {
+			if(res!=null){
+				val = Long.parseLong(res);
+			}
+		} catch (NumberFormatException e) {
+			logger.error(e);
 		}
 		return val;
 	}
@@ -214,7 +243,7 @@ public class DbHelper {
 				val = Double.parseDouble(res);
 			}
 		}catch (NumberFormatException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return val;
 	}
@@ -256,7 +285,7 @@ public class DbHelper {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 			paraml.add(index++,value);
 		}
@@ -742,6 +771,7 @@ public class DbHelper {
 		if(po.getTblModel()==null){
 			throw new SQLException("object has not tblModel!");
 		}
+		po.initIdDelValue();
 		String sql = po.getTblModel().getInsertSql();
 		int cnt = executeSqlUpdate(sql,po.getInsertParams());
 		return cnt>0;

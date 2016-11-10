@@ -1,15 +1,21 @@
 package com.dx.jwfm.framework.core.dao.model;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.dx.jwfm.framework.core.SystemContext;
+import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.web.logic.DataTranser;
 
 public class FastTable implements DatabaseObject,Serializable {
+
+	static Logger logger = Logger.getLogger(FastTable.class.getName());
 
 	/**  */
 	private static final long serialVersionUID = 1L;
@@ -23,7 +29,7 @@ public class FastTable implements DatabaseObject,Serializable {
 	/** 备注说明，此列为空时备注取name中的值 */
 	protected String comment;
 	/** 删除标记字段名 */
-	protected String delCol = "N_DEL";
+	protected String delCol = SystemContext.getDbDelFlagField();
 
 	ArrayList<FastColumn> columns = new ArrayList<FastColumn>();
 
@@ -36,6 +42,11 @@ public class FastTable implements DatabaseObject,Serializable {
 	/** 结编码类的数据进行转换，可以转换成相应的文本，或者虚构某个列名，显示组合信息 */
 	protected DataTranser dataTanser;
 
+	/**
+	 * ID为数字时，此字段暂存ID的最大值
+	 */
+	private Long maxIdVal;
+	
 	public FastColumn getColumn(String name){
 		if(name==null){
 			return null;
@@ -48,8 +59,8 @@ public class FastTable implements DatabaseObject,Serializable {
 	}
 	
 	public void setColumns(ArrayList<FastColumn> columns){
-		ArrayList<FastColumn> pkCols = new ArrayList<FastColumn>();
-		HashMap<String,FastColumn> colMap = new HashMap<String,FastColumn>();
+		pkCols.clear();
+		colMap.clear();
 		for(FastColumn col:columns){
 			if(col.isPrimaryKey()){
 				pkCols.add(col);
@@ -57,8 +68,6 @@ public class FastTable implements DatabaseObject,Serializable {
 			colMap.put(col.getCode(), col);
 		}
 		this.columns = columns;
-		this.colMap = colMap;
-		this.pkCols = pkCols;
 	}
 	
 	public String getKeyColCode(){
@@ -130,6 +139,19 @@ public class FastTable implements DatabaseObject,Serializable {
 			buff.append(col.getCode()).append("=? and");
 		}
 		return buff.toString().substring(0,buff.length()-4);
+	}
+	
+	public long getNextIdVal(){
+		if(maxIdVal==null){
+			DbHelper db = new DbHelper();
+			try {
+				maxIdVal = db.getFirstLongSqlQuery("select max("+getKeyColCode()+") from "+code);
+			} catch (SQLException e) {
+				logger.error(e);
+				maxIdVal = 0L;
+			}
+		}
+		return ++maxIdVal;
 	}
 
 	public String getName() {

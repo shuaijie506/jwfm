@@ -14,8 +14,8 @@ String basePath = path + request.getRequestURI();
 var isAlertShow = false;
     	$(function(){
     	    //点击提交按钮事件
-            var treedata = [{id:'1',text:'功能列表',attributes:{url:'../menu/menu.action'}},
-                            {id:'2',text:'用户管理',attributes:{url:'../user/user.action'}}];
+            var treedata = [{id:'1',text:'功能列表',attributes:{url:'../core/menu.action'}},
+                            {id:'2',text:'用户管理',attributes:{url:'../core/user.action'}}];
     	    $('#leftTree').tree({data:treedata,onClick:function(node){
     	    	$('#main').attr('src',node.attributes.url);
     	    }});

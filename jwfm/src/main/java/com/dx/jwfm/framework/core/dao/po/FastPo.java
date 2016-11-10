@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.dx.jwfm.framework.core.RequestContext;
+import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
@@ -18,6 +19,7 @@ import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.model.MapObject;
 import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
+import com.dx.jwfm.framework.util.Uuid;
 
 public class FastPo extends MapObject implements Serializable {
 	
@@ -294,6 +296,21 @@ public class FastPo extends MapObject implements Serializable {
 			return FastUtil.parseDate(strValue);
 		}
 		return strValue;
+	}
+
+	public void initIdDelValue() {
+		if(get(SystemContext.getDbIdField())==null){
+			FastTable tm = tblModel;
+			if(tm.getPkColumns().size()==1){
+				FastColumn keyCol = tm.getPkColumns().get(0);
+				if(keyCol.getType()==FastColumnType.String){//字符串格式的ID，使用UUID
+					put(keyCol.getCode(), Uuid.getUuid());
+				}
+			}
+		}
+		if(get(SystemContext.getDbDelFlagField())==null){
+			put(SystemContext.getDbDelFlagField(), 0);
+		}
 	}
 
 }

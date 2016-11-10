@@ -11,8 +11,9 @@ public class SearchModel {
 	private HashMap<String,SearchColumn> searchColumnMap;
 	/**查询结果展示列*/
 	private List<SearchResultColumn> searchResultColumns = new ArrayList<SearchResultColumn>();
-	/**查询SQL的select部分，包含select,from,where部分如：
-	 * select * from tbl where n_del=0 */
+	/**查询SQL的select部分，包含select,from,where部分，不带子查询的语句时where可以省略如：
+	 * select * from tbl
+	 * select * from (select t.* from tbl where 1=1) where 1=1 */
 	private String searchSelectSql;
 	/**查询SQL的默认排序部分，不含order by关键字，只列出要排序的字段*/
 	private String searchOrderBySql;

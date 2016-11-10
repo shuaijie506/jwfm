@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -13,6 +14,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
+import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.builder.IDatagridBuilder;
 
@@ -161,4 +163,42 @@ public class SystemContext {
 	public static String getSysParam(String name){
 		return systemParam.get(name);
 	}
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月9日 下午3:41:42
+	 * 功能描述: 获取系统配置参数，为空时返回默认值
+	 * 方法的参数和返回值: 
+	 * @param name
+	 * @param defaults
+	 * @return
+	 */
+	public static String getSysParam(String name,String defaults){
+		String val = systemParam.get(name);
+		if(val==null){
+			return defaults;
+		}
+		return val;
+	}
+	/**
+	 * 获得数据库表的ID字段名
+	 * @return
+	 */
+	public static String getDbIdField(){
+		return getSysParam("databaseTableIdFieldName","VC_ID");
+	}
+	/**
+	 * 获得数据库表的删除列的字段名
+	 * @return
+	 */
+	public static String getDbDelFlagField(){
+		return getSysParam("databaseTableDelFlagFieldName","N_DEL");
+	}
+	/**
+	 * 获得当前系统中指定的处理默认值的对象列表
+	 * @return
+	 */
+	public static List<IDefaultValueParser> getSystemDefaultValueParser() {
+		return FastFilter.filter.defaultValueParser;
+	}
+	
 }

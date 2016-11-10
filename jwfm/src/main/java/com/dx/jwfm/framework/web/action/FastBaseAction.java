@@ -14,7 +14,6 @@ import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.util.FastUtil;
-import com.dx.jwfm.framework.util.Uuid;
 import com.dx.jwfm.framework.web.builder.IDatagridBuilder;
 import com.dx.jwfm.framework.web.exception.DatagridBuilderNotFound;
 import com.dx.jwfm.framework.web.exception.ValidateException;
@@ -141,10 +140,7 @@ public class FastBaseAction extends BaseAction {
 	protected String addItem() throws ValidateException {
 		String msg = validateData();
 		if(FastUtil.isBlank(msg)){
-			if(FastUtil.isBlank(po.getString(RequestContext.getDbIdField()))){
-				po.put(RequestContext.getDbIdField(), Uuid.getUuid());
-				po.put(RequestContext.getDbDelFlagField(), 0);
-			}
+			po.initIdDelValue();
 			try {
 				logic.addPo(po,items);
 			} catch (SQLException e) {

@@ -1,6 +1,7 @@
 package com.dx.jwfm.framework.web.action;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.dx.jwfm.framework.core.SystemContext;
@@ -15,8 +16,8 @@ import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
 
-@FastModelInfo(author="宋帅杰", devDate = "2015-12-03", updateInfo = "")
-public class UserActionCreator extends ActionCreator {
+@FastModelInfo(author="宋帅杰", devDate = "2016-11-09", updateInfo = "")
+public class MenuActionCreator extends ActionCreator {
 
 	static FastModel model;
 	@Override
@@ -26,16 +27,16 @@ public class UserActionCreator extends ActionCreator {
 
 	@Override
 	protected String getName() {
-		return "用户管理";
+		return "菜单管理";
 	}
 
 	@Override
 	protected String getVersion() {
-		return "2016-11-08";
+		return "2016-11-09";
 	}
 	@Override
 	protected String getUrl() {
-		return "/jwfm/core/user.action";
+		return "/jwfm/core/menu.action";
 	}
 	
 	@Override
@@ -51,19 +52,22 @@ public class UserActionCreator extends ActionCreator {
 	@Override
 	protected FastTable getMainTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("Fast开发用户表");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_USER");
-		List<FastColumn> cols = tbl.getColumns();
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.Long, 50, null, null, false, true));
-		tbl.getColumns().add(new FastColumn("姓名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("密码", "VC_PWD", null, FastColumnType.String, 50, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("权限级别", "N_LEVEL", "权限级别 0管理员 1开发人员 2用户维护人员 3作废", FastColumnType.Integer, 0, "1", lvlDictName, true, false));
-		cols.get(cols.size()-1).setEditorType("dict:"+lvlDictName);
-		tbl.getColumns().add(new FastColumn("创建时间", "DT_ADD", null, FastColumnType.Date, 0, "${nowTime}", null, false, false));
-		cols.get(cols.size()-1).setEditorType("date:yyyy-MM-dd HH:mm");
-		tbl.getColumns().add(new FastColumn("删除标记", "N_DEL", null, FastColumnType.Integer, 0, "0", null, false, false));
+		tbl.setName("Fast菜单库");
+		tbl.setCode(SystemContext.dbObjectPrefix+"T_MENU_LIB");
+		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
+		tbl.getColumns().add(new FastColumn("菜单名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));
+		tbl.getColumns().add(new FastColumn("菜单URL", "VC_URL", null, FastColumnType.String, 200, "", null, false, false));
+		tbl.getColumns().add(new FastColumn("按钮权限列表", "VC_AUTH", null, FastColumnType.String, -1, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("模块控制结构", "VC_STRUCTURE", null, FastColumnType.String, -1, "", null, false, false));
+		tbl.getColumns().add(new FastColumn("所在分组", "VC_GROUP", null, FastColumnType.String, 200, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("版本", "VC_VERSION", null, FastColumnType.String, 50, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("添加人", "VC_ADD", null, FastColumnType.String, 50, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("添加时间", "DT_ADD", null, FastColumnType.Date, 50, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("修改人", "VC_MODIFY", null, FastColumnType.String, 50, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("修改时间", "DT_MODIFY", null, FastColumnType.Date, 50, "", null, true, false));
+		tbl.getColumns().add(new FastColumn("功能说明及更改历史", "VC_NOTE", null, FastColumnType.String, -1, "", null, true, false));
 		tbl.setColumns(tbl.getColumns());
-		return tbl;
+		return MainActionCreator.getMainTable();
 	}
 
 	@Override
@@ -93,6 +97,9 @@ public class UserActionCreator extends ActionCreator {
 	private String lvlDictName = "FAST框架-用户级别";
 	@Override
 	protected void initModel(FastModel model) {
+		LinkedHashMap<String, String> forwards = model.getModelStructure().getForwards();
+		forwards.put("openAddPage", "/jwfm/core/menuEdit.jsp");
+		forwards.put("openModifyPage", "/jwfm/core/menuEdit.jsp");
 		ArrayList<FastPo> dictData = new ArrayList<FastPo>();
 		dictData.add(FastPo.getPo(SystemContext.dbObjectPrefix+"T_DICT").element("VC_CODE", "0").element("VC_TEXT", "管理员").element("VC_GROUP", lvlDictName).element("N_SEQ", "0"));
 		dictData.add(FastPo.getPo(SystemContext.dbObjectPrefix+"T_DICT").element("VC_CODE", "1").element("VC_TEXT", "开发人员").element("VC_GROUP", lvlDictName).element("N_SEQ", "1"));

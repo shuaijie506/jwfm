@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.dx.jwfm.framework.core.SystemContext;
+
 public class MapObject implements Map<String,Object> {
 
 	protected LinkedHashMap<String,Object> map = new LinkedHashMap<String, Object>();
@@ -106,7 +108,7 @@ public class MapObject implements Map<String,Object> {
 				return val.toString();
 			}
 		}
-		if("N_DEL".equals(k) && !map.containsKey(k)){
+		if(SystemContext.getDbDelFlagField().equals(k) && !map.containsKey(k)){
 			map.put(k, "0");
 		}
 		return map.get(k.toUpperCase());

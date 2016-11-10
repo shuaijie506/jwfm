@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
+import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 
@@ -143,6 +144,15 @@ public class OracleDialect implements DatabaseDialect {
 		}
 		buff.deleteCharAt(buff.length()-LINE_SEPARATOR.length()-1).append(")");
 		list.add(buff.toString());
+		if(tbl.getPkColumns().size()==1){
+			FastColumn keyCol = tbl.getPkColumns().get(0);
+			//数字格式的使用自增数
+			if(keyCol.getType()==FastColumnType.Integer || keyCol.getType()==FastColumnType.Long){
+				list.add("CREATE SEQUENCE SEQ_"+tbl.getCode()+" INCREMENT BY 1 START WITH 1 NOMAXVALUE NOCYCLE CACHE 10");
+				list.add("CREATE OR REPLACE TRIGGER tri_seq_"+tbl.getCode()+" BEFORE INSERT ON "+tbl.getCode()+"\n  FOR EACH ROW\n  BEGIN\n    "
+						+ "SELECT SEQ_"+tbl.getCode()+".nextval INTO :new."+keyCol.getCode()+" FROM dual;\n  END;");
+			}
+		}
 		buff.setLength(0);//清空SQL语句
 		if(tbl.getComment()!=null){
 			buff.append("comment on table ").append(tbl.getCode()).append(LINE_SEPARATOR);

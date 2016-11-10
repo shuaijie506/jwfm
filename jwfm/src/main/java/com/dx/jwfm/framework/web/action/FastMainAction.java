@@ -54,7 +54,6 @@ public class FastMainAction extends FastBaseAction {
 				int cnt = db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_USER");
 				if(cnt==0){
 					FastPo po = FastPo.getPo(SystemContext.dbObjectPrefix+"T_USER");
-					po.put("VC_ID", adminUser);
 					po.put("VC_NAME", adminUser);
 					po.put("VC_PWD", MD5.toMd5String(adminPwd));
 					po.put("n_level", 0);

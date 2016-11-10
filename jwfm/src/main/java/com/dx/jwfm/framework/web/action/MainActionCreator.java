@@ -27,7 +27,7 @@ public class MainActionCreator {
 		model.setVcId("fast-main");
 		model.setVcGroup("Fast开发平台");
 		model.setVcName("Fast开发平台");
-		model.setVcUrl("/jwfm/main/main.action");
+		model.setVcUrl("/jwfm/core/main.action");
 		model.setVcAuth("");
 		model.setVcAdd("宋帅杰");
 		model.setVcModify("宋帅杰");
@@ -75,11 +75,11 @@ public class MainActionCreator {
 		}
 	}
 
-	private static FastTable getMainTable() {
+	public static FastTable getMainTable() {
 		FastTable tbl = new FastTable();
 		tbl.setName("Fast菜单库");
 		tbl.setCode(SystemContext.dbObjectPrefix+"T_MENU_LIB");
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, "uuid", null, false, true));
+		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("菜单名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("菜单URL", "VC_URL", null, FastColumnType.String, 200, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("按钮权限列表", "VC_AUTH", null, FastColumnType.String, -1, "", null, true, false));
@@ -99,7 +99,7 @@ public class MainActionCreator {
 		FastTable tbl = new FastTable();
 		tbl.setName("Fast字典表");
 		tbl.setCode(SystemContext.dbObjectPrefix+"T_DICT");
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, "uuid", null, false, true));
+		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("分组", "VC_GROUP", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("编码", "VC_CODE", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("显示文本", "VC_TEXT", "", FastColumnType.String, 500, "", null, false, false));
@@ -113,7 +113,7 @@ public class MainActionCreator {
 		FastTable tbl = new FastTable();
 		tbl.setName("Fast字典表");
 		tbl.setCode(SystemContext.dbObjectPrefix+"T_DB_UPDATE");
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, "uuid", null, false, true));
+		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("文件路径", "VC_PATH", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("文件名", "VC_FILE", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("执行时间", "DT_EXEC", null, FastColumnType.Date, 50, "", null, true, false));

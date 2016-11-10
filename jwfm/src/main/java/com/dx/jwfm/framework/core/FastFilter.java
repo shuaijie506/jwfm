@@ -104,7 +104,7 @@ public class FastFilter implements Filter {
 		}
 		SystemContext.filterParam = map;
 		if(map.containsKey("dbObjectPrefix")){//数据库对象前缀
-			SystemContext.dbObjectPrefix = map.get("dbObjectPrefix");
+			SystemContext.dbObjectPrefix = map.get("databaseObjectPrefix");
 		}
 		charset  = FastUtil.nvl(getInitParameter("encoding"),"UTF-8");
 		classModelBasePath = getInitParameter("classModelBasePath");

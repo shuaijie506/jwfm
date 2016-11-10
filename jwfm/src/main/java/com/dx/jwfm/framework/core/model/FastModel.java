@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
@@ -323,7 +322,7 @@ public class FastModel {
 					}
 				}
 			}
-			List<IDefaultValueParser> list = RequestContext.getSystemDefaultValueParser();
+			List<IDefaultValueParser> list = SystemContext.getSystemDefaultValueParser();
 			if(list!=null){//附加系统默认值解析部分
 				for(int i=0;i<list.size();i++){
 					actionDefaultValueParser.add(list.get(i));

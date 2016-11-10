@@ -12,11 +12,9 @@ import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.contants.RequestContants;
 import com.dx.jwfm.framework.core.dao.DbHelper;
-import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.core.wrapper.ParameterRequestWrapper;
-import com.dx.jwfm.framework.util.FastUtil;
 
 public class RequestContext {
 
@@ -46,10 +44,6 @@ public class RequestContext {
 	 */
 	List<DbHelper> dblist = new ArrayList<DbHelper>();
 	
-	/**
-	 * FastFilter的实例
-	 */
-	private FastFilter filter;
 
 	/**
 	 * 获得当前线程中用户的Request对象
@@ -104,7 +98,6 @@ public class RequestContext {
 			rc = new RequestContext();
 			context.set(rc);
 		}
-		rc.filter = filter;
 		rc.map.put(HTTP_REQUEST, request);
 		rc.map.put(HTTP_RESPONSE, response);
 		if(request==null){
@@ -168,41 +161,7 @@ public class RequestContext {
 		if(model!=null){
 			return model.getActionDefaultValueParser();
 		}
-		return getSystemDefaultValueParser();
+		return SystemContext.getSystemDefaultValueParser();
 	}
 
-	/**
-	 * 获得当前系统中指定的处理默认值的对象列表
-	 * @return
-	 */
-	public static List<IDefaultValueParser> getSystemDefaultValueParser() {
-		RequestContext rc = context.get();
-		if(rc!=null){
-			return rc.filter.defaultValueParser;
-		}
-		return null;
-	}
-	
-	/**
-	 * 获得数据库表的ID字段名
-	 * @return
-	 */
-	public static String getDbIdField(){
-		RequestContext rc = context.get();
-		if(rc!=null){
-			return FastUtil.nvl(rc.filter.getInitParameter("databaseTableIdFieldName"),"VC_ID");
-		}
-		return "VC_ID";
-	}
-	/**
-	 * 获得数据库表的删除列的字段名
-	 * @return
-	 */
-	public static String getDbDelFlagField(){
-		RequestContext rc = context.get();
-		if(rc!=null){
-			return FastUtil.nvl(rc.filter.getInitParameter("databaseTableDelFlagFieldName"),"N_DEL");
-		}
-		return "N_DEL";
-	}
 }

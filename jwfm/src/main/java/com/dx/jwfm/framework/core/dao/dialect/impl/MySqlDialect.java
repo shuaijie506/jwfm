@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
+import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 
@@ -134,13 +135,20 @@ public class MySqlDialect implements DatabaseDialect {
 					buff.append(getBlank(nullMax+1));
 				}
 			}
+			if(col.isPrimaryKey()){
+				if(tbl.getPkColumns().size()==1){
+					if(col.getType()==FastColumnType.Integer || col.getType()==FastColumnType.Long){
+						buff.append(" PRIMARY KEY AUTO_INCREMENT");
+					}
+				}
+				else{
+					key.append(",").append(col.getCode());
+				}
+			}
 			buff.append(" comment '").append(col.getComment().replaceAll("'", "''")).append("'");
 			buff.append(",").append(LINE_SEPARATOR);
-			if(col.isPrimaryKey()){
-				key.append(",").append(col.getCode());
-			}
 		}
-		if(key.length()>0){
+		if(key.length()>1){
 			buff.append("primary key (").append(key.substring(1)).append(")");
 		}
 		else{
