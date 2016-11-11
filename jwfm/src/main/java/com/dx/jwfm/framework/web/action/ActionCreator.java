@@ -28,9 +28,9 @@ public abstract class ActionCreator extends FastBaseAction {
 	abstract protected String getAuthor();
 	protected HashMap<String,String> getForwards(){
 		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("success", 			"/jwfm/core/htmlSearch.jsp");
-		map.put("openAddPage",		"/jwfm/core/htmlEdit.jsp");
-		map.put("openModifyPage",	"/jwfm/core/htmlEdit.jsp");
+		map.put("success", 			"/jwfm/core/easyuiSearch.jsp");
+		map.put("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
+		map.put("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
 		map.put("openViewPage",		"/jwfm/core/htmlView.jsp");
 		return map;
 	}
@@ -81,7 +81,7 @@ public abstract class ActionCreator extends FastBaseAction {
 //		struct.setPackageName("fast.main");
 		struct.setActionName("com.dx.jwfm.framework.web.action.FastBaseAction");
 //		struct.setActionHandleName(null);
-		struct.setDefaultSearchData(true);
+		struct.setDefaultSearchData(false);
 //		struct.setActionDefaultValueParser(null);
 		struct.getForwards().putAll(getForwards());
 		struct.setSearch(getSearchModel());

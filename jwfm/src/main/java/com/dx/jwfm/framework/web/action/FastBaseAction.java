@@ -103,6 +103,7 @@ public class FastBaseAction extends BaseAction {
 		FastModel fmodel = RequestContext.getFastModel();
 		List<FastPo> list = logic.searchData(fmodel.getModelStructure().getSearch(),fmodel.getModelStructure().getMainTable(),search,pager);
 		RequestContext.setRequestAttr("searchResultData", list);
+		RequestContext.setRequestAttr("searchResultPage", pager);
 		return "success";
 	}
 	

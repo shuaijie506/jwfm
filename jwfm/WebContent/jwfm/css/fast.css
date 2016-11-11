@@ -26,13 +26,24 @@ div.searchDiv .searchItem>select{margin:0px 0px 0px 2px;height:20px;width:84px;b
 .searchDivFlex{display:inline-block;width:16px;height:16px;position:absolute;right:0px;bottom:0px;cursor:pointer;
 background:url(/mis/js/jquery-easyui-1.2/themes/icons/darrowdown.png) no-repeat;}
 div.searchDiv span.up{background-image:url(/mis/js/jquery-easyui-1.2/themes/icons/darrowup.png);}
-td.srhResultTd{text-align:left;vertical-align:top;}
+td.srhResultTd{text-align:left;vertical-align:top;margin:0px;padding:0px;}
 
 div.window-btnareas{height:30px;background-image:url(/mis/images/btnsbg.jpg); background-repeat:repeat-x;
 border-top:#a5c2e8 1px solid;text-align:right; padding:4px 10px 0px;width:99%;overflow:hidden;}
 
 
-.fast-table{table-layout:fixed;border-collapse:collapse;width:100%;}
+/*功能按钮条区域*/
+.toolbar{width:100%;background: #EFEFEF;padding:1px 0px 0px 0px;border-top: 1px solid #79add2;position:relative;height:30px;}
+.toolbar b{display:block;float:left;}
+.toolbar a{display:inline-block;overflow-x:visible;overflow-y:hidden;position:relative;cursor:pointer;height:24px;margin:0px 1px;padding:0px 4px;border:1px #EFEFEF solid;}
+.toolbar a:hover{display:inline-block;overflow-x:visible;overflow-y:hidden;position:relative;cursor:pointer;height:24px;margin:0px 1px;padding:0px 4px;border:1px #7eabcd solid;background:url('images/button_plain_hover.png') repeat-x left bottom;}
+.toolbar span{white-space: nowrap;padding:3px 3px 0px 0px;height:22px;display:block;overflow-x:visible;overflow-x:visible;overflow-y:hidden;}
+.toolbar font{white-space: nowrap;padding:2px 0px 0px 20px;height:16px;display:block;overflow-x:visible;overflow-y:hidden;background-position:left center;}
+* html .toolbar a{width:60px;}/*专为IE6设定*/
+
+.fast-table-container-div{position:relative;}
+.fast-table-container{width:100%;border:0px;}
+.fast-table{table-layout:fixed;border-collapse:collapse;width:100%;margin:0px;}
 .fast-table caption,#float_tbl_head caption{font-size:23px; font-weight:bold; color:#222; height:25px; padding-top:6px;background-repeat:repeat-x;}
 .fast-table input,#float_tbl_head input{background-color:transparent;border:0px;}
 .fast-table th,#float_tbl_head th{padding:0px;line-height:16px;text-align:center;cursor:default;font-size:12px; font-weight:bold; color:#333;background-color:#b3e1ff; height:20px;border-right:#79add2 dotted 1px;border-bottom:#79add2 solid 1px;border-top:#79add2 solid 1px;}
@@ -50,6 +61,16 @@ border-top:#a5c2e8 1px solid;text-align:right; padding:4px 10px 0px;width:99%;ov
 .fast-table tbody td.right{text-align:right;}
 .fast-table tfoot td{font-size:12px;border-bottom:#79add2 solid 1px;border-right:#79add2 solid 1px; height:30px;}
 .fast-table tbody td input{border:0px;}
+
+/*分页区域*/
+.pageinfo{height:20px;overflow:hidden;}
+.pageinfo a.btn span{width:16px;line-height:16px;display:inline-block;margin:1px;}
+.pageinfo a.btn span.disable{filter:Alpha(opacity=40);opacity:0.4;}
+.pageinfo a.btn{display:inline-block;border:1px solid transparent;cursor:pointer;margin:0px 1px;}
+.pageinfo a:hover.btn{border:1px solid #7eabcd;}
+.pageinfo span.split{display:inline-block;width:1px;height:16px;margin:0px 1px;border-left:1px solid #ccc;border-right: 1px solid white;}
+.pageinfo .pagination-page{width:25px;height:14px;}
+.pageinfo .pagination-rows{width:88px;}
 
 /*添加表格样式-使用th*/
 .fast-edit-table {border:1px solid #d2dfe6;border-collapse:collapse;background-color:#E6EAE9;padding:0;margin:0;width:100%;table-layout:fixed;}

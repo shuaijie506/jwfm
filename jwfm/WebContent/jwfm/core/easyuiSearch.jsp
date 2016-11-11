@@ -38,9 +38,7 @@ String addActionName = bpath+"_"+method+actionExt;
 			});
 			//查询操作
 			$('#search').click(function(){
-			    $('#searchGrid').datagrid('getPager').pageNumber=1;
-				$('#searchGrid').datagrid('getPager').pagination("options").pageNumber = 1;
-				$('#searchGrid').datagrid('reload',$.fn.datagrid.dealParam($('#searchDiv').formdata(),fcols,cols));
+				$('#searchGrid').datagrid('load',$.fn.datagrid.dealParam($('#searchDiv').formdata(),fcols,cols));
             });
 			$('.searchItem>:text').bind('keyup type',function(){
 				if($.event.fix(event).keyCode==13){//输入后回车执行查询

@@ -236,5 +236,37 @@ public class FastUtil {
 		conf.registerJsonValueProcessor(java.sql.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm"));
 		return conf;
 	}
+	public static boolean isInteger(String p) {
+		try {
+			Integer.parseInt(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isLong(String p) {
+		try {
+			Long.parseLong(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isFloat(String p) {
+		try {
+			Float.parseFloat(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isDouble(String p) {
+		try {
+			Double.parseDouble(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
 
 }

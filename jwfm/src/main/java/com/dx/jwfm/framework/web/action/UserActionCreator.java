@@ -31,7 +31,7 @@ public class UserActionCreator extends ActionCreator {
 
 	@Override
 	protected String getVersion() {
-		return "2016-11-08";
+		return "2016-11-09";
 	}
 	@Override
 	protected String getUrl() {
@@ -54,7 +54,7 @@ public class UserActionCreator extends ActionCreator {
 		tbl.setName("Fast开发用户表");
 		tbl.setCode(SystemContext.dbObjectPrefix+"T_USER");
 		List<FastColumn> cols = tbl.getColumns();
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.Long, 50, null, null, false, true));
+		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("姓名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("密码", "VC_PWD", null, FastColumnType.String, 50, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("权限级别", "N_LEVEL", "权限级别 0管理员 1开发人员 2用户维护人员 3作废", FastColumnType.Integer, 0, "1", lvlDictName, true, false));
@@ -77,6 +77,22 @@ public class UserActionCreator extends ActionCreator {
 		search.setSearchOrderBySql("n_level,dt_add desc");
 		search.getSearchResultColumns().add(new SearchResultColumn("姓名", "VC_NAME", "text", 85, null, "asc"));
 		search.getSearchResultColumns().add(new SearchResultColumn("权限级别", "N_LEVEL", "dict:"+lvlDictName, 75, null, "asc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
 		return search;
 	}

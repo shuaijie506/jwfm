@@ -13,6 +13,8 @@ import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.util.FastUtil;
 
+import net.sf.json.JSONArray;
+
 public class HtmlUtil {
 
 	static Logger logger = Logger.getLogger(HtmlUtil.class);
@@ -178,6 +180,32 @@ public class HtmlUtil {
 			out.println("</option>");
 		}
 		out.println("</select>");
+	}
+	
+	public static String genTestHtml(int rows,int cols){
+		StringBuffer buff = new StringBuffer("<table>");
+		for(int i=0;i<rows;i++){
+			buff.append("<tr>");
+			for(int j=0;j<cols;j++){
+				buff.append("<td>").append(i).append("*").append(j).append("=").append(i*j);
+				buff.append("</td>");
+			}
+			buff.append("</tr>");
+		}
+		buff.append("</table>");
+		return buff.toString();
+	}
+	
+	public static String genTestJson(int rows,int cols){
+		JSONArray ary = new JSONArray();
+		for(int i=0;i<rows;i++){
+			JSONArray row = new JSONArray();
+			for(int j=0;j<cols;j++){
+				row.add(i+"*"+j+"="+(i*j));
+			}
+			ary.add(row);
+		}
+		return ary.toString();
 	}
 	
 }

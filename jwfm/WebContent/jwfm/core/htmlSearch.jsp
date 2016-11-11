@@ -3,6 +3,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%
 String path = request.getContextPath();
+String menuUrl = (String) RequestContext.getRequest().getAttribute(RequestContants.REQUEST_URI);
 String bpath = (String)request.getAttribute(RequestContants.REQUEST_URI_PRE);
 String method = (String)request.getAttribute(RequestContants.REQUEST_URI_METHOD);
 String actionExt = (String)request.getAttribute(RequestContants.REQUEST_URI_ACTIONEXT);
@@ -17,25 +18,9 @@ String addActionName = bpath+"_"+method+actionExt;
 <META http-equiv=Content-Type content="text/html; charset=utf-8">
 <jsp:include page="/common/common.jsp"></jsp:include>
 <script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-util-easyui.js"></script>  <!-- easyui通用工具类 -->
+<script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-htmldatagrid.js?t=<%=System.currentTimeMillis() %>"></script>  <!-- easyui通用工具类 -->
 <SCRIPT type=text/javascript>
     	$(function(){
-    		var fcols = <f:result type="easyui" frozen="true" hasChkCol="true"/>;
-    		var cols = <f:result type="easyui" frozen="false"/>;
-    		$('#searchTable').datagrid({
-				height:$('.srhResultTd').height(),
-				
-				//title:'<div style="text-align:center;font-size:17">${REQUEST_FAST_MODEL.vcName }</div>',
-				url:'${REQUEST_URI}?op=searchDataAjax&datagrid_type=easyui',
-				queryParams:$.fn.datagrid.dealParam($('#searchDiv').formdata(),fcols,cols),  //用于查询的参数以及初始值
-				//表头列，不建议改动
-				frozenColumns:fcols,
-				//数据列，根据显示的内容进行修改
-				columns:cols,
-				//功能按钮组
-				toolbar:<f:toolbar type="easyui"/>,
-				//分页信息
-				pagination:true
-			});
 			//查询操作
 			$('#search').click(function(){
 			    $('#searchTable').datagrid('getPager').pageNumber=1;
@@ -66,19 +51,27 @@ String addActionName = bpath+"_"+method+actionExt;
     	}
     </SCRIPT>
 <style type="text/css">
-html,body{overflow:hidden;}
+html,body{height:100%;overflow:hidden;}
 </style>
 </HEAD>
-<BODY >111
-<table class="searchTbl" fit="true" border="0" cellpadding="0" cellspacing="0" align="left" width="100%" height="100%">
+<BODY >
     <!-- 查询条件行 --> 
-   <tr height="20px"><td>
+<table border="0" cellpadding="0" cellspacing="0" width="100%" align="left">
+   <tr><td>
    <div id="searchDiv" class="searchDiv"><div class="searchDivContent">
 <f:searchitem />
      </div></div>
    </td><td nowrap="nowrap"><a id="search" href="javascript:void(0)"  class="easyui-linkbutton" iconCls="icon-search">查询</a></td></tr>
-   <!-- 数据结果列表 -->
-   <tr><td colspan="2" class="srhResultTd"><f:result type="html"/></td></tr>
 </table>
+<!-- 工具按钮栏 -->
+<table border="0" cellpadding="0" cellspacing="0" align="left" width="100%">
+<tr><td class="toolbar"><f:toolbar type="html"/></td></tr></table>
+<!-- 数据结果列表 -->
+<table border="0" cellpadding="0" cellspacing="0" align="left" width="100%">
+   <tr><td colspan="2" class="srhResultTd"><div id="htmldatagrid"><f:result type="html"/></div></td></tr>
+</table>
+<!-- 分页栏 -->
+<table border="0" cellpadding="0" cellspacing="0" align="left" width="100%">
+<tr><td class="pagination"><f:toolbar type="html"/></td></tr></table>
 </BODY>
 </HTML>
