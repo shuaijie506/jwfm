@@ -70,7 +70,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		this.columns = columns;
 	}
 	
-	public String getKeyColCode(){
+	public String keyColCode(){
 		for(FastColumn col:columns){
 			if(col.isPrimaryKey()){
 				return col.getCode();
@@ -89,7 +89,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		return dialect.getTableUpdateSql(this);
 	}
 
-	public String getInsertSql(){
+	public String insertSql(){
 		StringBuilder buff = new StringBuilder("insert into ").append(code).append("(");
 		StringBuilder valbuff = new StringBuilder();
 		for(FastColumn col:columns){
@@ -100,10 +100,10 @@ public class FastTable implements DatabaseObject,Serializable {
 		return buff.toString();
 	}
 
-	public String getUpdateSql(){
+	public String updateSql(){
 		StringBuilder buff = new StringBuilder("update ").append(code).append(" set ");
 		for(FastColumn col:columns){
-			if(!col.isPrimaryKey){
+			if(!col.primaryKey){
 				buff.append(col.getCode()).append("=?,");
 			}
 		}
@@ -114,7 +114,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		return buff.toString().substring(0,buff.length()-4);
 	}
 
-	public String getDeleteSql(){
+	public String deleteSql(){
 		StringBuilder buff = new StringBuilder("delete from ").append(code).append(" where ");
 		for(FastColumn col:pkCols){
 			buff.append(col.getCode()).append("=? and");
@@ -122,7 +122,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		return buff.toString().substring(0,buff.length()-4);
 	}
 
-	public String getSearchByIdSql(){
+	public String searchByIdSql(){
 		StringBuilder buff = new StringBuilder("select * from ").append(code).append(" where ");
 		for(FastColumn col:pkCols){
 			buff.append(col.getCode()).append("=? and");
@@ -133,7 +133,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		return buff.toString().substring(0,buff.length()-4);
 	}
 
-	public String getSearchCntByIdSql(){
+	public String searchCntByIdSql(){
 		StringBuilder buff = new StringBuilder("select count(*) from ").append(code).append(" where ");
 		for(FastColumn col:pkCols){
 			buff.append(col.getCode()).append("=? and");
@@ -141,11 +141,11 @@ public class FastTable implements DatabaseObject,Serializable {
 		return buff.toString().substring(0,buff.length()-4);
 	}
 	
-	public long getNextIdVal(){
+	public long nextIdVal(){
 		if(maxIdVal==null){
 			DbHelper db = new DbHelper();
 			try {
-				maxIdVal = db.getFirstLongSqlQuery("select max("+getKeyColCode()+") from "+code);
+				maxIdVal = db.getFirstLongSqlQuery("select max("+keyColCode()+") from "+code);
 			} catch (SQLException e) {
 				logger.error(e);
 				maxIdVal = 0L;
@@ -182,7 +182,7 @@ public class FastTable implements DatabaseObject,Serializable {
 		return columns;
 	}
 
-	public ArrayList<FastColumn> getPkColumns() {
+	public ArrayList<FastColumn> pkColumns() {
 		return pkCols;
 	}
 

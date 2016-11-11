@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fast>
+<regedit-default>
+<item name="SYSMENU_PRESET_BTN_ARY">['add,modify,del;add,modify,del,exportExcel;add,modify,del,submitItem,checkItem;add,modify,del,submitItem,checkItem,exportExcel',
+				{code:'add',name:'添加',iconCls:'icon-add',note:'点击按钮后打开添加界面'},
+				{code:'modify',name:'修改',iconCls:'icon-edit',note:'点击按钮后打开修改界面'},
+				{code:'del',name:'删除',iconCls:'icon-remove',note:'点击按钮后删除选中的数据'},
+				{code:'submitItem',name:'上报',iconCls:'icon-up',note:'点击按钮后打开上报界面'},
+				{code:'checkItem',name:'审批',iconCls:'icon-ok',note:'点击按钮后打开审批界面'},
+				{code:'exportExcel',name:'导出Excel',iconCls:'icon-excel',note:'点击按钮后导出当前查询结果'},
+				{code:'downItem',name:'下发',iconCls:'icon-down',note:'点击按钮后打开下发界面'},
+				{code:'dealItem',name:'处理',iconCls:'icon-xinwen',note:'点击按钮后打开处理界面'},
+				{code:'closeItem',name:'销号',iconCls:'icon-ok',note:'点击按钮后打开销号界面'},
+				{code:'importItem',name:'导入',iconCls:'icon-back',note:'点击按钮后打开导入界面'}
+				
+		]</item>
+<item name="SYSMENU_PRESET_TBLCOLS_ARY">['VC_ID,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,N_STAT,VC_STAT,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,VC_MID,N_DEL,VC_ADD,DT_ADD;',
+				{code:'VC_ID',name:'主键',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:true,comment:''},
+				{code:'VC_MID',name:'主表主键',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:true,comment:''},
+				{code:'N_STAT',name:'流程状态值',type:'Integer',typeLen:'',defaults:'',canNull:false,primaryKey:false,comment:'0 暂存 1处理中 9已闭环'},
+				{code:'VC_STAT',name:'流程状态',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
+				{code:'N_DEL',name:'删除标记',type:'Integer',typeLen:'',defaults:'0',canNull:false,primaryKey:false,comment:'0 未删除 1已删除'},
+				{code:'VC_ADD',name:'添加人',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
+				{code:'DT_ADD',name:'添加时间',type:'Date',typeLen:'',defaults:'nowTime',canNull:false,primaryKey:false,comment:''},
+				{code:'VC_MODIFY',name:'修改人',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
+				{code:'DT_MODIFY',name:'修改时间',type:'Date',typeLen:'',defaults:'nowTime',canNull:false,primaryKey:false,comment:''},
+				
+		]</item>
+</regedit-default>
+</fast>

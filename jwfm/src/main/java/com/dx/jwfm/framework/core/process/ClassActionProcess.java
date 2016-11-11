@@ -117,6 +117,9 @@ public class ClassActionProcess implements IFastProcess {
 			}
 			Method m = action.getClass().getMethod(method, new Class[0]);
 			String res = (String) m.invoke(action, new Object[0]);
+			for(IActionHandel ah:actionHandels){//执行系统定义处理器
+				ah.afterExecute(action,method);
+			}
 			if(res!=null){
 				//以/开头的返回值默认为forward到指定的JSP页面，否则从配置中获取JSP路径
 				if(model!=null && !res.toLowerCase().endsWith(".jsp")){
@@ -136,6 +139,7 @@ public class ClassActionProcess implements IFastProcess {
 						String pathPre = pos>0?clsNameExt.substring(0,pos+1):"/";
 						res = "/"+pathPre+res;
 					}
+					logger.info(res);
 					//forward到指定的地址
 					JspProcess.forward(request, response, res);
 				}

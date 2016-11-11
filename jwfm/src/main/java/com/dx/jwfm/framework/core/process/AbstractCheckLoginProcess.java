@@ -33,7 +33,6 @@ import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.util.FastUtil;
-import com.dx.jwfm.framework.util.Uuid;
 
 
 public abstract class AbstractCheckLoginProcess implements IFastProcess
@@ -97,7 +96,7 @@ public abstract class AbstractCheckLoginProcess implements IFastProcess
         initSessionId(request, response);
         if(userId!=null && ssoid==null){//用户登录后，写入SSO_ID到cookie中
         	DbHelper db = new DbHelper();
-        	ssoid = Uuid.getUuid();
+        	ssoid = FastUtil.getUuid();
 		    String sql = "insert into "+SystemContext.dbObjectPrefix+"T_SESSION_INFO(sso_id,user_id,dt_login) values(?,?,?)";
 			try {
 				db.executeSqlUpdate(sql ,new Object[]{ssoid,userId,new Date()});

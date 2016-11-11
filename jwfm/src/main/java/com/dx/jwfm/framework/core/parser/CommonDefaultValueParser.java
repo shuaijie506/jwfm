@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.dx.jwfm.framework.util.Uuid;
+import com.dx.jwfm.framework.util.FastUtil;
 
 public class CommonDefaultValueParser implements IDefaultValueParser {
 	
@@ -14,7 +14,7 @@ public class CommonDefaultValueParser implements IDefaultValueParser {
 	public CommonDefaultValueParser(){
 		map.put("uuid", new IDefaultValueGenerator() {
 			public Object getValue(String name) {
-				return Uuid.getUuid();
+				return FastUtil.getUuid();
 			}
 		});
 		map.put("nowDate", new IDefaultValueGenerator() {

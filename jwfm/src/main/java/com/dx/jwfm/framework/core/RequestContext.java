@@ -159,7 +159,7 @@ public class RequestContext {
 	public static List<IDefaultValueParser> getDefaultValueParser() {
 		FastModel model = getFastModel();
 		if(model!=null){
-			return model.getActionDefaultValueParser();
+			return model.getActionDefaultValueParserBeans();
 		}
 		return SystemContext.getSystemDefaultValueParser();
 	}

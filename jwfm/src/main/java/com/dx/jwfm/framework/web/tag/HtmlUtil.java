@@ -13,6 +13,8 @@ import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.util.FastUtil;
 
+import net.sf.json.JSONArray;
+
 public class HtmlUtil {
 
 	static Logger logger = Logger.getLogger(HtmlUtil.class);
@@ -39,31 +41,31 @@ public class HtmlUtil {
 		}
 		else if(editorType.startsWith("sqlDict:")){//解析SQL语句，第一列为值，第二列为显示文本
 			DbHelper db = new DbHelper();
+			Map<String, String> map = null;
 			try {
-				Map<String, String> map = db.getMapSqlQuery(editorType.substring("sqlDict:".length()));
-				createSelectHtml(map, out, prefix, fieldName, value);
+				map = db.getMapSqlQuery(editorType.substring("sqlDict:".length()));
 			} catch (SQLException e) {
 				logger.error(e);
+				map = new HashMap<String, String>();
 			}
+			createSelectHtml(map, out, prefix, fieldName, value);
 		}
 		else if(editorType.startsWith("dict:")){//字典项
 			Map<String, String> map = FastUtil.getDictsMap(editorType.substring("dict:".length()));
 			createSelectHtml(map, out, prefix, fieldName, value);
 		}
+		else if("textarea".equals(editorType)){//多行文本
+    		out.print("<textarea");
+    		out.print(createIdAndName(prefix,fieldName));
+			out.print(">");
+    		if(value!=null){
+    			out.print(value.replaceAll("\"", "\\\""));
+    		}
+    		out.print("</textarea>");
+		}
 		else{//文本或日期
-    		out.print("<input type=text id=\"");
-    		if(FastUtil.isNotBlank(prefix)){
-    			out.print(prefix);
-    			out.print("_");
-    		}
-    		out.print(fieldName);
-    		out.print("\" name=\"");
-    		if(FastUtil.isNotBlank(prefix)){
-    			out.print(prefix);
-    			out.print(".");
-    		}
-    		out.print(fieldName);
-    		out.print("\"");
+    		out.print("<input type=text");
+    		out.print(createIdAndName(prefix,fieldName));
     		if(value!=null){
     			out.print(" value=\""+value.replaceAll("\"", "\\\"")+"\"");
     		}
@@ -76,6 +78,22 @@ public class HtmlUtil {
     		out.print(" />");
 		}
 		out.flush();
+		return buff.toString();
+	}
+	private static String createIdAndName(String prefix, String fieldName) {
+		StringBuffer buff = new StringBuffer(" id=\"");
+		if(FastUtil.isNotBlank(prefix)){
+			buff.append(prefix);
+			buff.append("_");
+		}
+		buff.append(fieldName);
+		buff.append("\" name=\"");
+		if(FastUtil.isNotBlank(prefix)){
+			buff.append(prefix);
+			buff.append(".");
+		}
+		buff.append(fieldName);
+		buff.append("\"");
 		return buff.toString();
 	}
 	/**
@@ -151,19 +169,9 @@ public class HtmlUtil {
 		return buff.toString();
 	}
 	private static void createSelectHtml(Map<String, String> map, PrintWriter out, String prefix,String fieldName,String value){
-		out.print("<select id=\"");
-		if(FastUtil.isNotBlank(prefix)){
-			out.print(prefix);
-			out.print("_");
-		}
-		out.print(fieldName);
-		out.print("\" name=\"");
-		if(FastUtil.isNotBlank(prefix)){
-			out.print(prefix);
-			out.print(".");
-		}
-		out.print(fieldName);
-		out.print("\" val=\"");
+		out.print("<select");
+    		out.print(createIdAndName(prefix,fieldName));
+		out.print(" val=\"");
 		out.print(value);
 		out.print("\">");
 		out.println("<option value=\"\"></option>\n");
@@ -178,6 +186,32 @@ public class HtmlUtil {
 			out.println("</option>");
 		}
 		out.println("</select>");
+	}
+	
+	public static String genTestHtml(int rows,int cols){
+		StringBuffer buff = new StringBuffer("<table>");
+		for(int i=0;i<rows;i++){
+			buff.append("<tr>");
+			for(int j=0;j<cols;j++){
+				buff.append("<td>").append(i).append("*").append(j).append("=").append(i*j);
+				buff.append("</td>");
+			}
+			buff.append("</tr>");
+		}
+		buff.append("</table>");
+		return buff.toString();
+	}
+	
+	public static String genTestJson(int rows,int cols){
+		JSONArray ary = new JSONArray();
+		for(int i=0;i<rows;i++){
+			JSONArray row = new JSONArray();
+			for(int j=0;j<cols;j++){
+				row.add(i+"*"+j+"="+(i*j));
+			}
+			ary.add(row);
+		}
+		return ary.toString();
 	}
 	
 }

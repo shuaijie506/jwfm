@@ -85,7 +85,7 @@ public class FastBaseLogic {
 					adds.add(p);
 				}
 				else{
-					String sql = p.getTblModel().getSearchCntByIdSql();
+					String sql = p.getTblModel().searchCntByIdSql();
 					try {
 						int cnt = db.getFirstIntSqlQuery(sql,pk);
 						if(cnt>0){

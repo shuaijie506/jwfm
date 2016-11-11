@@ -15,7 +15,7 @@ public class FastColumn {
 	protected String comment;
 
 	/** 类型，字符串、数字、日期等 */
-	protected FastColumnType type;
+	protected String type;
 
 	/** 类型长度，type为字符串时此值有效 */
 	protected int typeLen;
@@ -31,7 +31,7 @@ public class FastColumn {
 	protected boolean canNull;
 
 	/** 是否为主键 */
-	protected boolean isPrimaryKey;
+	protected boolean primaryKey;
 	/** 默认显示格式 */
 	protected String format;
 	/** 编辑时控件类型，默认为输入框，公共字典非空时默认为单选框  text,textarea,select,multiselect,date,combotree,html
@@ -45,7 +45,7 @@ public class FastColumn {
 		super();
 	}
 
-	public FastColumn(String name, String code, String comment, FastColumnType type, int typeLen, String defaults, String dictName, boolean canNull, boolean isPrimaryKey) {
+	public FastColumn(String name, String code, String comment, String type, int typeLen, String defaults, String dictName, boolean canNull, boolean primaryKey) {
 		super();
 		this.name = name;
 		this.code = code;
@@ -55,22 +55,22 @@ public class FastColumn {
 		this.defaults = defaults;
 		this.dictName = dictName;
 		this.canNull = canNull;
-		this.isPrimaryKey = isPrimaryKey;
+		this.primaryKey = primaryKey;
 	}
 
 	public Object getRsObject(ResultSet rs,int columnIndex) throws SQLException{
 		switch(type){
-		case String:
+		case FastColumnType.String:
 			return rs.getString(columnIndex);
-		case Integer:
+		case FastColumnType.Integer:
 			return rs.getInt(columnIndex);
-		case Long:
+		case FastColumnType.Long:
 			return rs.getLong(columnIndex);
-		case Float:
+		case FastColumnType.Float:
 			return rs.getFloat(columnIndex);
-		case Double:
+		case FastColumnType.Double:
 			return rs.getDouble(columnIndex);
-		case Date:
+		case FastColumnType.Date:
 			return rs.getTimestamp(columnIndex);
 		}
 		return rs.getObject(columnIndex);
@@ -78,17 +78,17 @@ public class FastColumn {
 
 	public Object getRsObject(ResultSet rs,String columnName) throws SQLException{
 		switch(type){
-		case String:
+		case FastColumnType.String:
 			return rs.getString(columnName);
-		case Integer:
+		case FastColumnType.Integer:
 			return rs.getInt(columnName);
-		case Long:
+		case FastColumnType.Long:
 			return rs.getLong(columnName);
-		case Float:
+		case FastColumnType.Float:
 			return rs.getFloat(columnName);
-		case Double:
+		case FastColumnType.Double:
 			return rs.getDouble(columnName);
-		case Date:
+		case FastColumnType.Date:
 			return rs.getTimestamp(columnName);
 		}
 		return rs.getObject(columnName);
@@ -118,11 +118,11 @@ public class FastColumn {
 		this.comment = comment;
 	}
 
-	public FastColumnType getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(FastColumnType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
@@ -143,7 +143,7 @@ public class FastColumn {
 	}
 
 	public boolean isCanNull() {
-		return true;
+		return canNull;
 	}
 
 	public void setCanNull(boolean canNull) {
@@ -151,11 +151,11 @@ public class FastColumn {
 	}
 
 	public boolean isPrimaryKey() {
-		return isPrimaryKey;
+		return primaryKey;
 	}
 
-	public void setPrimaryKey(boolean isPrimaryKey) {
-		this.isPrimaryKey = isPrimaryKey;
+	public void setPrimaryKey(boolean primaryKey) {
+		this.primaryKey = primaryKey;
 	}
 
 	public String getDictName() {
@@ -167,6 +167,14 @@ public class FastColumn {
 	}
 
 	public String getEditorType() {
+		if(editorType==null){
+			if(FastColumnType.Date.equals(type)){
+				editorType = "date:yyyy-MM-dd HH:mm";
+			}
+			else if(FastColumnType.String.equals(type) && (typeLen<=0 || typeLen>=500)){
+				editorType = "textarea";
+			}
+		}
 		return editorType;
 	}
 

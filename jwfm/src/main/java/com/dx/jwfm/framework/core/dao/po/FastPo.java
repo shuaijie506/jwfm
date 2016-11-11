@@ -19,7 +19,6 @@ import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.model.MapObject;
 import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
-import com.dx.jwfm.framework.util.Uuid;
 
 public class FastPo extends MapObject implements Serializable {
 	
@@ -210,9 +209,9 @@ public class FastPo extends MapObject implements Serializable {
 		if(pk==null){
 			return null;
 		}
-		if(tblModel!=null && tblModel.getPkColumns().size()>1){
+		if(tblModel!=null && tblModel.pkColumns().size()>1){
 			String[] ary = pk.split(",");
-			if(ary.length==tblModel.getPkColumns().size()){
+			if(ary.length==tblModel.pkColumns().size()){
 				return ary;
 			}
 		}
@@ -222,7 +221,7 @@ public class FastPo extends MapObject implements Serializable {
 	public Object[] getPkParams() {
 		ArrayList<Object> list = new ArrayList<Object>();
 		if(tblModel!=null){
-			for(FastColumn col:tblModel.getPkColumns()){
+			for(FastColumn col:tblModel.pkColumns()){
 				list.add(get(col.getCode()));
 			}
 		}
@@ -291,8 +290,8 @@ public class FastPo extends MapObject implements Serializable {
 	 * @param strValue
 	 * @return
 	 */
-	private Object tranJdbcValue(FastColumnType type,String strValue) {
-		if(type==FastColumnType.Date){
+	private Object tranJdbcValue(String type,String strValue) {
+		if(FastColumnType.Date.equals(type)){
 			return FastUtil.parseDate(strValue);
 		}
 		return strValue;
@@ -301,10 +300,10 @@ public class FastPo extends MapObject implements Serializable {
 	public void initIdDelValue() {
 		if(get(SystemContext.getDbIdField())==null){
 			FastTable tm = tblModel;
-			if(tm.getPkColumns().size()==1){
-				FastColumn keyCol = tm.getPkColumns().get(0);
-				if(keyCol.getType()==FastColumnType.String){//字符串格式的ID，使用UUID
-					put(keyCol.getCode(), Uuid.getUuid());
+			if(tm.pkColumns().size()==1){
+				FastColumn keyCol = tm.pkColumns().get(0);
+				if(FastColumnType.String.equals(keyCol.getType())){//字符串格式的ID，使用UUID
+					put(keyCol.getCode(), FastUtil.getUuid());
 				}
 			}
 		}

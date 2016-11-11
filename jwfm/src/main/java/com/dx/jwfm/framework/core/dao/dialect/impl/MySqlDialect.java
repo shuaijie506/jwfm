@@ -13,6 +13,7 @@ import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
+import com.dx.jwfm.framework.util.FastUtil;
 
 public class MySqlDialect implements DatabaseDialect {
 
@@ -136,8 +137,8 @@ public class MySqlDialect implements DatabaseDialect {
 				}
 			}
 			if(col.isPrimaryKey()){
-				if(tbl.getPkColumns().size()==1){
-					if(col.getType()==FastColumnType.Integer || col.getType()==FastColumnType.Long){
+				if(tbl.pkColumns().size()==1){
+					if(FastColumnType.Integer.equals(col.getType()) || FastColumnType.Long.equals(col.getType())){
 						buff.append(" PRIMARY KEY AUTO_INCREMENT");
 					}
 				}
@@ -145,7 +146,7 @@ public class MySqlDialect implements DatabaseDialect {
 					key.append(",").append(col.getCode());
 				}
 			}
-			buff.append(" comment '").append(col.getComment().replaceAll("'", "''")).append("'");
+			buff.append(" comment '").append(FastUtil.nvl(col.getComment(),col.getName()).replaceAll("'", "''")).append("'");
 			buff.append(",").append(LINE_SEPARATOR);
 		}
 		if(key.length()>1){
@@ -154,7 +155,7 @@ public class MySqlDialect implements DatabaseDialect {
 		else{
 			buff.deleteCharAt(buff.length()-LINE_SEPARATOR.length()-1);
 		}
-		buff.append(") Comment='").append(tbl.getComment().replaceAll("'", "''")).append("'");
+		buff.append(") Comment='").append(FastUtil.nvl(tbl.getComment(),tbl.getName()).replaceAll("'", "''")).append("'");
 		list.add(buff.toString());
 		buff.setLength(0);//清空SQL语句
 		for(FastColumn col:tbl.getColumns()){
@@ -176,19 +177,19 @@ public class MySqlDialect implements DatabaseDialect {
 	
 	public String getDbType(FastColumn col) {
 		switch(col.getType()){
-		case String:
+		case FastColumnType.String:
 			if(col.getTypeLen()<0 || col.getTypeLen()>4000){
 				return "TEXT";
 			}
 			return "VARCHAR("+col.getTypeLen()+")";
-		case Integer:
-		case Long:
+		case FastColumnType.Integer:
+		case FastColumnType.Long:
 			return "INT";
-		case Float:
+		case FastColumnType.Float:
 			return "FLOAT";
-		case Double:
+		case FastColumnType.Double:
 			return "DOUBLE";
-		case Date:
+		case FastColumnType.Date:
 			return "DATETIME";
 		}
 		return "VARCHAR(500)";

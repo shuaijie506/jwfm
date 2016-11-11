@@ -28,9 +28,9 @@ public abstract class ActionCreator extends FastBaseAction {
 	abstract protected String getAuthor();
 	protected HashMap<String,String> getForwards(){
 		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("success", 			"/jwfm/core/htmlSearch.jsp");
-		map.put("openAddPage",		"/jwfm/core/htmlEdit.jsp");
-		map.put("openModifyPage",	"/jwfm/core/htmlEdit.jsp");
+		map.put("success", 			"/jwfm/core/easyuiSearch.jsp");
+		map.put("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
+		map.put("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
 		map.put("openViewPage",		"/jwfm/core/htmlView.jsp");
 		return map;
 	}
@@ -51,7 +51,7 @@ public abstract class ActionCreator extends FastBaseAction {
 	public FastModel getFastModel(){
 		String clsName = this.getClass().getName();
 		FastModel model = modelMap.get(clsName);
-		if(!FastUtil.isDebugModel() && model!=null){
+		if(model!=null){
 			return model;
 		}
 		model = new FastModel();
@@ -59,7 +59,7 @@ public abstract class ActionCreator extends FastBaseAction {
 		model.setVcId(clsName);
 		model.setVcGroup(getGroup());
 		model.setVcName(getName());
-		model.version = getVersion();
+		model.vcVersion = getVersion();
 		model.setVcUrl(getUrl());
 		model.setVcAuth(getAuthor());
 		model.setVcAdd(getAuthor());
@@ -71,22 +71,20 @@ public abstract class ActionCreator extends FastBaseAction {
 			model.setVcModify(info.updateInfo());
 		}
 		FastModelStructure struct = new FastModelStructure();
+		FastUtil.copyBeanPropts(struct, model);
 		model.setModelStructure(struct);
-		struct.setName(model.getVcName());
 		struct.setMainTable(getMainTable());
 		struct.setMainTableName(struct.getMainTable().getCode());
-//		struct.setOtherTables(getOtherTables());
-//		struct.setVcUri(model.getVcUrl());
-		struct.setVcGroup(model.getVcGroup());
 //		struct.setPackageName("fast.main");
 		struct.setActionName("com.dx.jwfm.framework.web.action.FastBaseAction");
-//		struct.setActionHandleName(null);
-		struct.setDefaultSearchData(true);
-//		struct.setActionDefaultValueParser(null);
-		struct.getForwards().putAll(getForwards());
+		struct.setDefaultSearchData(false);
+		struct.setForward("success", 			"/jwfm/core/easyuiSearch.jsp");
+		struct.setForward("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
+		struct.setForward("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
+		struct.setForward("openViewPage",		"/jwfm/core/htmlView.jsp");
 		struct.setSearch(getSearchModel());
 		struct.setEditTable(getEditTable());
-		model.setButtonAuths(getButtonList());
+		struct.setButtonAuths(getButtonList());
 		
 		initModel(model);
 		model.init();

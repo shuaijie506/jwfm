@@ -1,3 +1,5 @@
+maven库检索
+http://mvnrepository.com/
 安装oracle驱动到本地maven库
 mvn install:install-file -DgroupId=oracle -DartifactId=ojdbc6 -Dversion=11.1 -Dpackaging=jar -Dfile=D:\oracle\product\11.2.0\dbhome_1\jdbc\lib\ojdbc6.jar
 

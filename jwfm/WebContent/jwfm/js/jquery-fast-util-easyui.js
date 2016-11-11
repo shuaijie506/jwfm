@@ -75,7 +75,15 @@ function returnOptMsgEasyui(data,reMsg,callback){
     return false;
 }
 
-$.fn.datagrid.defaults.pageList=[10,20,50,100];
+$.fn.combobox.defaults.valueField="id";
+$.fn.combobox.defaults.height=20;
+$.fn.combobox.defaults.onLoadSuccess=function(){
+	var th = $(this);
+	$(this).combobox('textbox').unbind('click.showpanel').bind('click.showpanel',function(){
+		th.combobox('showPanel');
+	});
+};
+$.fn.datagrid.defaults.pageList=[10,20,50,200];
 $.fn.datagrid.defaults.onBeforeLoad = function(param){//转换参数中的每页行数和页码参数名
 	param['pager.rows']=param.rows;param.rows=undefined;
 	param['pager.page']=param.page;param.page=undefined;

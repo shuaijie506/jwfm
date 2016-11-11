@@ -13,6 +13,7 @@ import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
+import com.dx.jwfm.framework.util.FastUtil;
 
 public class OracleDialect implements DatabaseDialect {
 
@@ -77,12 +78,14 @@ public class OracleDialect implements DatabaseDialect {
 				FastColumn col = tbl.getColumn(colname);
 				if(col==null)continue;//被删除的列不处理，暂时保留
 				String oldType = getDbType(col);
+				if("TIMESTAMP".equals(oldType)){
+					oldType = "TIMESTAMP(6)";
+				}
 				//如果字段类型或is null发生改变，则生成alter语句
 				if(!oldType.equals(po.get("DATA_TYPE")) || col.isCanNull()!="Y".equals(po.get("NULLABLE"))){
 					buff.append("alter table ").append(name).append(" modify ").append(col.getCode()).append(" ").append(getDbType(col));
-					if(col.isCanNull()=="Y".equals(po.get("NULLABLE"))){
-						buff.append(col.isCanNull()?" not null":" null");
-					}
+					//不能为空时，要加not null，可以为空时加null
+					buff.append(col.isCanNull()?" null":" not null");
 					list.add(buff.toString());
 					buff.setLength(0);
 				}
@@ -96,9 +99,8 @@ public class OracleDialect implements DatabaseDialect {
 			for(FastColumn col:tbl.getColumns()){
 				if(!oldCols.contains(col.getCode())){//如果在旧表中不存在列，则新添加列
 					buff.append("alter table ").append(name).append(" add ").append(col.getCode()).append(" ").append(getDbType(col));
-					if(!col.isCanNull()){//不能为空时，要加not null
-						buff.append(" not null");
-					}
+					//不能为空时，要加not null，可以为空时加null
+					buff.append(col.isCanNull()?" null":" not null");
 					list.add(buff.toString());
 					buff.setLength(0);
 					buff.append("comment on column ").append(name).append(".").append(col.getCode()).append(LINE_SEPARATOR);
@@ -144,10 +146,10 @@ public class OracleDialect implements DatabaseDialect {
 		}
 		buff.deleteCharAt(buff.length()-LINE_SEPARATOR.length()-1).append(")");
 		list.add(buff.toString());
-		if(tbl.getPkColumns().size()==1){
-			FastColumn keyCol = tbl.getPkColumns().get(0);
+		if(tbl.pkColumns().size()==1){
+			FastColumn keyCol = tbl.pkColumns().get(0);
 			//数字格式的使用自增数
-			if(keyCol.getType()==FastColumnType.Integer || keyCol.getType()==FastColumnType.Long){
+			if(FastColumnType.Integer.equals(keyCol.getType()) || FastColumnType.Long.equals(keyCol.getType())){
 				list.add("CREATE SEQUENCE SEQ_"+tbl.getCode()+" INCREMENT BY 1 START WITH 1 NOMAXVALUE NOCYCLE CACHE 10");
 				list.add("CREATE OR REPLACE TRIGGER tri_seq_"+tbl.getCode()+" BEFORE INSERT ON "+tbl.getCode()+"\n  FOR EACH ROW\n  BEGIN\n    "
 						+ "SELECT SEQ_"+tbl.getCode()+".nextval INTO :new."+keyCol.getCode()+" FROM dual;\n  END;");
@@ -156,14 +158,14 @@ public class OracleDialect implements DatabaseDialect {
 		buff.setLength(0);//清空SQL语句
 		if(tbl.getComment()!=null){
 			buff.append("comment on table ").append(tbl.getCode()).append(LINE_SEPARATOR);
-			buff.append("  is '").append(tbl.getComment().replaceAll("'", "''")).append("'");
+			buff.append("  is '").append(FastUtil.nvl(tbl.getComment(),tbl.getName()).replaceAll("'", "''")).append("'");
 			list.add(buff.toString());
 			buff.setLength(0);//清空SQL语句
 		}
 		StringBuffer key = new StringBuffer();
 		for(FastColumn col:tbl.getColumns()){
 			buff.append("comment on column ").append(tbl.getCode()).append(".").append(col.getCode()).append(LINE_SEPARATOR);
-			buff.append("  is '").append(col.getComment().replaceAll("'", "''")).append("'");
+			buff.append("  is '").append(FastUtil.nvl(col.getComment(),col.getName()).replaceAll("'", "''")).append("'");
 			list.add(buff.toString());
 			buff.setLength(0);//清空SQL语句
 			if(col.isPrimaryKey()){
@@ -193,17 +195,17 @@ public class OracleDialect implements DatabaseDialect {
 	
 	public String getDbType(FastColumn col) {
 		switch(col.getType()){
-		case String:
+		case FastColumnType.String:
 			if(col.getTypeLen()<0 || col.getTypeLen()>4000){
 				return "CLOB";
 			}
 			return "VARCHAR2("+col.getTypeLen()+")";
-		case Integer:
-		case Long:
-		case Float:
-		case Double:
+		case FastColumnType.Integer:
+		case FastColumnType.Long:
+		case FastColumnType.Float:
+		case FastColumnType.Double:
 			return "NUMBER";
-		case Date:
+		case FastColumnType.Date:
 			return "TIMESTAMP";
 		}
 		return "VARCHAR2(500)";

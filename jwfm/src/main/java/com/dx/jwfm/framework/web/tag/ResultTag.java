@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +25,7 @@ import com.dx.jwfm.framework.web.exception.DatagridBuilderNotFound;
  * @author 宋帅杰
  * 结果展示标签
  */
-public class ResultTag extends TagSupport {
+public class ResultTag extends BaseViewTag {
 	/**  */
 	private static final long serialVersionUID = 1L;
 
@@ -46,7 +45,6 @@ public class ResultTag extends TagSupport {
 	/*** 是否显示复选框列，可选值为true/false，默认值为false */
 	private String hasChkCol;
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public int doEndTag() throws JspException {
 	    FastModel model = RequestContext.getFastModel();
@@ -60,64 +58,9 @@ public class ResultTag extends TagSupport {
     		List<FastPo> data = (List<FastPo>) RequestContext.getRequest().getAttribute("searchResultData");
 	    	if(list!=null){
 	    		if("html".equals(type)){//HTML显示格式
-		    		StringBuffer buff = new StringBuffer(),colbuff = new StringBuffer(),thbuff = new StringBuffer();
-		    		buff.append("<table class=\"fast-table\" ><colgroup>");
-		    		for(SearchResultColumn col:list){
-		    			colbuff.append("<col width=\"").append(col.getWidth()).append("\" />");
-		    			thbuff.append("<th width=\"25%\"");
-		    			if(FastUtil.isNotBlank(col.getCanSort())){
-		    				thbuff.append(" sort=\"").append(col.getVcCode()).append("\" order=\"").append(col.getCanSort()).append("\"");
-		    			}
-		    			if(FastUtil.isNotBlank(col.getVcThCss())){
-		    				thbuff.append(" class=\"").append(col.getVcThCss()).append("\"");
-		    			}
-		    			if(FastUtil.isNotBlank(col.getVcThStyle())){
-		    				thbuff.append(" style=\"").append(col.getVcThStyle()).append("\"");
-		    			}
-		    			if(col.isFrozen()){
-		    				thbuff.append(" frozen=\"true\"");
-		    			}
-		    			thbuff.append(">").append(col.getVcTitle()).append("</th>");
-		    		}
-		    		buff.append(colbuff.toString()).append("</colgroup><thead>").append(thbuff.toString()).append("</thead>");
-		    		buff.append("<tbody>");
-		    		String rowAttr = "";
-	    			if(FastUtil.isNotBlank(search.getVcRowCss())){
-	    				rowAttr += " class=\""+search.getVcRowCss()+"\"";
-	    			}
-	    			if(FastUtil.isNotBlank(search.getVcRowStyle())){
-	    				rowAttr += " style=\""+search.getVcRowStyle()+"\"";
-	    			}
-		    		if(data==null || data.isEmpty()){
-		    			buff.append("<tr><td colspan=").append(list.size()).append(">未查到任何内容</td></tr>");
-		    		}
-		    		else{
-			    		for(FastPo row:data){
-			    			buff.append("<tr").append(rowAttr).append(">");
-				    		for(SearchResultColumn col:list){
-				    			buff.append("<td");
-				    			if(FastUtil.isNotBlank(col.getVcTdCss())){
-				    				buff.append(" class=\"").append(col.getVcTdCss()).append("\"");
-				    			}
-				    			if(FastUtil.isNotBlank(col.getVcTdStyle())){
-				    				buff.append(" style=\"").append(col.getVcTdStyle()).append("\"");
-				    			}
-				    			buff.append(">");
-				    			if(col.getVcType().startsWith("dict:")){
-				    				String val = row.getString(col.getVcCode());
-				    				val = getDictText(col.getVcType().substring(5),val);
-				    				buff.append(val);
-				    			}
-				    			else{
-					    			buff.append(row.get(FastUtil.isNotBlank(col.getVcFormat())?col.getVcCode()+":"+col.getVcFormat():col.getVcCode()));
-				    			}
-				    			buff.append("</td>");
-				    		}
-				    		buff.append("</tr>");
-			    		}
-		    		}
-		    		buff.append("</tbody></table>");
-		    		out.print(buff.toString());
+		    		out.println("<table class=fast-table-container border=0 cellpadding=0 cellspacing=0 width='100%'><tbody><tr><td>");
+		    		out.println(buildTable(search, list,data));
+		    		out.println("</td></tr></tbody></table>");
 	    		}
 	    		else{//其他JS框架显示模式
 	    			try {
@@ -141,6 +84,76 @@ public class ResultTag extends TagSupport {
 			throw new JspException(e);
 		}
 		return super.doEndTag();
+	}
+	private String buildTable(SearchModel search,List<SearchResultColumn> list, List<FastPo> data) {
+		StringBuffer buff = new StringBuffer();
+		StringBuffer colbuff = new StringBuffer(),thbuff = new StringBuffer();
+		buff.append("<table class=\"fast-table\"");
+		for(String k:attr.keySet()){
+	    	buff.append(" ");
+	    	buff.append(k);
+			if(attr.get(k)!=null){
+		    	buff.append("=\"");
+		    	buff.append(attr.get(k).replace("\"", "\\\"").replaceAll("\\r|\\n", ""));
+		    	buff.append("\"");
+			}
+		}
+		buff.append(" ><colgroup>");
+		for(SearchResultColumn col:list){
+			colbuff.append("<col width=\"").append(col.getWidth()).append("px\" />");
+			thbuff.append("<th ");
+			if(FastUtil.isNotBlank(col.getCanSort())){
+				thbuff.append(" sort=\"").append(col.getVcCode()).append("\" order=\"").append(col.getCanSort()).append("\"");
+			}
+			if(FastUtil.isNotBlank(col.getVcThCss())){
+				thbuff.append(" class=\"").append(col.getVcThCss()).append("\"");
+			}
+			if(FastUtil.isNotBlank(col.getVcThStyle())){
+				thbuff.append(" style=\"").append(col.getVcThStyle()).append("\"");
+			}
+			if(col.isFrozen()){
+				thbuff.append(" frozen=\"true\"");
+			}
+			thbuff.append(">").append(col.getVcTitle()).append("</th>");
+		}
+		buff.append(colbuff.toString()).append("</colgroup><thead>").append(thbuff.toString()).append("</thead>");
+		buff.append("<tbody>");
+		if (data == null || data.isEmpty()) {
+			buff.append("<tr><td colspan=").append(list.size()).append(">未查到任何内容</td></tr>");
+		} else {
+			String rowAttr = "";
+			if (FastUtil.isNotBlank(search.getVcRowCss())) {
+				rowAttr += " class=\"" + search.getVcRowCss() + "\"";
+			}
+			if (FastUtil.isNotBlank(search.getVcRowStyle())) {
+				rowAttr += " style=\"" + search.getVcRowStyle() + "\"";
+			}
+			for (FastPo row : data) {
+				buff.append("<tr").append(rowAttr).append(">");
+				for (SearchResultColumn col : list) {
+					buff.append("<td");
+					if (FastUtil.isNotBlank(col.getVcTdCss())) {
+						buff.append(" class=\"").append(col.getVcTdCss()).append("\"");
+					}
+					if (FastUtil.isNotBlank(col.getVcTdStyle())) {
+						buff.append(" style=\"").append(col.getVcTdStyle()).append("\"");
+					}
+					buff.append(">");
+					if (col.getVcType().startsWith("dict:")) {
+						String val = row.getString(col.getVcCode());
+						val = getDictText(col.getVcType().substring(5), val);
+						buff.append(val);
+					} else {
+						buff.append(row.get(FastUtil.isNotBlank(col.getVcFormat())
+								? col.getVcCode() + ":" + col.getVcFormat() : col.getVcCode()));
+					}
+					buff.append("</td>");
+				}
+				buff.append("</tr>");
+			}
+		}
+		buff.append("</tbody></table>");
+		return buff.toString();
 	}
 	private HashMap<String,Map<String,String>> dictMap = new HashMap<String, Map<String,String>>();
 	private String getDictText(String groupName, String code) {

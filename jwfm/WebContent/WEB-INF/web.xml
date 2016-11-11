@@ -47,7 +47,7 @@
 		<init-param>
 			<description>根据用户请求时加载板块的基础包路径</description>
 			<param-name>classModelBasePackage</param-name>
-			<param-value>com.ssj.model.mis</param-value>
+			<param-value>com.hhkj.model.mis</param-value>
 		</init-param>
 		<init-param>
 			<description>系统启动后加载升级文件的目录</description>
@@ -80,6 +80,11 @@
     <filter-mapping>
     	<filter-name>fastFilter</filter-name>
     	<url-pattern>/jwfm/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+    	<filter-name>fastFilter</filter-name>
+    	<url-pattern>/mis/*</url-pattern>
     </filter-mapping>
     
   	<resource-ref>

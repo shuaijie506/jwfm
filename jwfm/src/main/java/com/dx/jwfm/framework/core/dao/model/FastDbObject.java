@@ -34,4 +34,24 @@ public class FastDbObject implements DatabaseObject {
 		return getObjectCreateSql(dialect);
 	}
 
+
+	public String getSql() {
+		return sql;
+	}
+
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+
+	public String getTestSql() {
+		return testSql;
+	}
+
+
+	public void setTestSql(String testSql) {
+		this.testSql = testSql;
+	}
+
 }

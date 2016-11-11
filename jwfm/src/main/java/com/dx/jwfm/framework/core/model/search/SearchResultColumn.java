@@ -20,6 +20,8 @@ public class SearchResultColumn {
 	private String vcTdStyle,vcTdCss;
 	/**是否冻结此列*/
 	private boolean frozen;
+	/**显示时的对齐方式，默认为居中 */
+	private String align;
 	public SearchResultColumn() {
 	}
 	public SearchResultColumn(String vcTitle, String vcCode, String vcType, int width, String vcFormat, String canSort) {
@@ -95,6 +97,12 @@ public class SearchResultColumn {
 	}
 	public void setFrozen(boolean frozen) {
 		this.frozen = frozen;
+	}
+	public String getAlign() {
+		return align==null?"center":align;
+	}
+	public void setAlign(String align) {
+		this.align = align;
 	}
 	
 }

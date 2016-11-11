@@ -8,28 +8,34 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
+import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastDbObject;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
+import com.dx.jwfm.framework.core.model.search.SearchColumn;
+import com.dx.jwfm.framework.core.model.search.SearchModel;
+import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
 import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.core.process.IActionHandel;
 import com.dx.jwfm.framework.util.FastUtil;
-import com.dx.jwfm.framework.util.Uuid;
 import com.dx.jwfm.framework.web.action.FastBaseAction;
+import com.dx.jwfm.framework.web.view.Node;
+
+import net.sf.json.JSONObject;
 
 public class FastModel {
 
 	static Logger logger = Logger.getLogger(FastModel.class);
 	
-	public String version;
 
 	/**菜单ID*/
 	private String vcId;
@@ -39,10 +45,10 @@ public class FastModel {
 	private String vcName;
 	/**菜单URL*/
 	private String vcUrl;
+	/**菜单版本*/
+	public String vcVersion;
 	/**开发人员*/
 	private String vcAuth;
-	/** 菜单结构字符串{search:{},dictData:[],edittable:{},viewtable:{}}*/
-	private String vcStructure;
 	/**开发人姓名*/
 	private String vcAdd;
 	/**开发时间*/
@@ -53,29 +59,66 @@ public class FastModel {
 	private Date dtModify;
 	/**备注*/
 	private String vcNote;
+	
+	
+	/** 菜单结构字符串{search:{},dictData:[],edittable:{},viewtable:{}}*/
+	private String vcStructure;
 	/**控制器*/
 	private Class<?> actionClass;
-	
+	/**AOP处理器，用于处理action方法执行前后的预处理和后处理*/
 	private Class<IActionHandel> actionHandel;
-	/**菜单按钮权限列表*/
-	private List<ButtonAuth> buttonAuths;
 	/**用户自定义默认值解析器*/
-	private ArrayList<IDefaultValueParser> actionDefaultValueParser;
+	private ArrayList<IDefaultValueParser> actionDefaultValueParserBeans;
 	/**模型结构对象*/
 	private FastModelStructure modelStructure;
+
+	public FastModel() {
+	}
+	
+	public FastModel(FastPo po) {
+		this.setVcId(po.getString("VC_ID"));
+		this.setVcName(po.getString("VC_NAME"));
+		this.setVcGroup(po.getString("VC_GROUP"));
+		this.setVcUrl(po.getString("VC_URL"));
+		this.setVcAuth(po.getString("VC_AUTH"));
+		this.vcVersion = po.getString("VC_VERSION");
+		this.setVcStructure(po.getString("VC_STRUCTURE"));
+	}
 
 	/**
 	 * 将结构化数据转换为字符串，以便于持久化到数据库
 	 */
 	public void doPersistent(){
-		
+		JSONObject obj = JSONObject.fromObject(modelStructure);
+		vcStructure = obj.toString();
 	}
 	
 	/**
 	 * 将字符串中的内容按格式转换为结构化对象，以便于程序调用
 	 */
+	@SuppressWarnings("rawtypes")
 	public synchronized void undoPersistent(){
-		
+		if(FastUtil.isBlank(vcStructure)){
+			return;
+		}
+		JSONObject obj = JSONObject.fromObject(vcStructure);
+		Map<String, Class> cmap = new HashMap<String, Class>();
+		cmap.put("mainTable", FastTable.class);
+		cmap.put("otherTables", FastTable.class);
+		cmap.put("columns", FastColumn.class);
+		cmap.put("otherDbObjects", FastDbObject.class);
+		cmap.put("search", SearchModel.class);
+		cmap.put("dictData", FastPo.class);
+		cmap.put("searchColumns", SearchColumn.class);
+		cmap.put("searchColumnMap", SearchColumn.class);
+		cmap.put("searchResultColumns", SearchResultColumn.class);
+		cmap.put("forwards", Node.class);
+		try {
+			modelStructure = (FastModelStructure) JSONObject.toBean(obj, FastModelStructure.class,cmap);
+			FastUtil.copyBeanPropts(this, modelStructure);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	private boolean inited = false;
 	/**
@@ -105,20 +148,24 @@ public class FastModel {
 				logger.error(e1.getMessage(),e1);
 			}
 			if(modelStructure==null)return;//因反序列代码尚未开发，所以结构为空的不执行
-			if(version==null || version.compareTo(this.version)<0){
+			if(version==null || version.compareTo(this.vcVersion)<0){
+				//比对主业务表并进行表结构更新
 				FastTable tbl = modelStructure.getMainTable();
 				ArrayList<String> sqls = new ArrayList<String>();
 				if(tbl!=null){
 					new FastPo(tbl);//将表注册到FastPo中
 					sqls.addAll(db.getDatabaseDialect().getTableCreateOrUpdateSql(tbl));
 				}
+				//比对业务从表并进行表结构更新
 				for(FastTable ft:modelStructure.getOtherTables()){
 					new FastPo(ft);//将表注册到FastPo中
 					sqls.addAll(db.getDatabaseDialect().getTableCreateOrUpdateSql(ft));
 				}
+				//比对其他数据库对象并进行表结构更新
 				for(FastDbObject ft:modelStructure.getOtherDbObjects()){
 					sqls.addAll(ft.getObjectUpdateSql(db.getDatabaseDialect()));
 				}
+				//将上述表结构更新语句批量执行
 				if(sqls.size()>0){
 					for(String sql:sqls){
 						try {
@@ -128,6 +175,7 @@ public class FastModel {
 						}
 					}
 				}
+				//更新公共字典的值
 				updateDictData(db);
 				updateSqlFile(db,modelStructure.getInitDataSqlList());
 				try {
@@ -148,7 +196,7 @@ public class FastModel {
 						po.put("VC_AUTH", vcAuth);
 						po.put("VC_STRUCTURE", getVcStructure());
 						po.put("VC_GROUP", vcGroup);
-						po.put("VC_VERSION", this.version);
+						po.put("VC_VERSION", this.vcVersion);
 						po.put("VC_ADD", vcAdd);
 						po.put("DT_ADD", dtAdd);
 						po.put("VC_MODIFY", vcModify);
@@ -189,7 +237,7 @@ public class FastModel {
 						}
 						msg.append("\n");
 					}
-					db.executeSqlUpdate(insertsql,new Object[]{Uuid.getUuid(),filepath,fname,new Date(),msg.toString()});
+					db.executeSqlUpdate(insertsql,new Object[]{FastUtil.getUuid(),filepath,fname,new Date(),msg.toString()});
 				}
 			} catch (SQLException e) {
 				logger.error(e.getMessage(),e);
@@ -260,34 +308,45 @@ public class FastModel {
 	}
 
 	private void updateDictData(DbHelper db) {
-		HashSet<String> dictGroup = new HashSet<String>();
+//		HashSet<String> dictGroup = new HashSet<String>();
 		ArrayList<String> sqls = new ArrayList<String>();
 		ArrayList<Object[]> params = new ArrayList<Object[]>();
 		if(modelStructure.getDictData()!=null){
 			for(FastPo dict:modelStructure.getDictData()){
-				if("SYSTEM".equals(dict.getString("VC_GROUP"))){//系统注册项
-					try {
-						if(db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=? and vc_code=?",
-								new Object[]{dict.getString("VC_GROUP"),dict.getString("VC_CODE")})>0){
-							sqls.add("update "+SystemContext.dbObjectPrefix+"T_DICT set vc_text=? where vc_group=? and vc_code=?");
-							params.add(new Object[]{dict.getString("VC_TEXT"),dict.getString("VC_GROUP"),dict.getString("VC_CODE")});
-						}
-						else{
-							sqls.add(dict.getTblModel().getInsertSql());
-							params.add(dict.getInsertParams());
-						}
-					} catch (SQLException e) {
-						logger.error(e.getMessage(),e);
+				try {
+					if(db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=? and vc_code=?",
+							new Object[]{dict.getString("VC_GROUP"),dict.getString("VC_CODE")})==0){
+						sqls.add(dict.getTblModel().insertSql());
+						dict.put("VC_ID", FastUtil.getUuid());
+						params.add(dict.getInsertParams());
 					}
+				} catch (SQLException e) {
+					logger.error(e.getMessage(),e);
 				}
-				if(!dictGroup.contains(dict.getString("VC_GROUP"))){
-					dictGroup.add(dict.getString("VC_GROUP"));
-					sqls.add("delete from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=?");
-					params.add(new Object[]{dict.getString("VC_GROUP")});
-				}
-				dict.put("VC_ID", Uuid.getUuid());
-				sqls.add(dict.getTblModel().getInsertSql());
-				params.add(dict.getInsertParams());
+				//如果在现场系统中已更改了相应值之后，升级时不应覆盖用户自行设定的值，故注释此代码
+//				if("SYSTEM".equals(dict.getString("VC_GROUP"))){//系统注册项
+//					try {
+//						if(db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=? and vc_code=?",
+//								new Object[]{dict.getString("VC_GROUP"),dict.getString("VC_CODE")})>0){
+//							sqls.add("update "+SystemContext.dbObjectPrefix+"T_DICT set vc_text=? where vc_group=? and vc_code=?");
+//							params.add(new Object[]{dict.getString("VC_TEXT"),dict.getString("VC_GROUP"),dict.getString("VC_CODE")});
+//						}
+//						else{
+//							sqls.add(dict.getTblModel().insertSql());
+//							params.add(dict.getInsertParams());
+//						}
+//					} catch (SQLException e) {
+//						logger.error(e.getMessage(),e);
+//					}
+//				}
+//				if(!dictGroup.contains(dict.getString("VC_GROUP"))){
+//					dictGroup.add(dict.getString("VC_GROUP"));
+//					sqls.add("delete from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=?");
+//					params.add(new Object[]{dict.getString("VC_GROUP")});
+//				}
+//				dict.put("VC_ID", Uuid.getUuid());
+//				sqls.add(dict.getTblModel().insertSql());
+//				params.add(dict.getInsertParams());
 			}
 			try {
 				db.executeSqlUpdate(sqls, params);
@@ -309,14 +368,14 @@ public class FastModel {
 		return actionClass;
 	}
 
-	public ArrayList<IDefaultValueParser> getActionDefaultValueParser() {
-		if(actionDefaultValueParser==null){
-			actionDefaultValueParser = new ArrayList<IDefaultValueParser>();
+	public ArrayList<IDefaultValueParser> getActionDefaultValueParserBeans() {
+		if(actionDefaultValueParserBeans==null){
+			actionDefaultValueParserBeans = new ArrayList<IDefaultValueParser>();
 			String[] ary = FastUtil.nvl(modelStructure.getActionDefaultValueParser(),"").split(",");
 			for(String str:ary){//初始化模块默认值解析部分
 				if(str.trim().length()>0){
 					try {
-						actionDefaultValueParser.add((IDefaultValueParser) FastUtil.newInstance(str.trim()));
+						actionDefaultValueParserBeans.add((IDefaultValueParser) FastUtil.newInstance(str.trim()));
 					} catch (Exception e) {
 						logger.error(e.getMessage(),e);
 					}
@@ -325,11 +384,11 @@ public class FastModel {
 			List<IDefaultValueParser> list = SystemContext.getSystemDefaultValueParser();
 			if(list!=null){//附加系统默认值解析部分
 				for(int i=0;i<list.size();i++){
-					actionDefaultValueParser.add(list.get(i));
+					actionDefaultValueParserBeans.add(list.get(i));
 				}
 			}
 		}
-		return actionDefaultValueParser;
+		return actionDefaultValueParserBeans;
 	}
 
 	public void setActionClass(Class<?> actionClass) {
@@ -385,6 +444,9 @@ public class FastModel {
 	}
 
 	public String getVcStructure() {
+		if(FastUtil.isBlank(vcStructure)){
+			doPersistent();
+		}
 		return vcStructure==null?" ":vcStructure;
 	}
 
@@ -440,12 +502,12 @@ public class FastModel {
 		this.modelStructure = modelStructure;
 	}
 
-	public List<ButtonAuth> getButtonAuths() {
-		return buttonAuths;
+	public String getVcVersion() {
+		return vcVersion;
 	}
 
-	public void setButtonAuths(List<ButtonAuth> buttonAuths) {
-		this.buttonAuths = buttonAuths;
+	public void setVcVersion(String vcVersion) {
+		this.vcVersion = vcVersion;
 	}
 
 }

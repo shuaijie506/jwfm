@@ -103,6 +103,7 @@ public class FastBaseAction extends BaseAction {
 		FastModel fmodel = RequestContext.getFastModel();
 		List<FastPo> list = logic.searchData(fmodel.getModelStructure().getSearch(),fmodel.getModelStructure().getMainTable(),search,pager);
 		RequestContext.setRequestAttr("searchResultData", list);
+		RequestContext.setRequestAttr("searchResultPage", pager);
 		return "success";
 	}
 	
@@ -223,7 +224,7 @@ public class FastBaseAction extends BaseAction {
 			try {
 				DbHelper db = new DbHelper();
 				try {//从数据库中查出原记录，将提交过来的PO中的新值赋给原记录，再保存原记录，保证不丢字段的值
-					String keyCode = po.getTblModel().getKeyColCode();
+					String keyCode = po.getTblModel().keyColCode();
 					if(keyCode!=null){
 						FastPo p = db.loadFastPo(po, po.getString(keyCode ));
 						if(p!=null && p.getString(keyCode)!=null){
@@ -296,7 +297,7 @@ public class FastBaseAction extends BaseAction {
 			if(tbl==null){
 				return writeHTML(ajaxResult(false, "在功能模型中找不到主表模型！"));
 			}
-			String sql = "update "+tbl.getCode()+" set "+tbl.getDelCol()+"=1 where "+tbl.getPkColumns().get(0).getCode()+
+			String sql = "update "+tbl.getCode()+" set "+tbl.getDelCol()+"=1 where "+tbl.pkColumns().get(0).getCode()+
 					" in ('"+FastUtil.join(ids,"','")+"')";
 			DbHelper db = new DbHelper();
 			try {

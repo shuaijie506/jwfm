@@ -15,6 +15,7 @@ long ltime = System.currentTimeMillis();
 	$(function(){
 		//对字段进行非空验证和输入类型长度等限制
 		$('#editTbl<%=ltime%> .easyui-validatebox').validatebox();
+		$('.fast-edit-table').autoInputWidth();
 		//点击添加按钮操作
 	    $('#addBtn').click(function(){
 			$('#editForm').submit();

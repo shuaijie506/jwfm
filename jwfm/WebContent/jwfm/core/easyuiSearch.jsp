@@ -38,9 +38,7 @@ String addActionName = bpath+"_"+method+actionExt;
 			});
 			//查询操作
 			$('#search').click(function(){
-			    $('#searchGrid').datagrid('getPager').pageNumber=1;
-				$('#searchGrid').datagrid('getPager').pagination("options").pageNumber = 1;
-				$('#searchGrid').datagrid('reload',$.fn.datagrid.dealParam($('#searchDiv').formdata(),fcols,cols));
+				$('#searchGrid').datagrid('load',$.fn.datagrid.dealParam($('#searchDiv').formdata(),fcols,cols));
             });
 			$('.searchItem>:text').bind('keyup type',function(){
 				if($.event.fix(event).keyCode==13){//输入后回车执行查询
@@ -58,11 +56,11 @@ String addActionName = bpath+"_"+method+actionExt;
     		}
     		return {};
     	}
-    	function openAddPage(){
+    	function addItem(){
     		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>',width:600,height:400,
     			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption()));
     	}
-    	function openModifyPage(){
+    	function modifyItem(){
     		var rows = $('#searchGrid').datagrid('getSelections');					
     		if (rows.length==0){
  		       $.messager.alert('警告', '您选择要修改的记录！','warning');return;
@@ -73,7 +71,7 @@ String addActionName = bpath+"_"+method+actionExt;
     		$.openWin({title:'修改数据',href:'<%=bpath%>_modify<%=actionExt%>?chkSelf='+rows[0]['VC_ID'],width:600,height:400,
     			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]});
     	}
-    	function deleteItems(){
+    	function delItem(){
     		dealMultiRow('searchGrid','<%=bpath%>_delete<%=actionExt%>','刪除');
     	}
     </SCRIPT>

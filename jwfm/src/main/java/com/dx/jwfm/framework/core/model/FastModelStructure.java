@@ -1,6 +1,7 @@
 package com.dx.jwfm.framework.core.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -9,19 +10,40 @@ import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.flow.FlowModel;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
+import com.dx.jwfm.framework.web.view.Node;
 
 public class FastModelStructure {
 
-	/**模块名称*/
-	private String name;
-	/**模块主要表名称*/
-	private String mainTableName;
-	/**模块URI路径，默认由mainTableName自动生成*/
-	private String vcUri;
+	/**菜单ID*/
+	private String vcId;
 	/**菜单所在分组*/
 	private String vcGroup;
+	/**菜单名称*/
+	private String vcName;
+	/**菜单URL*/
+	private String vcUrl;
+	/**菜单版本*/
+	public String vcVersion;
+	/**开发人员*/
+	private String vcAuth;
+	/**开发人姓名*/
+	private String vcAdd;
+	/**开发时间*/
+	private Date dtAdd;
+	/**最后修改人姓名*/
+	private String vcModify;
+	/**最后修改时间*/
+	private Date dtModify;
+	/**备注*/
+	private String vcNote;
+	
+	
+	/**模块主要表名称*/
+	private String mainTableName;
 	/**模块所在包名称*/
 	private String packageName;
+	
+	
 	/**业务Action类名*/
 	private String actionName;
 	/**业务Action辅助类类名*/
@@ -32,10 +54,11 @@ public class FastModelStructure {
 	private boolean useAjaxOperator;
 	/**用户自定义默认值解析器类名*/
 	private String actionDefaultValueParser;
+	/**菜单按钮权限列表*/
+	private List<ButtonAuth> buttonAuths;
 	/**action中的转向页面*/
-	private LinkedHashMap<String,String> forwards = new LinkedHashMap<String, String>();
-	/**功能说明*/
-	private String vcNote;
+	private List<Node> forwards = new ArrayList<Node>();
+	private LinkedHashMap<String,String> forwardsMap = new LinkedHashMap<String, String>();
 	
 	/**业务主表表结构*/
 	private FastTable mainTable;
@@ -45,6 +68,8 @@ public class FastModelStructure {
 	private List<FastDbObject> otherDbObjects = new ArrayList<FastDbObject>();
 	/**业务相关的触发器、函数、存储过程等数据库对象*/
 	private List<String> initDataSqlList = new ArrayList<String>();
+	
+	
 	/**查询条件及结果展示格式*/
 	private SearchModel search;
 	/**模型字典数据*/
@@ -57,18 +82,29 @@ public class FastModelStructure {
 	private List<FastModelUpdateLog> updateLogs = new ArrayList<FastModelUpdateLog>();
 	
 	public String getForward(String name){
-		return forwards.get(name);
+		if(forwardsMap.size()!=forwards.size()){
+			setForwards(forwards);
+		}
+		return forwardsMap.get(name);
+	}
+	
+	public void setForward(String name,String uri){
+		forwards.add(new Node(name,uri));
+		forwardsMap.put(name,uri);
 	}
 
-	public String getName() {
-		return name;
+	public String getVcName() {
+		return vcName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setVcName(String vcName) {
+		this.vcName = vcName;
 	}
 
 	public String getMainTableName() {
+		if(mainTableName==null && mainTable!=null){
+			mainTableName = mainTable.getName();
+		}
 		return mainTableName;
 	}
 
@@ -76,12 +112,12 @@ public class FastModelStructure {
 		this.mainTableName = mainTableName;
 	}
 
-	public String getVcUri() {
-		return vcUri;
+	public String getVcUrl() {
+		return vcUrl;
 	}
 
-	public void setVcUri(String vcUri) {
-		this.vcUri = vcUri;
+	public void setVcUrl(String vcUrl) {
+		this.vcUrl = vcUrl;
 	}
 
 	public String getVcGroup() {
@@ -132,12 +168,18 @@ public class FastModelStructure {
 		this.actionDefaultValueParser = actionDefaultValueParser;
 	}
 
-	public LinkedHashMap<String, String> getForwards() {
+	public List<Node> getForwards() {
 		return forwards;
 	}
 
-	public void setForwards(LinkedHashMap<String, String> forwards) {
+	public void setForwards(List<Node> forwards) {
 		this.forwards = forwards;
+		if(forwards!=null){
+			forwardsMap.clear();
+			for(Node n:forwards){
+				forwardsMap.put(n.getId(), n.getText());
+			}
+		}
 	}
 
 	public String getVcNote() {
@@ -225,6 +267,70 @@ public class FastModelStructure {
 
 	public void setInitDataSqlList(List<String> initDataSqlList) {
 		this.initDataSqlList = initDataSqlList;
+	}
+
+	public String getVcId() {
+		return vcId;
+	}
+
+	public void setVcId(String vcId) {
+		this.vcId = vcId;
+	}
+
+	public String getVcAuth() {
+		return vcAuth;
+	}
+
+	public void setVcAuth(String vcAuth) {
+		this.vcAuth = vcAuth;
+	}
+
+	public String getVcAdd() {
+		return vcAdd;
+	}
+
+	public void setVcAdd(String vcAdd) {
+		this.vcAdd = vcAdd;
+	}
+
+	public Date getDtAdd() {
+		return dtAdd;
+	}
+
+	public void setDtAdd(Date dtAdd) {
+		this.dtAdd = dtAdd;
+	}
+
+	public String getVcModify() {
+		return vcModify;
+	}
+
+	public void setVcModify(String vcModify) {
+		this.vcModify = vcModify;
+	}
+
+	public Date getDtModify() {
+		return dtModify;
+	}
+
+	public void setDtModify(Date dtModify) {
+		this.dtModify = dtModify;
+	}
+
+	public List<ButtonAuth> getButtonAuths() {
+		return buttonAuths;
+	}
+
+	public void setButtonAuths(List<ButtonAuth> buttonAuths) {
+		this.buttonAuths = buttonAuths;
+	}
+
+	public String getVcVersion() {
+		return vcVersion;
+	}
+
+	public void setVcVersion(String vcVersion) {
+		this.vcVersion = vcVersion;
 	}
 	
 }

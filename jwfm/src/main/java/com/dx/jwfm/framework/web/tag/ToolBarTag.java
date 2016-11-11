@@ -45,7 +45,7 @@ public class ToolBarTag extends TagSupport {
 			return super.doEndTag();
 	    }
 	    try{
-	    	List<ButtonAuth> btns = model.getButtonAuths();
+	    	List<ButtonAuth> btns = model.getModelStructure().getButtonAuths();
 	    	if(btns!=null){
 	    		if("html".equals(type)){
 		    		StringBuffer buff = new StringBuffer();

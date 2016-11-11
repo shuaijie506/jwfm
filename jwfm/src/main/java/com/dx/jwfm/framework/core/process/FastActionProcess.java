@@ -52,27 +52,21 @@ public class FastActionProcess implements IFastProcess {
 		actionExt = filter.getActionExt();
 		FastModel main = MainActionCreator.getModel();//主框架模型
 		testModelTableExist(main);
-		String sql = "select * from "+SystemContext.dbObjectPrefix+"T_MENU_LIB where vc_url like '%"+actionExt+"' order by vc_group,vc_name";
+		String sql = "select * from "+SystemContext.dbObjectPrefix+"T_MENU_LIB where n_del=0 order by vc_group,vc_name";
 		DbHelper db = new DbHelper();
 		List<FastPo> list = null;
 		final ArrayList<FastModel> flist = new ArrayList<FastModel>();
 		try {
 			list = db.executeSqlQuery(sql);
 			for(FastPo po:list){
-				FastModel fm = new FastModel();
-				fm.setVcId(po.getString("VC_ID"));
-				fm.setVcName(po.getString("VC_NAME"));
-				fm.setVcGroup(po.getString("VC_GROUP"));
-				fm.setVcUrl(po.getString("VC_URL"));
-				fm.setVcAuth(po.getString("VC_AUTH"));
-				fm.setVcStructure(po.getString("VC_STRUCTURE"));
-				menuMap.put(SystemContext.getPath()+fm.getVcUrl(), fm);
+				FastModel fm = new FastModel(po);
+				menuMap.put(SystemContext.getPath()+fm.getVcUrl()+actionExt, fm);
 				flist.add(fm);
 			}
 		} catch (SQLException e) {
 			logger.error(e.getMessage(),e);
 		}
-		MainActionCreator.initFrameworkModel(flist, menuMap);//初始化框架中的所有功能菜单
+		MainActionCreator.initFrameworkModel(flist, menuMap, actionExt);//初始化框架中的所有功能菜单
 		new Thread(){
 			public void run(){
 				for(int i=0;i<flist.size();i++){

@@ -113,7 +113,7 @@ public class DbHelper {
 				try {
 					st.close();
 				} catch (SQLException e) {
-					logger.error(e);
+					logger.error(e.getMessage(),e);
 				}
 			}
 			if(autoCommit){
@@ -184,7 +184,7 @@ public class DbHelper {
 				val = Integer.parseInt(res);
 			}
 		} catch (NumberFormatException e) {
-			logger.error(e);
+			logger.error(e.getMessage(),e);
 		}
 		return val;
 	}
@@ -213,7 +213,7 @@ public class DbHelper {
 				val = Long.parseLong(res);
 			}
 		} catch (NumberFormatException e) {
-			logger.error(e);
+			logger.error(e.getMessage(),e);
 		}
 		return val;
 	}
@@ -243,7 +243,7 @@ public class DbHelper {
 				val = Double.parseDouble(res);
 			}
 		}catch (NumberFormatException e) {
-			logger.error(e);
+			logger.error(e.getMessage(),e);
 		}
 		return val;
 	}
@@ -285,7 +285,7 @@ public class DbHelper {
 					}
 				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e.getMessage(),e);
 			}
 			paraml.add(index++,value);
 		}
@@ -710,7 +710,7 @@ public class DbHelper {
 				con = getConnection();
 				dialect = DatabaseDialect.getDialect(con);
 			} catch (SQLException e1) {
-				logger.error(e1);
+				logger.error(e1.getMessage(),e1);
 			}
 			close();
 		}
@@ -724,7 +724,7 @@ public class DbHelper {
 				dialect = (DatabaseDialect) FastUtil.newInstance(clsName);
 			} catch (Exception e) {
 				System.err.println("配置项databaseDialect对应的值["+clsName+"]必须实现接口com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect");
-				logger.error(e);
+				logger.error(e.getMessage(),e);
 				System.exit(0);
 			}
 		}
@@ -752,7 +752,7 @@ public class DbHelper {
 	 * @throws SQLException 
 	*/
 	public FastPo loadFastPo(final FastPo po, final String pk) throws SQLException {
-		String sql = po.getTblModel().getSearchByIdSql();
+		String sql = po.getTblModel().searchByIdSql();
 		List<FastPo> list = executeSqlQuery(sql,po,po.getPkParams(pk));
 		FastPo p = list.size()>0?list.get(0):null;
 		return p;
@@ -772,7 +772,7 @@ public class DbHelper {
 			throw new SQLException("object has not tblModel!");
 		}
 		po.initIdDelValue();
-		String sql = po.getTblModel().getInsertSql();
+		String sql = po.getTblModel().insertSql();
 		int cnt = executeSqlUpdate(sql,po.getInsertParams());
 		return cnt>0;
 	}
@@ -790,7 +790,7 @@ public class DbHelper {
 		if(po.getTblModel()==null){
 			throw new SQLException("object has not tblModel!");
 		}
-		String sql = po.getTblModel().getUpdateSql();
+		String sql = po.getTblModel().updateSql();
 		int cnt = executeSqlUpdate(sql,po.getUpdateParams());
 		return cnt>0;
 	}
@@ -802,7 +802,7 @@ public class DbHelper {
 	 * @throws SQLException
 	 */
 	public boolean insertOrUpdatePo(FastPo po) throws SQLException{
-		String sql = po.getTblModel().getSearchCntByIdSql();
+		String sql = po.getTblModel().searchCntByIdSql();
 		int cnt = getFirstIntSqlQuery(sql,po.getPkParams());
 		if(cnt>0){//如果已经存在，则更新之
 			return updatePo(po);
@@ -822,7 +822,7 @@ public class DbHelper {
 	 * @throws SQLException 
 	*/
 	public boolean deletePo(FastPo po) throws SQLException{
-		String sql = po.getTblModel().getDeleteSql();
+		String sql = po.getTblModel().deleteSql();
 		int cnt = executeSqlUpdate(sql,po.getPkParams());
 		return cnt>0;
 	}

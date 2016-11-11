@@ -94,6 +94,45 @@
 		});
 		return params;
 	};
+	//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
+	$.fn.autoInputWidth = function(){
+		if(this[0].tagName!='TABLE'){
+			return;
+		}
+		var rightpos = 0,objs=$();
+		$('input[type=text],select,textarea',this).each(function(){
+			$(this).width($(this).width());
+		});
+		$('tr.subtitle',this).each(function(){
+			$('<span class="icon tree-expanded"></span>').prependTo($('>td:first',this)).click(function(){
+				var collapsed = !$(this).data('collapsed');
+				var ntr = $(this).parent().parent().next();
+				while(ntr.length==1 && !ntr.hasClass('subtitle')){
+					collapsed?ntr.hide():ntr.show();
+					ntr = ntr.next();
+				}
+				$(this).data('collapsed',collapsed).toggleClass('tree-expanded',!collapsed).toggleClass('tree-collapsed',collapsed);
+			});
+		});
+		$('>*>tr',this).each(function(){
+			$('>td:last',this).each(function(){
+				var obj = $('>input[type=text],>select,>textarea,>span.combo',this);
+				if(obj.length==1){
+					rightpos = Math.max(rightpos,obj.offset().left+obj.outerWidth());
+					objs = objs.add(obj);
+				}
+			});
+		});
+		objs.each(function(){
+			var obj = $(this);
+			var diff = rightpos-(obj.offset().left+obj.outerWidth());
+			obj.width(obj.width()+diff);
+			if(this.tagName=='SPAN'){
+				$('.combo-text',obj).width($('.combo-text',obj).width()+diff);
+			}
+		});
+		return this;
+	};
 	$.resultDealFun = function (data,showMsg,callback){
 	    try{
 	    	top.removeLoading=(top.removeLoading||$.util.removeLoading);

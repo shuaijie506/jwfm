@@ -34,6 +34,7 @@ import com.dx.jwfm.framework.core.process.IFastProcess;
 import com.dx.jwfm.framework.core.process.JspProcess;
 import com.dx.jwfm.framework.core.servlet.VirtualServletConfig;
 import com.dx.jwfm.framework.util.FastUtil;
+import com.dx.jwfm.framework.util.UtilPrepareClass;
 
 public class FastFilter implements Filter {
 
@@ -107,7 +108,6 @@ public class FastFilter implements Filter {
 			SystemContext.dbObjectPrefix = map.get("databaseObjectPrefix");
 		}
 		charset  = FastUtil.nvl(getInitParameter("encoding"),"UTF-8");
-		classModelBasePath = getInitParameter("classModelBasePath");
 		//先取本filter中的配置参数，如果没有此参数，则使用公共配置
 		useSpring = "true".equals(getInitParameter("useSpring"));
 		if(SystemContext.appContext==null && useSpring){//设置Spring上下文对象
@@ -122,6 +122,7 @@ public class FastFilter implements Filter {
 				SystemContext.path = "";
 			}
 		}
+		classModelBasePath = SystemContext.path+getInitParameter("classModelBasePath");
 		logger.info("启动War包："+SystemContext.path);
 		logger.info("系统目录："+SystemContext.appPath);
 		actionExt = "."+FastUtil.nvl(getInitParameter("actionExt"),actionExt);
@@ -205,6 +206,7 @@ public class FastFilter implements Filter {
 			Enumeration<URL> urls = RequestContext.class.getClassLoader().getResources("fast.properties");
 			while(urls.hasMoreElements()){
 				URL url = urls.nextElement();
+				logger.info(url.toString());
 				Properties p = new Properties();
 				try {
 					p.load(url.openStream());
@@ -217,7 +219,16 @@ public class FastFilter implements Filter {
 				} catch (IOException e) {
 					logger.error(e.getMessage(),e);
 				}
-				
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+		}
+		try {
+			Enumeration<URL> urls = RequestContext.class.getClassLoader().getResources("fast.xml");
+			while(urls.hasMoreElements()){
+				URL url = urls.nextElement();
+				logger.info(url.toString());
+				UtilPrepareClass.loadFastXml(url.openStream());
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);

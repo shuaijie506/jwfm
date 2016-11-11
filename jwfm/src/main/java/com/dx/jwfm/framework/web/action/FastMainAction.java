@@ -2,7 +2,9 @@ package com.dx.jwfm.framework.web.action;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,7 +13,9 @@ import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.util.FastUtil;
-import com.dx.jwfm.framework.util.MD5;
+import com.dx.jwfm.framework.web.view.Node;
+
+import net.sf.json.JSONArray;
 
 public class FastMainAction extends FastBaseAction {
 
@@ -55,7 +59,7 @@ public class FastMainAction extends FastBaseAction {
 				if(cnt==0){
 					FastPo po = FastPo.getPo(SystemContext.dbObjectPrefix+"T_USER");
 					po.put("VC_NAME", adminUser);
-					po.put("VC_PWD", MD5.toMd5String(adminPwd));
+					po.put("VC_PWD", FastUtil.toMd5String(adminPwd));
 					po.put("n_level", 0);
 					po.put("dt_add", new Date());
 					db.addPo(po);
@@ -71,7 +75,7 @@ public class FastMainAction extends FastBaseAction {
 			FastPo user = null;
 			if(list.size()>0){
 				user = list.get(0);
-				if(MD5.toMd5String(password).equals(user.getString("VC_PWD"))){//密码使用MD5加密
+				if(FastUtil.toMd5String(password).equals(user.getString("VC_PWD"))){//密码使用MD5加密
 					RequestContext.getRequest().getSession().setAttribute("FAST_USER", user);
 					return writeResult("ok", null);
 				}
@@ -90,6 +94,39 @@ public class FastMainAction extends FastBaseAction {
 	public String logout(){
 		RequestContext.getRequest().getSession().removeAttribute("FAST_USER");
 		return "loginsuccess";
+	}
+	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月18日 上午8:39:40
+	 * 功能描述: 加载下拉框数据，可使用参数 dict和sql，分别从系统字典中加载和执行SQL语句加载
+	 * 方法的参数和返回值: 
+	 * @return
+	 */
+	public String comboData(){
+		JSONArray ary = new JSONArray();
+		String dict = getParameter("dict");
+		String sql = getParameter("sql");
+		Map<String, String> map = null;
+		if(FastUtil.isNotBlank(dict)){
+			map = FastUtil.getDictsMap(dict);
+		}
+		else if(FastUtil.isNotBlank(sql)){
+			DbHelper db = new DbHelper();
+			try {
+				map = db.getMapSqlQuery(sql);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				map = new HashMap<String,String>();
+				map.put("", "SQL查询出错！"+FastUtil.getExceptionInfo(e));
+			}
+		}
+		if(map!=null){
+			for(String key:map.keySet()){
+				ary.add(new Node(key,map.get(key)));
+			}
+		}
+		return writeHTML(ary.toString());
 	}
 	
 	private String[] test;

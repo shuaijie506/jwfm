@@ -1,6 +1,7 @@
 package com.dx.jwfm.framework.util;
 
-import java.net.URL;
+import java.beans.PropertyDescriptor;
+import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -8,7 +9,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.SystemContext;
@@ -37,19 +40,6 @@ public class FastUtil {
 		return val!=null?val:s3;
 	}
 	/**
-	 * 根据类名创建一个对象
-	 * @param clsName
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	@SuppressWarnings("unchecked")
-	public static Object newInstance(String clsName) throws ClassNotFoundException, InstantiationException, IllegalAccessException{
-		Class<Object> cls = (Class<Object>) Thread.currentThread().getContextClassLoader().loadClass(clsName);
-		return cls.newInstance();
-	}
-	/**
 	 * 判断字符串非空
 	 * @param val
 	 * @return
@@ -59,55 +49,6 @@ public class FastUtil {
 	}
 	public static boolean isBlank(String val) {
 		return val==null || val.trim().length()==0;
-	}
-	/**
-	 * 获取框架中字典项的值
-	 * @param groupName
-	 * @param code
-	 * @return
-	 */
-	public static String getDictVal(String groupName,String code){
-		DbHelper db = new DbHelper();
-		try {
-			return db.getFirstStringSqlQuery("select vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? and vc_code=?",
-					new Object[]{groupName,code});
-		} catch (SQLException e) {
-			logger.error(e);
-		}
-		return null;
-	}
-	/**
-	 * 获取框架中字典项的所有值列表
-	 * @param groupName
-	 * @return
-	 */
-	public static List<FastPo> getDicts(String groupName){
-		DbHelper db = new DbHelper();
-		try {
-			return db.executeSqlQuery("select * from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
-					FastPo.getPo(""+SystemContext.dbObjectPrefix+"T_DICT"), new Object[]{groupName});
-		} catch (SQLException e) {
-			logger.error(e);
-		}
-		return null;
-	}
-	public static Map<String,String> getDictsMap(String groupName){
-		DbHelper db = new DbHelper();
-		try {
-			return db.getMapSqlQuery("select vc_code,vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
-					new Object[]{groupName});
-		} catch (SQLException e) {
-			logger.error(e);
-		}
-		return null;
-	}
-	/**
-	 * 获取框架中用户配置项的值
-	 * @param name
-	 * @return
-	 */
-	public static String getRegVal(String name){
-		return getDictVal("SYS_REGEDIT",name);
 	}
 	/**
 	 * 组合字符串数组
@@ -134,17 +75,7 @@ public class FastUtil {
 			buff.append(split).append(str);
 		}
 		return buff.substring(split.length());
-	}
-	
-	private static Boolean debugModel;
-	public static boolean isDebugModel(){
-		if(debugModel==null){
-			URL url = FastUtil.class.getClassLoader().getResource("fast.debug");
-			debugModel = url!=null;
-		}
-		return debugModel;
-	}
-	
+	}	
 	/**
 	 * 开发人：宋帅杰
 	 * 开发日期: 2016年11月3日 上午11:11:08
@@ -236,5 +167,162 @@ public class FastUtil {
 		conf.registerJsonValueProcessor(java.sql.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm"));
 		return conf;
 	}
+	public static boolean isInteger(String p) {
+		try {
+			Integer.parseInt(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isLong(String p) {
+		try {
+			Long.parseLong(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isFloat(String p) {
+		try {
+			Float.parseFloat(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	public static boolean isDouble(String p) {
+		try {
+			Double.parseDouble(p);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
 
+	/**
+	 * 根据类名创建一个对象
+	 * @param clsName
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object newInstance(String clsName) throws ClassNotFoundException, InstantiationException, IllegalAccessException{
+		Class<Object> cls = (Class<Object>) Thread.currentThread().getContextClassLoader().loadClass(clsName);
+		return cls.newInstance();
+	}
+	public static void copyBeanPropts(Object dest,Object orig){
+		PropertyDescriptor[] origDescriptors = PropertyUtils.getPropertyDescriptors(orig);
+		for (int i = 0; i < origDescriptors.length; i++) {
+			String name = origDescriptors[i].getName();
+			if (!"class".equals(name) && PropertyUtils.isReadable(orig, name) && PropertyUtils.isWriteable(dest, name)) {
+				try {
+					Object val = PropertyUtils.getProperty(orig, name);
+					PropertyUtils.setProperty(dest, name, val);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	/**
+	 * 获取框架中字典项的值
+	 * @param groupName
+	 * @param code
+	 * @return
+	 */
+	public static String getDictVal(String groupName,String code){
+		DbHelper db = new DbHelper();
+		try {
+			return db.getFirstStringSqlQuery("select vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? and vc_code=?",
+					new Object[]{groupName,code});
+		} catch (SQLException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+	/**
+	 * 获取框架中字典项的所有值列表
+	 * 字段：VC_ID,VC_GROUP,VC_CODE,VC_TEXT,VC_NOTE,N_SEQ
+	 * @param groupName
+	 * @return
+	 */
+	public static List<FastPo> getDicts(String groupName){
+		DbHelper db = new DbHelper();
+		try {
+			return db.executeSqlQuery("select * from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
+					FastPo.getPo(""+SystemContext.dbObjectPrefix+"T_DICT"), new Object[]{groupName});
+		} catch (SQLException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+	public static Map<String,String> getDictsMap(String groupName){
+		DbHelper db = new DbHelper();
+		try {
+			return db.getMapSqlQuery("select vc_code,vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
+					new Object[]{groupName});
+		} catch (SQLException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+	/**
+	 * 获取框架中用户配置项的值
+	 * @param name
+	 * @return
+	 */
+	public static String getRegVal(String name){
+//		UtilPrepareClass
+		return getRegVal(name,UtilPrepareClass.regDefaultMap.get(name));
+	}
+	public static String getRegVal(String name, String defaults){
+		String val = getDictVal("SYS_REGEDIT",name);
+		return isBlank(val)?defaults:val;
+	}
+
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月21日 上午10:50:51
+	 * 功能描述: 返回MD5特殊码
+	 * 方法的参数和返回值: 
+	 * @param s
+	 * @return
+	 */
+	public final static String toMd5String(String s) {
+		char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+		try {
+			byte[] strTemp = s.getBytes();
+			MessageDigest mdTemp = MessageDigest.getInstance("MD5");
+			mdTemp.update(strTemp);
+			byte[] md = mdTemp.digest();
+			int j = md.length;
+			char str[] = new char[j * 2];
+			int k = 0;
+			for (int i = 0; i < j; i++) {
+				byte byte0 = md[i];
+				str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+				str[k++] = hexDigits[byte0 & 0xf];
+			}
+			return new String(str);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月21日 上午10:51:14
+	 * 功能描述: 得到随机UUID值
+	 * 方法的参数和返回值: 
+	 * @return
+	 */
+	public static String getUuid(){
+		UUID uuid = UUID.randomUUID();
+		String strUUID = uuid.toString();
+		strUUID = strUUID.replaceAll("-","");
+		return strUUID;
+	}
+	
 }

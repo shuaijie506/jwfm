@@ -63,7 +63,7 @@ public class SearchColumn {
 	public String getVcEditorType() {
 		return vcEditorType;
 	}
-	public void setVcEditorype(String vcEditorType) {
+	public void setVcEditorType(String vcEditorType) {
 		this.vcEditorType = vcEditorType;
 	}
 	public String getVcEditorJs() {

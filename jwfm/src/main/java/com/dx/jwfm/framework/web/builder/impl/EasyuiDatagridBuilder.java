@@ -86,6 +86,7 @@ public class EasyuiDatagridBuilder implements IDatagridBuilder {
     			obj.put("title", col.getVcTitle());
     			obj.put("width", col.getWidth());
     			obj.put("sortable", FastUtil.isNotBlank(col.getCanSort()));
+    			obj.put("align", col.getAlign());
     			row.add(obj);
     		}
     	}
