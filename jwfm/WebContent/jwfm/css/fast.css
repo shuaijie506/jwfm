@@ -67,11 +67,14 @@ border-top:#a5c2e8 1px solid;text-align:right; padding:4px 10px 0px;width:99%;ov
 .fast-table tfoot td{font-size:12px;border-bottom:#79add2 solid 1px;border-right:#79add2 solid 1px; height:30px;}
 .fast-table tbody td input{border:0px;}
 
+<<<<<<< HEAD
 .fast-child-table{table-layout:fixed;border-collapse:collapse;width:100%;margin:0px;border-left:#d2dfe6 solid 1px;}
 .fast-child-table thead tr th{padding:0px;line-height:16px;text-align:center;cursor:default;font-size:12px; font-weight:bold; color:#333;background-color:#f3f7fa; height:20px;border-right:#d2dfe6 dotted 1px;border-bottom:#d2dfe6 solid 1px;border-top:#d2dfe6 solid 1px;}
 .fast-child-table tbody tr td{padding:4px 2px;margin:0px;text-align:center;cursor:default;font-size:12px;line-height:18px;height:25px;border:#d2dfe6 dotted 1px;word-break: break-all; word-wrap:break-word;}
 
 
+=======
+>>>>>>> branch 'master' of https://shuaijie506@github.com/shuaijie506/jwfm
 /*分页区域*/
 .pageinfo{height:20px;overflow:hidden;}
 .pageinfo a.btn span{width:16px;line-height:16px;display:inline-block;margin:1px;}
