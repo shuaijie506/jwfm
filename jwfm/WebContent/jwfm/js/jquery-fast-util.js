@@ -116,8 +116,8 @@
 		});
 		$('>*>tr',this).each(function(){
 			$('>td:last',this).each(function(){
-				var obj = $('>input[type=text],>select,>textarea,>span.combo',this);
-				if(obj.length==1){
+				var obj = $('>input[type=text]:visible,>select:visible,>textarea:visible,>span.combo:visible',this);
+				if(obj.length==1 && obj.parent().find('>*:visible').length==1){
 					rightpos = Math.max(rightpos,obj.offset().left+obj.outerWidth());
 					objs = objs.add(obj);
 				}
@@ -369,6 +369,8 @@
 	};
 
 	String.prototype.trim = String.prototype.trim||function () {return this.replace(/(^\s*)|(\s*$)/g,"");};
+	String.prototype.startWith = String.prototype.startWith||function (arg) {return arg==null || arg.length==0?true:(arg.length>this.length?false:this.substr(0,arg.length)==arg);};
+	String.prototype.endWith = String.prototype.endWith||function (arg) {return arg==null || arg.length==0?true:(arg.length>this.length?false:this.substr(this.length-arg.length)==arg);};
 
 	Number.prototype.format = function (f) {pattern=(f||'0').toString();
 		if(pattern.indexOf('%')==pattern.length-1)return Number(this*100).format(pattern.substr(0,pattern.length-1))+'%';//百分比

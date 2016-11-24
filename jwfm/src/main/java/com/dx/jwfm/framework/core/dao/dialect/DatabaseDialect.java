@@ -67,4 +67,28 @@ public interface DatabaseDialect {
 	 */
 	public boolean isTableExist(String tblName) throws SQLException;
 	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月24日 下午4:26:00
+	 * 功能描述: 根据字段名和日期格式将字段转换为字符串，
+	 * 如oracle数据库中传入参数 t.dt_date, yyyy-MM-dd HH:mm:ss，返回字符串 to_char(t.dt_date,'yyyy-mm-dd hh24:mi:ss')
+	 * 方法的参数和返回值: 
+	 * @param fieldName
+	 * @param format
+	 * @return
+	 */
+	public String getDate2StringFun(String fieldName,String format);
+	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月24日 下午4:26:00
+	 * 功能描述: 根据字段名和日期格式将字段转换为日期型，
+	 * 如oracle数据库中传入参数 t.vc_date, yyyy-MM-dd HH:mm:ss，返回字符串 to_date(t.vc_date,'yyyy-mm-dd hh24:mi:ss')
+	 * 方法的参数和返回值: 
+	 * @param fieldName
+	 * @param format
+	 * @return
+	 */
+	public String getString2DateFun(String fieldName,String format);
+	
 }

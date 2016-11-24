@@ -114,6 +114,7 @@ public class MenuActionCreator extends ActionCreator {
 		String dictTbl = SystemContext.dbObjectPrefix+"T_DICT";
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_BASE_PACKAGE").element("VC_TEXT", "com.dx.jwfm.framework.web").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时基础包路径").element("N_SEQ", "0"));
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_PRESET_TBLCOLS_ARY").element("VC_TEXT", "").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时按钮组选择项").element("N_SEQ", "0"));
+		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_DEFAULT_HIDE_COLNAMES").element("VC_TEXT", "VC_ID,VC_MID,N_DEL,N_STAT").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "查询结果中默认隐藏列的列名").element("N_SEQ", "0"));
 		model.getModelStructure().setDictData(dictData);
 	}
 

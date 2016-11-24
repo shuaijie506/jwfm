@@ -215,4 +215,21 @@ public class MySqlDialect implements DatabaseDialect {
 		}
 		return s.replaceAll("\\s*;?\\s*InnoDB free: \\d+ kB\\s*;?\\s*", "");
 	}
+
+	@Override
+	public String getDate2StringFun(String fieldName, String format) {
+		return "date_format("+fieldName+",'"+tranFormat(format)+"')";
+	}
+
+	@Override
+	public String getString2DateFun(String fieldName, String format) {
+		return "str_to_date("+fieldName+",'"+tranFormat(format)+"')";
+	}
+	private String tranFormat(String format) {
+		if(format==null || format.trim().length()==0){
+			format = "yyyy-MM-dd";
+		}
+		return format.replaceAll("yyyy", "%Y").replaceAll("MM", "%m").replaceAll("dd", "%d").replaceAll("HH", "%H").replaceAll("mm", "%i").replaceAll("ss", "%s");
+	}
+
 }

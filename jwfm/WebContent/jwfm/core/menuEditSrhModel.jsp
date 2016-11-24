@@ -3,8 +3,8 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 
 <tr class=subtitle>
-	<td colspan=6>业务表结构  <a href="javascript:void(0)" id="addMtblColBtn">添加</a>
-	<a href="javascript:void(0)" id="delMtblColBtn" class=delRowBtn>删除选中</a>
+	<td colspan=6>查询功能设置  <a href="javascript:void(0)" id="addSrhCondBtn">添加查询条件</a>
+	<a href="javascript:void(0)" id="delSrhCondBtn" class=delRowBtn>删除选中</a>
 	<select id="dbtblselect" style="width:200px;"><option value="maintbl-tr">主表：</option><option value="createnewtbl">增加业务从表</option></select>
 	</td>
 </tr>
@@ -51,7 +51,7 @@
 	</table>
 	</td>
 </tr>
-<div id="mtblColMenu" style="width:340px;">
+<div id="srhCondMenu" style="width:340px;">
 </div>
 
 <SCRIPT type=text/javascript>
@@ -59,7 +59,7 @@
 		var model = $('#editForm').data('model')||{};
 		//处理添加按钮的菜单
 		var presetMenus = <%=FastUtil.getRegVal("SYSMENU_PRESET_TBLCOLS_ARY") %>;
-		$('#mtblColMenu').append(createButtonMenu(presetMenus)).menu({onClick:function(item){
+		$('#srhCondMenu').append(createButtonMenu(presetMenus)).menu({onClick:function(item){
 			var ary = (item.names||'').split(',');
 			var items = [];
 			for(var i=0;i<ary.length;i++){
@@ -73,7 +73,7 @@
 			}
 			addTblCols(items,namepre,'.'+cls);
 		}});
-		$('#addMtblColBtn').splitbutton({iconCls:'icon-add',menu:'#mtblColMenu'}).click(function(){
+		$('#addSrhCondBtn').splitbutton({iconCls:'icon-add',menu:'#srhCondMenu'}).click(function(){
 			var namepre = 'model.mainTable.columns[0]',cls=$('#dbtblselect').val();
 			if(cls.startWith('itemtbl-tr')){
 				namepre = 'model.otherTables['+cls.replace('itemtbl-tr','')+'].columns[0]';
@@ -81,13 +81,11 @@
 			addTblCols([{}],null,namepre,'.'+cls);
 		});
 		//删除按钮事件
-		$('#delMtblColBtn').linkbutton({iconCls:'icon-remove',plain:true}).click(function(){
-			$('.dbtbl-body .delChk:checked').each(function(){
+		$('#delSrhCondBtn').linkbutton({iconCls:'icon-remove',plain:true}).click(function(){
+			$('.maintbl-tbl-body .delChk:checked').each(function(){
 				$(this).parent().parent().remove();
 			});
-			$('.dbtbl-body').each(function(){
-				resetBtnTblIndex(this);
-			});
+			resetBtnTblIndex('.maintbl-tbl-body');
 		});
 		//生成数据类型下拉框
 		function getDataTypeSelect(name,val){
@@ -99,7 +97,7 @@
 			return htm.join('');
 		}
 		//添加指定行
-		function addTblCols(items,namepre,container){
+		function addTblCols(items,namepre,container){console.log(namepre,container)
 			var htm = [];
 			//var namepre = 'model.mainTable.columns[0]';
 			for(var i=0;i<items.length;i++){
@@ -156,6 +154,6 @@
 		setValueByName('.maintbl-tr .dbtbl-info');
 		$('.maintbl-tr .dbtbl-info input[type=text]').data('trcls','maintbl-tr').bind('keyup paste blur',refreshTblCode);
 		//将已有列信息显示
-		addTblCols(model.mainTable.columns,'model.mainTable.columns[0]','.maintbl-tr');
+		//addTblCols(model.mainTable.columns,'model.mainTable.columns[0]','.maintbl-tr');
 	});
 </SCRIPT>

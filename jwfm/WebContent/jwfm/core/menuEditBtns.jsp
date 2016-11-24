@@ -70,10 +70,7 @@
 				htm.push('</tr>');
 			}
 			var trs = $(htm.join('')).appendTo('#btn-tbl-body');
-			$('.index',trs).bind('blur keyup',function(){
-				if(event.type=='blur' || event.keyCode==13)
-					adjustTrByIndex($(this));
-			});
+			$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
 			resetBtnTblIndex('#btn-tbl-body');
 		}
 		//将已有按钮组显示

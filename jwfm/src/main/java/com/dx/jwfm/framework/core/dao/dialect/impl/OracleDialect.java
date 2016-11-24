@@ -225,4 +225,22 @@ public class OracleDialect implements DatabaseDialect {
 		return s1.trim().equals(s2.trim());
 	}
 
+
+	@Override
+	public String getDate2StringFun(String fieldName, String format) {
+		return "to_char("+fieldName+",'"+tranFormat(format)+"')";
+	}
+
+	@Override
+	public String getString2DateFun(String fieldName, String format) {
+		return "to_date("+fieldName+",'"+tranFormat(format)+"')";
+	}
+
+	private String tranFormat(String format) {
+		if(format==null || format.trim().length()==0){
+			format = "yyyy-mm-dd";
+		}
+		return format.replaceAll("HH", "hh24").replaceAll(":mm", ":mi");
+	}
+
 }

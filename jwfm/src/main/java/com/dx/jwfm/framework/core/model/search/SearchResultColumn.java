@@ -22,6 +22,8 @@ public class SearchResultColumn {
 	private boolean frozen;
 	/**显示时的对齐方式，默认为居中 */
 	private String align;
+	/**是否隐藏此列*/
+	private boolean hidden;
 	public SearchResultColumn() {
 	}
 	public SearchResultColumn(String vcTitle, String vcCode, String vcType, int width, String vcFormat, String canSort) {
@@ -103,6 +105,12 @@ public class SearchResultColumn {
 	}
 	public void setAlign(String align) {
 		this.align = align;
+	}
+	public boolean isHidden() {
+		return hidden;
+	}
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 	
 }

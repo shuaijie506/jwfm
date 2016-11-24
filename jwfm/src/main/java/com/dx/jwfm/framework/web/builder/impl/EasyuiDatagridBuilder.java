@@ -72,6 +72,7 @@ public class EasyuiDatagridBuilder implements IDatagridBuilder {
 			row.add(obj);
 		}
     	for(SearchResultColumn col:columns){
+    		if(col.isHidden())continue;
     		if(frozen == col.isFrozen()){//是否为冻结列
 	    		JSONObject obj = new JSONObject();
     			if(col.getVcType().startsWith("dict:")){

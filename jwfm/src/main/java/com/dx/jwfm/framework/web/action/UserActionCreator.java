@@ -112,6 +112,22 @@ public class UserActionCreator extends ActionCreator {
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
 		return search;
 	}
 

@@ -100,6 +100,7 @@ public class ResultTag extends BaseViewTag {
 		}
 		buff.append(" ><colgroup>");
 		for(SearchResultColumn col:list){
+    		if(col.isHidden())continue;
 			colbuff.append("<col width=\"").append(col.getWidth()).append("px\" />");
 			thbuff.append("<th ");
 			if(FastUtil.isNotBlank(col.getCanSort())){
@@ -131,6 +132,7 @@ public class ResultTag extends BaseViewTag {
 			for (FastPo row : data) {
 				buff.append("<tr").append(rowAttr).append(">");
 				for (SearchResultColumn col : list) {
+		    		if(col.isHidden())continue;
 					buff.append("<td");
 					if (FastUtil.isNotBlank(col.getVcTdCss())) {
 						buff.append(" class=\"").append(col.getVcTdCss()).append("\"");

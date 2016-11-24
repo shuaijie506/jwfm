@@ -15,11 +15,12 @@ long ltime = System.currentTimeMillis();
 	$(function(){
 		//对字段进行非空验证和输入类型长度等限制
 		$('#editTbl<%=ltime%> .easyui-validatebox').validatebox();
-		$('.fast-edit-table').autoInputWidth();
 		//点击添加按钮操作
 	    $('#addBtn').click(function(){
 			$('#editForm').submit();
 		});
+		//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
+		$('.fast-edit-table').autoInputWidth();
 		//表单验证及提交处理操作
 		$('#editForm').form({
 			url:'<%=addActionName%>',
