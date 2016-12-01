@@ -9,6 +9,21 @@ $(function(){
 			}
 		});
 	}
+	$(window).resize(function(){//窗口大小变化时将弹出的window窗口的宽度和高度跟着变化，保证窗口在可显示范围内
+		$('.window-body:visible').each(function(){
+			var pnl = $(this).window('panel');
+			var pos = pnl.offset();
+			if(pos.left+pnl.outerWidth()>$(window).width()){
+				pos.width = $(window).width()-pos.left;
+			}
+			if(pos.top+pnl.outerHeight()>$(window).height()){
+				pos.height = $(window).height()-pos.top;
+			}
+			if(pos.width || pos.height){
+				$(this).window('resize',pos);
+			}
+		});
+	});
 });
 function dealMultiRow(tblId,url,info,param){
 	var rows = $('#'+tblId).datagrid('getSelections');					
