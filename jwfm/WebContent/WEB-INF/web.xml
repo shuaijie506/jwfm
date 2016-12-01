@@ -19,11 +19,6 @@
 			<param-name>dataSource</param-name>
 			<param-value>java:comp/env/CSMISDS</param-value>
 		</init-param>
-		<!-- <init-param>
-			<description>系统主要数据源对应的数据库方言</description>
-			<param-name>databaseDialect</param-name>
-			<param-value>com.dx.jwfm.framework.core.dao.dialect.impl.OracleDialect</param-value>
-		</init-param> -->
 		<init-param>
 			<description>是否集成Spring框架</description>
 			<param-name>useSpring</param-name>
@@ -34,11 +29,6 @@
             <param-name>encoding</param-name>
             <param-value>UTF-8</param-value>
         </init-param>
-		<init-param>
-			<description>正常URL请求的扩展名</description>
-			<param-name>actionExt</param-name>
-			<param-value>action</param-value>
-		</init-param>
 		<init-param>
 			<description>根据用户请求时加载板块的映射路径</description>
 			<param-name>classModelBasePath</param-name>
@@ -55,25 +45,9 @@
 			<param-value>/modelupd</param-value>
 		</init-param>
 		<init-param>
-			<description>在Action处理前的预处理类，需要继承IFastProcess接口</description>
-			<param-name>ActionProcess</param-name>
-			<param-value></param-value>
-		</init-param>
-		<!--  -->
-		<init-param>
-			<description>在Action处理前的预处理类，需要继承IActionHandel接口</description>
-			<param-name>ActionHandle</param-name>
-			<param-value>com.dx.jwfm.framework.core.handle.ParameterActionHandle</param-value>
-		</init-param>
-		<init-param>
 			<description>框架中发生错误后的转向页面</description>
 			<param-name>errorPage</param-name>
 			<param-value>/fast/error.jsp</param-value>
-		</init-param>
-		<init-param>
-			<description>默认值解析类名，类必须实现IDefaultValueParser接口</description>
-			<param-name>defaultValueParser</param-name>
-			<param-value></param-value>
 		</init-param>
 	</filter>
     

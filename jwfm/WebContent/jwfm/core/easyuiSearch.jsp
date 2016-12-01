@@ -17,6 +17,7 @@ String addActionName = bpath+"_"+method+actionExt;
 <META http-equiv=Content-Type content="text/html; charset=utf-8">
 <jsp:include page="/common/common.jsp"></jsp:include>
 <script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-util-easyui.js"></script>  <!-- easyui通用工具类 -->
+${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
 <SCRIPT type=text/javascript>
     	$(function(){
     		var fcols = <f:result type="easyui" frozen="true" hasChkCol="true"/>;
@@ -57,7 +58,7 @@ String addActionName = bpath+"_"+method+actionExt;
     		return {};
     	}
     	function addItem(){
-    		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>',width:600,height:400,
+    		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>1',width:600,height:400,
     			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption()));
     	}
     	function modifyItem(){

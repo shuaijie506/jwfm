@@ -7,7 +7,7 @@ public class SearchResultColumn {
 	/**字段编码*/
 	private String vcCode;
 	/**数据格式，文本text、日期date、整数long、浮点数double、字典项dict:字典名称、SQL项目sqlDict:SQL语句*/
-	private String vcType;
+//	private String vcType;
 	/**输入控件的显示宽度，单位为像素，正常网页每个汉字宽度为12px*/
 	private int width;
 	/**显示格式，对日期型字段和数字型字段有用*/
@@ -26,10 +26,10 @@ public class SearchResultColumn {
 	private boolean hidden;
 	public SearchResultColumn() {
 	}
-	public SearchResultColumn(String vcTitle, String vcCode, String vcType, int width, String vcFormat, String canSort) {
+	public SearchResultColumn(String vcTitle, String vcCode, int width, String vcFormat, String canSort) {
 		this.vcTitle = vcTitle;
 		this.vcCode = vcCode;
-		this.vcType = vcType;
+//		this.vcType = vcType;
 		this.width = width;
 		this.vcFormat = vcFormat;
 		this.canSort = canSort;
@@ -46,12 +46,12 @@ public class SearchResultColumn {
 	public void setVcCode(String vcCode) {
 		this.vcCode = vcCode;
 	}
-	public String getVcType() {
-		return vcType;
-	}
-	public void setVcType(String vcType) {
-		this.vcType = vcType;
-	}
+//	public String getVcType() {
+//		return vcType;
+//	}
+//	public void setVcType(String vcType) {
+//		this.vcType = vcType;
+//	}
 	public int getWidth() {
 		return width;
 	}

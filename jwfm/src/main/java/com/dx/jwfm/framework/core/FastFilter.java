@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -19,6 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.dx.jwfm.framework.core.dao.DbHelper;
@@ -127,7 +131,7 @@ public class FastFilter implements Filter {
 		logger.info("系统目录："+SystemContext.appPath);
 		actionExt = "."+FastUtil.nvl(getInitParameter("actionExt"),actionExt);
 		//加载系统指定拦截处理器
-		String[] ary = FastUtil.nvl(SystemContext.systemParam.get("ActionProcess")+","+map.get("ActionProcess"),"").split(",");
+		String[] ary = (FastUtil.nvl(SystemContext.systemParam.get("ActionProcess"),"")+","+FastUtil.nvl(map.get("ActionProcess"),"")).split(",");
 		for(int i=0;i<ary.length;i++){
 			if(ary[i]==null || ary[i].trim().length()==0){
 				continue;
@@ -141,7 +145,7 @@ public class FastFilter implements Filter {
 				logger.error(e.getMessage(),e);
 			}
 		}
-		ary = FastUtil.nvl(SystemContext.systemParam.get("defaultValueParser")+","+map.get("defaultValueParser"),"").split(",");
+		ary = (FastUtil.nvl(SystemContext.systemParam.get("defaultValueParser"),"")+","+FastUtil.nvl(map.get("defaultValueParser"),"")).split(",");
 		for(String str:ary){//初始化系统默认值解析部分
 			if(str.trim().length()>0){
 				try {
@@ -200,6 +204,7 @@ public class FastFilter implements Filter {
 	public void destroy() {
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadFastInitParam() {
 		HashMap<String,String> map = new HashMap<String, String>();
 		try {
@@ -213,7 +218,8 @@ public class FastFilter implements Filter {
 					for(Object okey:p.keySet()){
 						String key = okey.toString();
 						if(!map.containsKey(key)){//不覆盖，以先加载的配置文件内容为准
-							map.put(key, p.getProperty(key));
+							String val = p.getProperty(key);
+							map.put(key, val==null?"":val.trim());
 						}
 					}
 				} catch (IOException e) {
@@ -228,7 +234,19 @@ public class FastFilter implements Filter {
 			while(urls.hasMoreElements()){
 				URL url = urls.nextElement();
 				logger.info(url.toString());
-				UtilPrepareClass.loadFastXml(url.openStream());
+				try {
+					SAXReader reader = new SAXReader();  
+					Document doc = reader.read(url.openStream());  
+					Element root = doc.getRootElement();
+					UtilPrepareClass.loadFastXml(root);
+					List<Element> list = root.selectNodes("config/item");
+					for(Element e:list){
+						String val = e.getText();
+						map.put(e.attributeValue("name"), val==null?"":val.trim());
+					}
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);

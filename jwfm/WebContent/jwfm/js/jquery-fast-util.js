@@ -81,12 +81,12 @@
 	$.fn.formdata = function(){
 		var params = {};
 		$('input[name],select[name],textarea[name]',this).each(function(){
-			var tagName = ($(this).attr('tagName')||'').toLowerCase();
+			var tagName = (this.tagName||'').toLowerCase();
 			if(tagName=='select' || tagName=='textarea' || tagName=='input'){
 				params[$(this).attr('name')] = $(this).val();
 			}
 			if(tagName=='input'){//如果是checkbox和radio控件，并且控件属于未选中状态，则将值置为空
-				var type = $(this).attr('type');
+				var type = ($(this).attr('type')||'').toLowerCase();
 				if((type=='checkbox' || type=='radio') && !$(this).attr('checked')){
 					params[$(this).attr('name')] = '';
 				}
@@ -103,8 +103,8 @@
 		$('input[type=text],select,textarea',this).each(function(){
 			$(this).width($(this).width());
 		});
-		$('tr.subtitle',this).each(function(){
-			$('<span class="icon tree-expanded"></span>').prependTo($('>td:first',this)).click(function(){
+		$('tr.subtitle',this).each(function(){//给标题行增加收起功能
+			$('<span class="icon expand-icon tree-expanded"></span>').prependTo($('>td:first',this)).click(function(){
 				var collapsed = !$(this).data('collapsed');
 				var ntr = $(this).parent().parent().next();
 				while(ntr.length==1 && !ntr.hasClass('subtitle')){
@@ -112,6 +112,12 @@
 					ntr = ntr.next();
 				}
 				$(this).data('collapsed',collapsed).toggleClass('tree-expanded',!collapsed).toggleClass('tree-collapsed',collapsed);
+				return false;
+			});
+			$('>td:first',this).css('cursor','pointer').bind('click',function(){
+				if(event.srcElement && event.srcElement.tagName=='TD'){
+					$('.expand-icon',this).click();
+				}
 			});
 		});
 		$('>*>tr',this).each(function(){

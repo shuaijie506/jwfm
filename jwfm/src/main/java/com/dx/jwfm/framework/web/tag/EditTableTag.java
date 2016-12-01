@@ -1,6 +1,7 @@
 package com.dx.jwfm.framework.web.tag;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -42,9 +43,6 @@ public class EditTableTag extends BaseViewTag {
     		out.println("<div id='editDiv"+curTimeL+"'>");
 	    	out.println(replaceVars(html));
     		out.println("</div>");
-    		out.println("<script>");
-    		out.println("$('#editDiv"+curTimeL+" select').each(function(){$(this).val($(this).attr('val'));});");
-    		out.println("</script>");
 		} catch (IOException ex) {
 			logger.error(ex);
 		}
@@ -70,7 +68,7 @@ public class EditTableTag extends BaseViewTag {
 				buff.append(str.substring(lastpos, pos));
 				int nextpos = str.indexOf("}",pos);
 				String key = str.substring(pos+2, nextpos);
-				Object val = getFormatValue(getBeanValue(key),null);
+				Object val = getFormatValue(getVarValue(key),null);
 				if(val!=null){
 					buff.append(val);
 				}
@@ -87,6 +85,27 @@ public class EditTableTag extends BaseViewTag {
 		return buff.toString();
 	}
 
+	private Object getVarValue(String key) {
+		//处理${$select$fieldName:sql:SQL语句}
+		if(key.startsWith("$select$")){
+			int pos = key.indexOf(":",8);
+			if(pos<0){
+				return "下拉选择框格式错误，请使用${$select$fieldName:sql:SQL语句}或${$select$fieldName:dict:字典名称}定义下拉选择框";
+			}
+			String fieldName = key.substring(8,pos);
+			Object val = getBeanValue(fieldName);
+			SelectTag sel = new SelectTag();
+			sel.setName(fieldName);
+			sel.setValue(val==null?"":val.toString());
+			sel.setEmptyOption(true);
+			sel.setList(key.substring(pos+1));
+			sel.setId(fieldName.replaceAll("\\.", "_"));
+			StringWriter sw = new StringWriter();
+			sel.writeHtml(sw);
+			return sw.toString();
+		}
+		return getBeanValue(key);
+	}
 	public String getMenuUrl() {
 		return menuUrl;
 	}

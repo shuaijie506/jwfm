@@ -123,12 +123,12 @@ public class ResultTag extends BaseViewTag {
 			buff.append("<tr><td colspan=").append(list.size()).append(">未查到任何内容</td></tr>");
 		} else {
 			String rowAttr = "";
-			if (FastUtil.isNotBlank(search.getVcRowCss())) {
-				rowAttr += " class=\"" + search.getVcRowCss() + "\"";
-			}
-			if (FastUtil.isNotBlank(search.getVcRowStyle())) {
-				rowAttr += " style=\"" + search.getVcRowStyle() + "\"";
-			}
+//			if (FastUtil.isNotBlank(search.getVcRowCss())) {
+//				rowAttr += " class=\"" + search.getVcRowCss() + "\"";
+//			}
+//			if (FastUtil.isNotBlank(search.getVcRowStyle())) {
+//				rowAttr += " style=\"" + search.getVcRowStyle() + "\"";
+//			}
 			for (FastPo row : data) {
 				buff.append("<tr").append(rowAttr).append(">");
 				for (SearchResultColumn col : list) {
@@ -141,9 +141,9 @@ public class ResultTag extends BaseViewTag {
 						buff.append(" style=\"").append(col.getVcTdStyle()).append("\"");
 					}
 					buff.append(">");
-					if (col.getVcType().startsWith("dict:")) {
+					if (col.getVcFormat()!=null && col.getVcFormat().startsWith("dict:")) {
 						String val = row.getString(col.getVcCode());
-						val = getDictText(col.getVcType().substring(5), val);
+						val = getDictText(col.getVcFormat().substring(5), val);
 						buff.append(val);
 					} else {
 						buff.append(row.get(FastUtil.isNotBlank(col.getVcFormat())

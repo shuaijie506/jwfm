@@ -1,0 +1,19 @@
+
+/*bootstrap兼容问题和easyui的bug*/  
+.panel-header, .panel-body {  
+padding:0px;border:0px;
+}
+.panel{border-width:0px;border-radius:0px;margin-bottom:0px;}
+.layout .panel-header{padding:5px;}
+.panel .panel-title {font-size: 12px;font-weight: bold;color: #777;height: 16px;line-height: 16px;margin-top:auto;margin-bottom:auto;}
+.layout .layout-split-west {
+    border-right: 5px solid #eee;
+}
+.datagrid,.combo-p{  
+border:solid 1px #D4D4D4;  
+}  
+.datagrid *{  
+-webkit-box-sizing: content-box;  
+-moz-box-sizing: content-box;  
+box-sizing: content-box;  
+}  

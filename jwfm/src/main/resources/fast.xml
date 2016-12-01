@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fast>
+<config>
+<item name="dataSource" comment="数据库连接池名称，如使用spring则填写spring的beanid，否则填写JNDI的全称">java:comp/env/CSMISDS</item>
+<item name="databaseDialect" comment="此值为空时可根据连接名称自动匹配数据库方言，如自动匹配失效时，请手动指定类的全名"></item>
+<item name="useSpring" comment="是否使用spring的bean">false</item>
+<item name="actionExt" comment="URL扩展名后缀">action</item>
+<item name="updateDir" comment="模块更新文件存放目录">/modelupd</item>
+<item name="ActionProcess" comment="在Action处理前的预处理类，需要继承IFastProcess接口"></item>
+<item name="ActionHandle" comment="在Action处理前的预处理类，需要继承IActionHandel接口">
+com.dx.jwfm.framework.core.handle.ParameterActionHandle</item>
+<item name="errorPage" comment="模块更新文件存放目录">/fast/error.jsp</item>
+<item name="defaultValueParser" comment="模块更新文件存放目录"></item>
+<item name="datagridBuilder.easyui" comment="模块更新文件存放目录">
+com.dx.jwfm.framework.web.builder.impl.EasyuiDatagridBuilder</item>
+<item name="datagridBuilder.html" comment="模块更新文件存放目录">
+com.dx.jwfm.framework.web.builder.impl.HtmlDatagridBuilder</item>
+<item name="defaultValueParser" comment="默认值解析类名，类必须实现IDefaultValueParser接口">
+com.dx.jwfm.framework.core.parser.CommonDefaultValueParser</item>
+<item name="searchSQLConditionParser" comment="查询条件过滤处理类，多个类之间使用逗号分隔，必须实现SQLConditionParser接口">
+com.dx.jwfm.framework.web.logic.DefaultSQLConditionParser</item>
+</config>
 <regedit-default>
 <item name="SYSMENU_PRESET_BTN_ARY">['add,modify,del;add,modify,del,exportExcel;add,modify,del,submitItem,checkItem;add,modify,del,submitItem,checkItem,exportExcel',
 				{code:'add',name:'添加',iconCls:'icon-add',note:'点击按钮后打开添加界面'},
@@ -14,17 +34,6 @@
 				{code:'importItem',name:'导入',iconCls:'icon-back',note:'点击按钮后打开导入界面'}
 				
 		]</item>
-<item name="SYSMENU_PRESET_TBLCOLS_ARY">['VC_ID,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,N_STAT,VC_STAT,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,VC_MID,N_DEL,VC_ADD,DT_ADD;',
-				{code:'VC_ID',name:'主键',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:true,comment:''},
-				{code:'VC_MID',name:'主表主键',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:true,comment:''},
-				{code:'N_STAT',name:'流程状态值',type:'Integer',typeLen:'',defaults:'',canNull:false,primaryKey:false,comment:'0 暂存 1处理中 9已闭环'},
-				{code:'VC_STAT',name:'流程状态',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
-				{code:'N_DEL',name:'删除标记',type:'Integer',typeLen:'',defaults:'0',canNull:false,primaryKey:false,comment:'0 未删除 1已删除'},
-				{code:'VC_ADD',name:'添加人',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
-				{code:'DT_ADD',name:'添加时间',type:'Date',typeLen:'',defaults:'nowTime',canNull:false,primaryKey:false,comment:''},
-				{code:'VC_MODIFY',name:'修改人',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:false,comment:''},
-				{code:'DT_MODIFY',name:'修改时间',type:'Date',typeLen:'',defaults:'nowTime',canNull:false,primaryKey:false,comment:''},
-				
-		]</item>
+
 </regedit-default>
 </fast>

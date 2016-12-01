@@ -91,4 +91,14 @@ public interface DatabaseDialect {
 	 */
 	public String getString2DateFun(String fieldName,String format);
 	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月28日 上午11:13:07
+	 * 功能描述: 将多个字段或常量连接为一列
+	 * 方法的参数和返回值: 
+	 * @param strary
+	 * @return
+	 */
+	public String concatString(String[] strary);
+	
 }

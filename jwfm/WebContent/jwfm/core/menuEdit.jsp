@@ -36,6 +36,9 @@ long ltime = System.currentTimeMillis();
 			
 		//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
 		$('.fast-edit-table').autoInputWidth();
+		if('${po.VC_ID}'){//修改页面中默认只显示基本信息和按钮信息
+			$('tr.subtitle:eq(1)').nextAll('.subtitle').find('.tree-expanded').click();
+		}
 		//表单验证及提交处理操作
 		$('#editForm').data('model',model).form({
 			url:'<%=addActionName%>',
@@ -63,7 +66,10 @@ long ltime = System.currentTimeMillis();
 </SCRIPT>
 <style>
 input.index{text-align:center;}
-.fast-child-table tr td input[type=text],fast-child-table tr td textarea{width:97%;}
+.fast-child-table tr td input[type=text],.fast-child-table tr td textarea{width:97%;}
+.fast-child-table tr td.selecttextarea{text-align:left;}
+.fast-child-table tr td.selecttextarea textarea{height:37px;margin-top:2px;}
+.fast-child-table tbody tr td.left{text-align:left;}
 </style>
 <div id="editTbl<%=ltime%>">
 <form id="editForm" method="post">
@@ -102,12 +108,6 @@ input.index{text-align:center;}
 <jsp:include page="menuEditDbTable.jsp"></jsp:include>
 <%--查询功能区域 --%>
 <jsp:include page="menuEditSrhModel.jsp"></jsp:include>
-<tr class=subtitle>
-	<td colspan=6>查询结果</td>
-</tr>
-<tr class=subtitle>
-	<td colspan=6>查询信息</td>
-</tr>
 <tr class=subtitle>
 	<td colspan=6>字典数据</td>
 </tr>

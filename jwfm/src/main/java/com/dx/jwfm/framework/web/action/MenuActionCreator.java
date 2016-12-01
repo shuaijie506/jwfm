@@ -74,7 +74,7 @@ public class MenuActionCreator extends ActionCreator {
 	protected SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
 		List<SearchColumn> cols = search.getSearchColumns();
-		cols.add(new SearchColumn("所在分组", "VC_GROUP", "sqlDict:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
+		cols.add(new SearchColumn("所在分组", "VC_GROUP", "select:sql:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
 						120, null, "=", "and t.VC_GROUP=${VC_GROUP} "));
 		cols.get(cols.size()-1).setVcEditorJs("$('#search_VC_GROUP').change(function(){doSearch();});");
 		cols.add(new SearchColumn("菜单名", "VC_NAME", "text", 120, null, "like", "and t.vc_name like '%'||${VC_NAME}||'%' "));
@@ -82,17 +82,17 @@ public class MenuActionCreator extends ActionCreator {
 		search.setSearchSelectSql("select t.* from "+tblPre+"T_MENU_LIB t ");
 		search.setSearchOrderBySql("VC_GROUP,VC_NAME");
 		List<SearchResultColumn> list = search.getSearchResultColumns();
-		search.getSearchResultColumns().add(new SearchResultColumn("所在分组", "VC_GROUP", "text", 85, null, "asc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("菜单名", "VC_NAME", "text", 145, null, "asc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("版本", "VC_VERSION", "text", 95, null, "asc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("菜单URL", "VC_URL", "text", 215, null, "asc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("所在分组", "VC_GROUP", 85, null, "asc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("菜单名", "VC_NAME", 145, null, "asc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("版本", "VC_VERSION", 95, null, "asc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("菜单URL", "VC_URL", 215, null, "asc"));
 		list.get(list.size()-1).setAlign("left");
-		search.getSearchResultColumns().add(new SearchResultColumn("功能说明及更改历史", "VC_NOTE", "text", 245, null, null));
+		search.getSearchResultColumns().add(new SearchResultColumn("功能说明及更改历史", "VC_NOTE", 245, null, null));
 		list.get(list.size()-1).setAlign("left");
-		search.getSearchResultColumns().add(new SearchResultColumn("添加人", "VC_ADD", "text", 60, null, null));
-		search.getSearchResultColumns().add(new SearchResultColumn("添加时间", "DT_ADD", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("修改人", "VC_MODIFY", "text", 60, null, null));
-		search.getSearchResultColumns().add(new SearchResultColumn("修改时间", "DT_MODIFY", "text", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("添加人", "VC_ADD", 60, null, null));
+		search.getSearchResultColumns().add(new SearchResultColumn("添加时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("修改人", "VC_MODIFY", 60, null, null));
+		search.getSearchResultColumns().add(new SearchResultColumn("修改时间", "DT_MODIFY", 120, "yyyy-MM-dd HH:mm", "desc"));
 		return search;
 	}
 
@@ -113,7 +113,6 @@ public class MenuActionCreator extends ActionCreator {
 		ArrayList<FastPo> dictData = new ArrayList<FastPo>();
 		String dictTbl = SystemContext.dbObjectPrefix+"T_DICT";
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_BASE_PACKAGE").element("VC_TEXT", "com.dx.jwfm.framework.web").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时基础包路径").element("N_SEQ", "0"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_PRESET_TBLCOLS_ARY").element("VC_TEXT", "").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时按钮组选择项").element("N_SEQ", "0"));
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_DEFAULT_HIDE_COLNAMES").element("VC_TEXT", "VC_ID,VC_MID,N_DEL,N_STAT").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "查询结果中默认隐藏列的列名").element("N_SEQ", "0"));
 		model.getModelStructure().setDictData(dictData);
 	}

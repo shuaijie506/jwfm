@@ -41,7 +41,10 @@ public class EasyuiDatagridBuilder implements IDatagridBuilder {
 				}
 				for(int j=0;j<list.size();j++){
 					FastPo row = list.get(j);
-					if(pos>0){//公共字典
+					if("#index".equals(ary[i])){
+						row.setPropt("#index", j+1);
+					}
+					else if(pos>0){//公共字典
 						if(dictMap!=null){
 							row.setPropt(ary[i], dictMap.get(row.getString(field)));
 						}
@@ -75,11 +78,13 @@ public class EasyuiDatagridBuilder implements IDatagridBuilder {
     		if(col.isHidden())continue;
     		if(frozen == col.isFrozen()){//是否为冻结列
 	    		JSONObject obj = new JSONObject();
-    			if(col.getVcType().startsWith("dict:")){
-	    			obj.put("field", col.getVcCode()+":dict"+col.getVcType().substring(5));
-    			}
-    			else if(FastUtil.isNotBlank(col.getVcFormat())){
-	    			obj.put("field", col.getVcCode()+":"+col.getVcFormat());
+    			if(FastUtil.isNotBlank(col.getVcFormat())){
+        			if(col.getVcFormat().startsWith("dict:")){
+    	    			obj.put("field", col.getVcCode()+":dict"+col.getVcFormat().substring(5));
+        			}
+        			else{
+        				obj.put("field", col.getVcCode()+":"+col.getVcFormat());
+        			}
 	    		}
 	    		else{
 	    			obj.put("field", col.getVcCode());

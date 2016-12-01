@@ -74,26 +74,23 @@ function returnOptMsgEasyui(data,reMsg,callback){
     }
     return false;
 }
-
-$.fn.combobox.defaults.valueField="id";
-$.fn.combobox.defaults.height=20;
-$.fn.combobox.defaults.onLoadSuccess=function(){
+$.extend($.fn.combobox.defaults,{valueField:"id",height:20,onLoadSuccess:function(){
 	var th = $(this);
 	$(this).combobox('textbox').unbind('click.showpanel').bind('click.showpanel',function(){
 		th.combobox('showPanel');
 	});
-};
-$.fn.datagrid.defaults.pageList=[10,20,50,200];
-$.fn.datagrid.defaults.onBeforeLoad = function(param){//转换参数中的每页行数和页码参数名
+}});
+$.extend($.fn.datagrid.defaults,{pageList:[10,20,50,200],rownumbers:true,
+onBeforeLoad : function(param){//转换参数中的每页行数和页码参数名
 	param['pager.rows']=param.rows;param.rows=undefined;
 	param['pager.page']=param.page;param.page=undefined;
-};
-$.fn.datagrid.defaults.onLoadSuccess = function(data){
+},
+onLoadSuccess : function(data){
 	var opt = $(this).datagrid('options');
 	opt.pageSize = data.pageSize||'10';
 	opt.pageNumber = data.pageNumber||'1';
 	$('.datagrid-pager',$.data(this, 'datagrid').grid).pagination({total: data.total,pageSize:opt.pageSize,pageNumber:opt.pageNumber});
-};
+}});
 $.fn.datagrid.dealParam = function(param,fcols,cols){
 	cols = fcols.concat(cols);
 	var formatCols = [];

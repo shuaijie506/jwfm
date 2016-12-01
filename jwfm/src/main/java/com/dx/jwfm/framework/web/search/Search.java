@@ -29,10 +29,11 @@ public class Search extends MapObject  {
 		}
 		for(String key:map.keySet()){
 			SearchColumn col = model.getSearchColumn(key);
-			if(col==null || col.getSqlFragment()==null)continue;
+			String sqlFrag = null;
+			if(col==null || FastUtil.isBlank(sqlFrag=col.getSqlFragmentFinal(map)))continue;
 			String val = (String)map.get(key);
-			if(FastUtil.isNotBlank(val) && FastUtil.isNotBlank(col.getSqlFragment())){
-				sql.append(" ").append(col.getSqlFragment());
+			if(FastUtil.isNotBlank(val)){
+				sql.append(" ").append(sqlFrag);
 			}
 		}
 		sql.append(" order by ");

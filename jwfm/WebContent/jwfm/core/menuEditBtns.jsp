@@ -40,9 +40,14 @@
 <SCRIPT type=text/javascript>
 	$(function(){
 		var model = $('#editForm').data('model')||{};
-		var presetMenus = <%=FastUtil.getRegVal("SYSMENU_PRESET_BTN_ARY") %>;
-		$('#btnMenu').append(createButtonMenu(presetMenus)).menu({onClick:function(item){
-			var ary = (item.names||'').split(',');console.log(ary)
+		var presetMenus = $.sysmenu.presetBtnAry;
+		for(var i=0;i<presetMenus.length;i++){
+			var item = presetMenus[i];
+			var icode = item.code.length<7?item.code+'Item':item.code;
+			$.extend(item,{funName:icode,btnId:icode+'Btn',});
+		}
+		$('#btnMenu').append(createMenuHTML(presetMenus)).menu({onClick:function(item){
+			var ary = (item.names||'').split(',');
 			var items = [];
 			for(var i=0;i<ary.length;i++){
 				if(presetMenus[ary[i].trim()]){

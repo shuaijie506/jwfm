@@ -107,6 +107,9 @@ public class BaseViewTag extends TagSupport implements DynamicAttributes {
 	}
 
 	protected Object getBean(String name) {
+		if(pageContext==null){
+			return null;
+		}
 		//优先从page中取值
 		Object obj = pageContext.getAttribute(name);
 		HttpServletRequest request = null;

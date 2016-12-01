@@ -50,7 +50,7 @@ public class SearchItemTag extends BaseViewTag {
 	    	for(SearchColumn col:items){
 	    		out.print("<span class=\"searchItem\"> ");
 	    		out.print(col.getVcTitle());
-	    		out.print(HtmlUtil.createEditorHtml("search", col.getVcCode(), col.getVcEditorType(), getValue(col)));
+	    		out.print(getEditorHtml(col, "search", getValue(col)));
 	    		out.println("</span>");
 	    		if(FastUtil.isNotBlank(col.getVcEditorJs())){
 	    			jsOut.println(col.getVcEditorJs());
@@ -67,7 +67,30 @@ public class SearchItemTag extends BaseViewTag {
 		}
 		return super.doEndTag();
 	}
-	
+
+	public String getEditorHtml(SearchColumn col, String prefix,String value){
+		//日期型的需要特殊处理
+		if("dateRange".equals(col.getSqlSearchType())){//日期范围
+			String format = null;
+			if(col.getVcEditorType()!=null && col.getVcEditorType().startsWith("date:")){
+				format = col.getVcEditorType().substring(5);
+			}
+			if(FastUtil.isBlank(format)){
+				format = "yyyy-MM-dd";
+			}
+			int width = format.length()*6+25;
+			StringBuffer buff = new StringBuffer();
+			buff.append("<input type=hidden").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()))
+			.append(" value=1 /><input type=text").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()+"Begin"))
+			.append(" class=\"Wdate\" onfocus=\"WdatePicker({dateFmt:'").append(format).append("'})\" value=\"")
+			.append(FastUtil.nvl((String)getBeanValue(prefix+"."+col.getVcCode()+"Begin"),""))
+			.append("\" style=\"width:").append(width).append("px;\" /> 至 <input type=text").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()+"End"))
+			.append(" class=\"Wdate\" onfocus=\"WdatePicker({dateFmt:'").append(format).append("'})\" value=\"")
+			.append(FastUtil.nvl((String)getBeanValue(prefix+"."+col.getVcCode()+"End"),"")).append("\" style=\"width:").append(width).append("px;\" />");
+			return buff.toString();
+		}
+		return HtmlUtil.createEditorHtml(prefix, col.getVcCode(), col.getVcEditorType(), value);
+	}
 	private String getValue(SearchColumn col){
 		Object action = RequestContext.getRequestAction();
 		String val = null;

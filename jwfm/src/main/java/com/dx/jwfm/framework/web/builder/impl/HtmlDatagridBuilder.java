@@ -75,11 +75,13 @@ public class HtmlDatagridBuilder implements IDatagridBuilder {
     		if(col.isHidden())continue;
     		if(frozen == col.isFrozen()){//是否为冻结列
 	    		JSONObject obj = new JSONObject();
-    			if(col.getVcType().startsWith("dict:")){
-	    			obj.put("field", col.getVcCode()+":dict"+col.getVcType().substring(5));
-    			}
-    			else if(FastUtil.isNotBlank(col.getVcFormat())){
-	    			obj.put("field", col.getVcCode()+":"+col.getVcFormat());
+    			if(FastUtil.isNotBlank(col.getVcFormat())){
+        			if(col.getVcFormat().startsWith("dict:")){
+    	    			obj.put("field", col.getVcCode()+":dict"+col.getVcFormat().substring(5));
+        			}
+        			else{
+        				obj.put("field", col.getVcCode()+":"+col.getVcFormat());
+        			}
 	    		}
 	    		else{
 	    			obj.put("field", col.getVcCode());

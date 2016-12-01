@@ -3,3 +3,5 @@
 My name is ${name}
 
 My name is <%=request.getAttribute("name") %>
+
+${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
