@@ -74,7 +74,7 @@ public class MenuActionCreator extends ActionCreator {
 	protected SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
 		List<SearchColumn> cols = search.getSearchColumns();
-		cols.add(new SearchColumn("所在分组", "VC_GROUP", "sqlDict:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
+		cols.add(new SearchColumn("所在分组", "VC_GROUP", "select:sql:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
 						120, null, "=", "and t.VC_GROUP=${VC_GROUP} "));
 		cols.get(cols.size()-1).setVcEditorJs("$('#search_VC_GROUP').change(function(){doSearch();});");
 		cols.add(new SearchColumn("菜单名", "VC_NAME", "text", 120, null, "like", "and t.vc_name like '%'||${VC_NAME}||'%' "));
@@ -113,7 +113,6 @@ public class MenuActionCreator extends ActionCreator {
 		ArrayList<FastPo> dictData = new ArrayList<FastPo>();
 		String dictTbl = SystemContext.dbObjectPrefix+"T_DICT";
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_BASE_PACKAGE").element("VC_TEXT", "com.dx.jwfm.framework.web").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时基础包路径").element("N_SEQ", "0"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_PRESET_TBLCOLS_ARY").element("VC_TEXT", "").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时按钮组选择项").element("N_SEQ", "0"));
 		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_DEFAULT_HIDE_COLNAMES").element("VC_TEXT", "VC_ID,VC_MID,N_DEL,N_STAT").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "查询结果中默认隐藏列的列名").element("N_SEQ", "0"));
 		model.getModelStructure().setDictData(dictData);
 	}

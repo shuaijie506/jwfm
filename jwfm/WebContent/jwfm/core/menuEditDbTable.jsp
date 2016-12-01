@@ -58,8 +58,8 @@
 	$(function(){
 		var model = $('#editForm').data('model')||{};
 		//处理添加按钮的菜单
-		var presetMenus = <%=FastUtil.getRegVal("SYSMENU_PRESET_TBLCOLS_ARY") %>;
-		$('#mtblColMenu').append(createButtonMenu(presetMenus)).menu({onClick:function(item){
+		var presetMenus = $.sysmenu.presetTblcolAry;
+		$('#mtblColMenu').append(createMenuHTML(presetMenus)).menu({onClick:function(item){
 			var ary = (item.names||'').split(',');
 			var items = [];
 			for(var i=0;i<ary.length;i++){
@@ -78,7 +78,7 @@
 			if(cls.startWith('itemtbl-tr')){
 				namepre = 'model.otherTables['+cls.replace('itemtbl-tr','')+'].columns[0]';
 			}
-			addTblCols([{}],null,namepre,'.'+cls);
+			addTblCols([{}],namepre,'.'+cls);
 		});
 		//删除按钮事件
 		$('#delMtblColBtn').linkbutton({iconCls:'icon-remove',plain:true}).click(function(){
@@ -101,21 +101,26 @@
 		//添加指定行
 		function addTblCols(items,namepre,container){
 			var htm = [];
-			//var namepre = 'model.mainTable.columns[0]';
 			for(var i=0;i<items.length;i++){
 				htm.push('<tr>');
 				htm.push(createIndexTd());
 				pushInputTds(htm,items[i],namepre,'name,code'.split(','));
 				htm.push('<td>'+getDataTypeSelect(namepre+'.type',items[i].type||'')+'</td>');
 				pushInputTds(htm,items[i],namepre,'typeLen,defaults'.split(','));
-				htm.push('<td><input type=checkbox value=true name='+namepre+'.canNull '+(items[i].canNull?'checked':'')+' /></td>');
-				htm.push('<td><input type=checkbox value=true name='+namepre+'.primaryKey '+(items[i].primaryKey?'checked':'')+' /></td>');
+				pushCheckboxTds(htm,items[i],namepre,'canNull,primaryKey'.split(','));
 				pushInputTds(htm,items[i],namepre,'dictName,comment'.split(','));
+				pushCheckboxTds(htm,items[i],namepre,'searchCondition,serachResultCol'.split(','));
 				htm.push(createDelTd());
 				htm.push('</tr>');
 			}
 			var trs = $(htm.join('')).appendTo($('.dbtbl-body',container));
 			$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
+			$(':checkbox.searchCondition',trs).click(function(){//调用menuEditSrhModel.jsp中定义的事件
+				$('.srhmodel-tr').trigger('addsrhcond',[$(this).parent().parent()]);
+			});
+			$(':checkbox.serachResultCol',trs).click(function(){//调用menuEditSrhModel.jsp中定义的事件
+				$('.srhmodel-tr').trigger('addsrhresult',[$(this).parent().parent()]);
+			});
 			resetBtnTblIndex($('.dbtbl-body',container));
 		}
 		function refreshTblCode(){

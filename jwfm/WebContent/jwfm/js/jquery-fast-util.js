@@ -81,12 +81,12 @@
 	$.fn.formdata = function(){
 		var params = {};
 		$('input[name],select[name],textarea[name]',this).each(function(){
-			var tagName = ($(this).attr('tagName')||'').toLowerCase();
+			var tagName = (this.tagName||'').toLowerCase();
 			if(tagName=='select' || tagName=='textarea' || tagName=='input'){
 				params[$(this).attr('name')] = $(this).val();
 			}
 			if(tagName=='input'){//如果是checkbox和radio控件，并且控件属于未选中状态，则将值置为空
-				var type = $(this).attr('type');
+				var type = ($(this).attr('type')||'').toLowerCase();
 				if((type=='checkbox' || type=='radio') && !$(this).attr('checked')){
 					params[$(this).attr('name')] = '';
 				}

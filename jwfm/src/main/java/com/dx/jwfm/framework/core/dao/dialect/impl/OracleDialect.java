@@ -243,4 +243,16 @@ public class OracleDialect implements DatabaseDialect {
 		return format.replaceAll("HH", "hh24").replaceAll(":mm", ":mi");
 	}
 
+	public String concatString(String[] strary) {
+		if(strary==null || strary.length==0){
+			return "";
+		}
+		if(strary.length==1){
+			return strary[0];
+		}
+		else{
+			return FastUtil.join(strary,"||");
+		}
+	}
+
 }

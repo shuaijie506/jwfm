@@ -5,8 +5,6 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
-import com.dx.jwfm.framework.util.FastUtil;
-
 public class HiddenTag extends BaseViewTag {
 	/**  */
 	private static final long serialVersionUID = 1L;
@@ -47,7 +45,7 @@ public class HiddenTag extends BaseViewTag {
 	}
 	
 	public String getValue() {
-		if(FastUtil.isBlank(value)){
+		if(value == null){
 			Object val = getBeanValue(name);
 			value = getFormatValue(val,format);
 		}

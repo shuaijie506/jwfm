@@ -1,21 +1,27 @@
 package com.dx.jwfm.framework.web.tag;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class SelectTag extends HiddenTag {
 	/**  */
 	private static final long serialVersionUID = 1L;
-	/** 支持3种类别：
+	/** 支持4种类别：
 	 * 1.#{1:选项1;2:选项2;3:选项3}，此时系统按分号和冒号将字符串解析为列表列表中如果用到英文分号和冒号时，以&#58;和&#59;代替
 	 * 2.指定从page, request, session, application中获取对象，对象可以是实现Collection接口和Map接口
-	 * 3.以dict:开头，则使用dict:后面指定的分组名从公共字典中加载项目 */
+	 * 3.以dict:开头，则使用dict:后面指定的分组名从公共字典中加载项目
+	 * 3.以sql:开头，则使用sql:后面指定的SQL语句从查询结果中加载项目
+	 *  */
 	protected String list;
 	/** list属性中指定的对象为List时，从List中每个元素对象的哪个属性做为value和text，默认为id和text */
 	protected String valueField="id",textField="text";
@@ -26,27 +32,7 @@ public class SelectTag extends HiddenTag {
 	public int doEndTag() throws JspException {
 	    JspWriter out = pageContext.getOut();
 	    try{
-	    	out.print("<select name=\"");
-	    	out.print(name);
-	    	out.print("\"");
-			for(String k:attr.keySet()){
-		    	out.print(" ");
-		    	out.print(k);
-				if(attr.get(k)!=null){
-			    	out.print("=\"");
-			    	out.print(attr.get(k).replace("\"", "\\\"").replaceAll("\\r|\\n", ""));
-			    	out.print("\"");
-				}
-			}
-			out.println(" >");
-			getValue();//将value值写入value属性中
-			if(emptyOption){
-				addOption(out,"","");
-			}
-			printOptions(out);
-	    	out.print("</select>");
-		} catch (IOException ex) {
-			logger.error(ex);
+	    	writeHtml(out);
 		} catch (Exception e) {
 			throw new JspException(e);
 		}
@@ -54,8 +40,43 @@ public class SelectTag extends HiddenTag {
 		return SKIP_BODY;
 	}
 	
+	public void writeHtml(Writer out){
+    	try {
+			out.write("<select name=\"");
+			out.write(name);
+			out.write("\"");
+			for(String k:attr.keySet()){
+				out.write(" ");
+				out.write(k);
+				if(attr.get(k)!=null){
+			    	out.write("=\"");
+			    	out.write(attr.get(k).replace("\"", "\\\"").replaceAll("\\r|\\n", ""));
+			    	out.write("\"");
+				}
+			}
+			if(FastUtil.isNotBlank(id)){
+				out.write(" id=\"");
+				out.write(id);
+				out.write("\"");
+			}
+			if(FastUtil.isNotBlank(getValue())){//将value值写入value属性中
+				out.write(" value=\"");
+				out.write(value);
+				out.write("\"");
+			}
+			out.write(" >\n");
+			if(emptyOption){
+				addOption(out,"","");
+			}
+			printOptions(out);
+			out.write("</select>");
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+		}
+	}
+	
 	@SuppressWarnings("rawtypes")
-	protected void printOptions(JspWriter out) throws IOException{
+	protected void printOptions(Writer out) throws IOException{
 		if(list.startsWith("#{") && list.endsWith("}")){//自定义选项列表
 			String str = list.substring(2, list.length()-1);
 			String[] ary = str.split(";");
@@ -66,6 +87,19 @@ public class SelectTag extends HiddenTag {
 		}
 		else if(list.toLowerCase().startsWith("dict:")){
 			Map<String, String> map = FastUtil.getDictsMap(list.substring(5));
+			for(String key:map.keySet()){
+				addOption(out,key,map.get(key));
+			}
+		}
+		else if(list.toLowerCase().startsWith("sql:")){
+			DbHelper db = new DbHelper();
+			Map<String, String> map = null;
+			try {
+				map = db.getMapSqlQuery(list.substring(4));
+			} catch (SQLException e) {
+				logger.error(e.getMessage(),e);
+				map = new HashMap<String, String>();
+			}
 			for(String key:map.keySet()){
 				addOption(out,key,map.get(key));
 			}
@@ -89,20 +123,20 @@ public class SelectTag extends HiddenTag {
 		}
 	}
 
-	private void addOption(JspWriter out, String val, String text) throws IOException {
-		out.print("<option value=\"");
+	private void addOption(Writer out, String val, String text) throws IOException {
+		out.write("<option value=\"");
 		if(val!=null){
-			out.print(val);
+			out.write(val);
 		}
-		out.print("\"");
+		out.write("\"");
 		if(value!=null && value.equals(val)){
-			out.print(" selected");
+			out.write(" selected=\"true\"");
 		}
-		out.print(">");
+		out.write(">");
 		if(text!=null){
-			out.print(text);
+			out.write(text);
 		}
-		out.println("</option>");
+		out.write("</option>\n");
 	}
 
 	public String getList() {

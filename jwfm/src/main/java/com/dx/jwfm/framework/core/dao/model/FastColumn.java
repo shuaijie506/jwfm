@@ -34,13 +34,19 @@ public class FastColumn {
 	protected boolean primaryKey;
 	/** 默认显示格式 */
 	protected String format;
-	/** 编辑时控件类型，默认为输入框，公共字典非空时默认为单选框  text,textarea,select,multiselect,date,combotree,html
-	 * select和multiselect支持 select:sql格式，可以自动选取sql中的值为下拉选项
+	/** 编辑时控件类型，默认为输入框，公共字典非空时默认为单选框  text,textarea,select,date,combotree,html
+	 * select支持 select:sql:SQL语句和select:dict:字典项名称 两种格式，可以自动选取sql查询结果中的值和公共字典中的值为下拉选项
 	 * date支持date:yyyy-MM-dd HH:mm格式，可以按指定格式展示
 	 * combotree支持combotree:{url:'treeurl',....}格式，冒号后指定combotree的options参数
 	 * html支持html:自定义HTML代码，支持使用<script>标签调用JS */
 	protected String editorType;
-	
+
+	/** 是否做为查询条件 */
+	protected boolean searchCondition;
+
+	/** 是否做为查询结果列 */
+	protected boolean serachResultCol;
+
 	public FastColumn() {
 		super();
 	}
@@ -181,7 +187,29 @@ public class FastColumn {
 	public void setEditorType(String editorType) {
 		this.editorType = editorType;
 	}
-	
-	
 
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
+
+	public boolean isSearchCondition() {
+		return searchCondition;
+	}
+
+	public void setSearchCondition(boolean searchCondition) {
+		this.searchCondition = searchCondition;
+	}
+
+	public boolean isSerachResultCol() {
+		return serachResultCol;
+	}
+
+	public void setSerachResultCol(boolean serachResultCol) {
+		this.serachResultCol = serachResultCol;
+	}
+	
 }

@@ -232,4 +232,16 @@ public class MySqlDialect implements DatabaseDialect {
 		return format.replaceAll("yyyy", "%Y").replaceAll("MM", "%m").replaceAll("dd", "%d").replaceAll("HH", "%H").replaceAll("mm", "%i").replaceAll("ss", "%s");
 	}
 
+	public String concatString(String[] strary) {
+		if(strary==null || strary.length==0){
+			return "";
+		}
+		if(strary.length==1){
+			return strary[0];
+		}
+		else{
+			return "concat("+FastUtil.join(strary,",")+")";
+		}
+	}
+
 }

@@ -2,6 +2,7 @@ package com.dx.jwfm.framework.core;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.builder.IDatagridBuilder;
+import com.dx.jwfm.framework.web.logic.SQLConditionParser;
 
 public class SystemContext {
 
@@ -199,6 +201,25 @@ public class SystemContext {
 	 */
 	public static List<IDefaultValueParser> getSystemDefaultValueParser() {
 		return FastFilter.filter.defaultValueParser;
+	}
+
+	private static List<SQLConditionParser> sqlcondparserList = null;
+	public static List<SQLConditionParser> getSQLConditionParserList() {
+		if(sqlcondparserList==null){
+			sqlcondparserList = new ArrayList<SQLConditionParser>();
+			String[] ary = getSysParam("searchSQLConditionParser","").trim().split("\\s*,\\s*");
+			for(String clsName:ary){
+				try {
+					Object obj = FastUtil.newInstance(clsName);
+					if(obj!=null && obj instanceof SQLConditionParser){
+						sqlcondparserList.add((SQLConditionParser) obj);
+					}
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+		}
+		return sqlcondparserList;
 	}
 	
 }

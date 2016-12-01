@@ -18,16 +18,13 @@ public class UtilPrepareClass {
 	public static HashMap<String,String> regDefaultMap = new HashMap<>();
 	
 	@SuppressWarnings("unchecked")
-	public static void loadFastXml(InputStream in){
+	public static void loadFastXml(Element root){
 		try {
-			SAXReader reader = new SAXReader();  
-			Document doc = reader.read(in);  
-			Element root = doc.getRootElement();
 			List<Element> list = root.selectNodes("regedit-default/item");
 			for(Element e:list){
 				regDefaultMap.put(e.attributeValue("name"), e.getText());
 			}
-		} catch (DocumentException e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
 		}
 	}

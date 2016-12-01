@@ -63,7 +63,10 @@ long ltime = System.currentTimeMillis();
 </SCRIPT>
 <style>
 input.index{text-align:center;}
-.fast-child-table tr td input[type=text],fast-child-table tr td textarea{width:97%;}
+.fast-child-table tr td input[type=text],.fast-child-table tr td textarea{width:97%;}
+.fast-child-table tr td.selecttextarea{text-align:left;}
+.fast-child-table tr td.selecttextarea textarea{height:37px;margin-top:2px;}
+.fast-child-table tbody tr td.left{text-align:left;}
 </style>
 <div id="editTbl<%=ltime%>">
 <form id="editForm" method="post">

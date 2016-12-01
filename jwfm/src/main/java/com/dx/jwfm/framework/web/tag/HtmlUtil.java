@@ -2,14 +2,11 @@ package com.dx.jwfm.framework.web.tag;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.util.FastUtil;
 
@@ -39,21 +36,33 @@ public class HtmlUtil {
 		if(editorType.startsWith("html:")){
 			out.println(editorType.substring(5));
 		}
-		else if(editorType.startsWith("sqlDict:")){//解析SQL语句，第一列为值，第二列为显示文本
-			DbHelper db = new DbHelper();
-			Map<String, String> map = null;
-			try {
-				map = db.getMapSqlQuery(editorType.substring("sqlDict:".length()));
-			} catch (SQLException e) {
-				logger.error(e);
-				map = new HashMap<String, String>();
+		else if(editorType.startsWith("select:")){//解析SQL语句，第一列为值，第二列为显示文本
+			if(value!=null && value.indexOf("${")==0){//宏定义规则，用于编辑页面
+				out.println("${$select$"+prefix+"."+fieldName+editorType.substring(6)+"}");
 			}
-			createSelectHtml(map, out, prefix, fieldName, value);
+			else{
+				SelectTag sel = new SelectTag();
+				sel.setName(prefix+"."+fieldName);
+				sel.setValue(value==null?"":value.toString());
+				sel.setEmptyOption(true);
+				sel.setList(editorType.substring(7));
+				sel.setId(prefix+"_"+fieldName);
+				sel.writeHtml(out);
+			}
+//			DbHelper db = new DbHelper();
+//			Map<String, String> map = null;
+//			try {
+//				map = db.getMapSqlQuery(editorType.substring("sqlDict:".length()));
+//			} catch (SQLException e) {
+//				logger.error(e);
+//				map = new HashMap<String, String>();
+//			}
+//			createSelectHtml(map, out, prefix, fieldName, value);
 		}
-		else if(editorType.startsWith("dict:")){//字典项
-			Map<String, String> map = FastUtil.getDictsMap(editorType.substring("dict:".length()));
-			createSelectHtml(map, out, prefix, fieldName, value);
-		}
+//		else if(editorType.startsWith("dict:")){//字典项
+//			Map<String, String> map = FastUtil.getDictsMap(editorType.substring("dict:".length()));
+//			createSelectHtml(map, out, prefix, fieldName, value);
+//		}
 		else if("textarea".equals(editorType)){//多行文本
     		out.print("<textarea");
     		out.print(createIdAndName(prefix,fieldName));
@@ -80,7 +89,7 @@ public class HtmlUtil {
 		out.flush();
 		return buff.toString();
 	}
-	private static String createIdAndName(String prefix, String fieldName) {
+	public static String createIdAndName(String prefix, String fieldName) {
 		StringBuffer buff = new StringBuffer(" id=\"");
 		if(FastUtil.isNotBlank(prefix)){
 			buff.append(prefix);
@@ -168,25 +177,25 @@ public class HtmlUtil {
 		buff.append("</tbody>\n</table>\n</div>");
 		return buff.toString();
 	}
-	private static void createSelectHtml(Map<String, String> map, PrintWriter out, String prefix,String fieldName,String value){
-		out.print("<select");
-    		out.print(createIdAndName(prefix,fieldName));
-		out.print(" val=\"");
-		out.print(value);
-		out.print("\">");
-		out.println("<option value=\"\"></option>\n");
-		for(String key:map.keySet()){
-			out.print("<option value=\"");
-			out.print(key);
-			if(value!=null && value.equals(key)){
-				out.print("\" selected=\"true");
-			}
-			out.print("\">");
-			out.print(map.get(key));
-			out.println("</option>");
-		}
-		out.println("</select>");
-	}
+//	private static void createSelectHtml(Map<String, String> map, PrintWriter out, String prefix,String fieldName,String value){
+//		out.print("<select");
+//    		out.print(createIdAndName(prefix,fieldName));
+//		out.print(" val=\"");
+//		out.print(value);
+//		out.print("\">");
+//		out.println("<option value=\"\"></option>\n");
+//		for(String key:map.keySet()){
+//			out.print("<option value=\"");
+//			out.print(key);
+//			if(value!=null && value.equals(key)){
+//				out.print("\" selected=\"true");
+//			}
+//			out.print("\">");
+//			out.print(map.get(key));
+//			out.println("</option>");
+//		}
+//		out.println("</select>");
+//	}
 	
 	public static String genTestHtml(int rows,int cols){
 		StringBuffer buff = new StringBuffer("<table>");

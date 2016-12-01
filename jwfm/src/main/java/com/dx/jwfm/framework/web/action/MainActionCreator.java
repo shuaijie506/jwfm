@@ -110,8 +110,8 @@ public class MainActionCreator {
 
 	private static SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
-		search.getSearchColumns().add(new SearchColumn("分组", "VC_GROUP", "sqlSelect", 120, null, "=", "and t.vc_group =||${VC_GROUP} "));
-		search.getSearchColumns().add(new SearchColumn("菜单名", "VC_GROUP", "sqlSelect", 120, null, "like", "and t.vc_name like '%'||${VC_NAME}||'%' "));
+		search.getSearchColumns().add(new SearchColumn("分组", "VC_GROUP", "sqlSelect", 120, null, "=", "and t.vc_group =${VC_GROUP} "));
+		search.getSearchColumns().add(new SearchColumn("菜单名", "VC_GROUP", "sqlSelect", 120, null, "like", "t.vc_name"));
 		return search;
 	}
 
