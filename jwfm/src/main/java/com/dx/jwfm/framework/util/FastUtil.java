@@ -20,6 +20,7 @@ import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.util.json.DateJsonValueProcessor;
 
 import net.sf.json.JsonConfig;
+import net.sf.json.util.CycleDetectionStrategy;
 
 
 
@@ -163,8 +164,11 @@ public class FastUtil {
 	
 	public static JsonConfig getJsonConfigDefault(){
 		JsonConfig conf = new JsonConfig();
-		conf.registerJsonValueProcessor(java.util.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm"));
-		conf.registerJsonValueProcessor(java.sql.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm"));
+		conf.setCycleDetectionStrategy(CycleDetectionStrategy.LENIENT);//防止自包含
+		conf.registerJsonValueProcessor(java.util.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm:ss"));
+		conf.registerJsonValueProcessor(java.sql.Date.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm:ss"));
+		conf.registerJsonValueProcessor(java.sql.Timestamp.class,new DateJsonValueProcessor("yyyy-MM-dd HH:mm:ss"));
+		conf.registerJsonValueProcessor(java.sql.Time.class,new DateJsonValueProcessor("HH:mm:ss"));
 		return conf;
 	}
 	public static boolean isInteger(String p) {

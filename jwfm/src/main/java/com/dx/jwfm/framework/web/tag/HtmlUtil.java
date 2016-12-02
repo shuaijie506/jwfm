@@ -157,7 +157,7 @@ public class HtmlUtil {
 					buff.append("<td colspan=").append((editColCnt-cells%editColCnt)*2).append("></td>\n</tr>\n<tr>");
 					cells+=editColCnt-cells%editColCnt;
 				}
-				buff.append("<th>").append(col.getName()).append("</th><td");
+				buff.append("<td class=th>").append(col.getName()).append("</th><td");
 				if("textarea".equals(col.getEditorType())){
 					buff.append(" colspan=").append(editColCnt*2-1);
 					cells++;

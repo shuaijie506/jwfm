@@ -48,6 +48,6 @@ long ltime = System.currentTimeMillis();
 <div id="editTbl<%=ltime%>">
 <form id="editForm" method="post">
 <input type=hidden name=op value="save" >
-<f:edittable class="fast-edit-table" />
+<f:edittable class="fast-edit-table" type="edit" />
 </form>
 </div>

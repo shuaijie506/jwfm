@@ -83,7 +83,7 @@ public abstract class ActionCreator extends FastBaseAction {
 		struct.setForward("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
 		struct.setForward("openViewPage",		"/jwfm/core/htmlView.jsp");
 		struct.setSearch(getSearchModel());
-		struct.setEditTable(getEditTable());
+		struct.setPageHTML("edit", "编辑页面", getEditTable());
 		struct.setButtonAuths(getButtonList());
 		
 		initModel(model);

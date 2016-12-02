@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.model.FastModel;
+import com.dx.jwfm.framework.web.view.Node;
 
 /**
  * @author 宋帅杰
@@ -22,10 +23,9 @@ public class EditTableTag extends BaseViewTag {
 	static Logger logger = Logger.getLogger(EditTableTag.class);
 	
 	/**
-	 * 菜单地址，非必要属性。用于在页面中获取某个菜单项的功能按钮权限
-	 * 使用举例（如字典表的权限操作，字典子表的操作权限需要与字典主表的操作权限一致，因此需要传入字典主表的菜单地址，以获取和主表相同的操作功能）
+	 * HTML页面的id值，如edit,view等
 	 */
-	private String menuUrl;
+	private String type;
 	
 	@Override
 	public int doEndTag() throws JspException {
@@ -36,7 +36,14 @@ public class EditTableTag extends BaseViewTag {
 	    JspWriter out = pageContext.getOut();
 	    try{
 	    	long curTimeL = System.currentTimeMillis();
-	    	String html = model.getModelStructure().getEditTable();
+	    	Node n = model.getModelStructure().getPageHTMLNode(type);
+	    	String html = null;
+	    	if(n==null){
+	    		html = "您尚未配置ID为["+type+"]的页面内容！";
+	    	}
+	    	else{
+	    		html = n.getData();
+	    	}
 	    	if(html==null){
 	    		html = "";
 	    	}
@@ -106,12 +113,12 @@ public class EditTableTag extends BaseViewTag {
 		}
 		return getBeanValue(key);
 	}
-	public String getMenuUrl() {
-		return menuUrl;
+	public String getType() {
+		return type;
 	}
-
-	public void setMenuUrl(String menuUrl) {
-		this.menuUrl = menuUrl;
+	public void setType(String type) {
+		this.type = type;
 	}
+	
 	
 }

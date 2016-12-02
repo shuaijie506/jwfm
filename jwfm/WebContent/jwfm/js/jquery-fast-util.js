@@ -72,6 +72,7 @@
 			});
 			main.load(opt._href,opt.params);
 		}
+		return div;
 	};
 	$.openWin.defaults = {divId:'operateWindow',parWin:null,width:800,height:600,collapsible:false,minimizable:false,maximizable:true,closable:true,
 			title:'操作窗口',url:null,params:{},butParams:[{id:'btn-close',text:'关闭',iconCls:'icon-close'}],onResize:function(){
@@ -112,6 +113,9 @@
 					ntr = ntr.next();
 				}
 				$(this).data('collapsed',collapsed).toggleClass('tree-expanded',!collapsed).toggleClass('tree-collapsed',collapsed);
+				if(!collapsed){//展开时判断信息是否显示完整，如果显示不完整，则滚动页面
+					
+				}
 				return false;
 			});
 			$('>td:first',this).css('cursor','pointer').bind('click',function(){
@@ -441,7 +445,9 @@
 	Date.prototype.format = function (f) {f=f||'yyyy-MM-dd';return f.replace('yyyy',this.getFullYear()).replace('MM',this.getMonth()+1)
 	.replace('dd',this.getDate()).replace(/(HH|hh)/i,this.getHours()).replace('mm',this.getMinutes()).replace('ss',this.getSeconds())
 	.replace(/(\D)(\d{1})(\D|$)/g,'$10$2$3').replace(/(\D)(\d{1})(\D|$)/g,'$10$2$3');};//两次相同的replace是为了能够匹配2012-3-3 2:9:4这种情况
-	window.parseDate = function (d) {if(!d)return '';if(d&&d.type=='date')return d;if(/^\d{1,2}$/.test(d))d=d+'-1';if(/^\d{1,2}\D/.test(d))d=new Date().getFullYear()+'-'+d;d=$.browser.msie?d.replace(/(\d{4})(\D)(\d+\D\d+)/,'$3$2$1'):d;return new Date(Date.parse(d));};
+	window.parseDate = function (d) {if(!d)return '';if(d&&d.type=='date')return d;if(/^\d{1,2}$/.test(d))d=d+'-1';if(/^\d{1,2}\D/.test(d))d=new Date().getFullYear()+'-'+d;d=(navigator.appVersion.toLowerCase().indexOf('msie')>=0)?d.replace(/(\d{4})(\D)(\d+\D\d+)/,'$3$2$1'):d;return new Date(Date.parse(d));};
+	Array.prototype.indexOf=Array.prototype.indexOf||function(val,startIndex){for(var i=startIndex||0;i<this.length;i++){if(val==this[i])return i;}return -1;};
+	Array.prototype.lastIndexOf=Array.prototype.lastIndexOf||function(val,startindex){for(var i=startindex||this.length-1;i>=0;i--){if(val==this[i])return i;}return -1;};
 	jQuery.cookie = function (name, value, options) { if (typeof value != "undefined") { options = options || {}; if (value === null) { value = ""; options.expires = -1; } var expires = ""; if (options.expires && (typeof options.expires == "number" || options.expires.toUTCString)) { var date; if (typeof options.expires == "number") { date = new Date(); date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000)); } else { date = options.expires; } expires = "; expires=" + date.toUTCString(); } var path = options.path ? "; path=" + options.path : ""; var domain = options.domain ? "; domain=" + options.domain : ""; var secure = options.secure ? "; secure" : ""; document.cookie = [name, "=", encodeURIComponent(value), expires, path, domain, secure].join(""); } else { var cookieValue = null; if (document.cookie && document.cookie != "") { var cookies = document.cookie.split(";"); for (var i = 0; i < cookies.length; i++) { var cookie = jQuery.trim(cookies[i]); if (cookie.substring(0, name.length + 1) == (name + "=")) { cookieValue = decodeURIComponent(cookie.substring(name.length + 1)); break; } } } return cookieValue; } };
 
 })(jQuery);

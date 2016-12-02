@@ -83,7 +83,7 @@ html,body{overflow:hidden;}
 <BODY >
 <table class="searchTbl" fit="true" border="0" cellpadding="0" cellspacing="0" align="left" width="100%" height="100%">
     <!-- 查询条件行 --> 
-   <tr height="20px"><td>
+   <tr height="20px"><td valign="top">
    <div id="searchDiv" class="searchDiv"><div class="searchDivContent">
 <f:searchitem />
      </div></div>

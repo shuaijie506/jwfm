@@ -74,8 +74,10 @@ public class FastModelStructure {
 	private SearchModel search;
 	/**模型字典数据*/
 	private List<FastPo> dictData;
-	/**编辑页面模型(HTML代码)*/
-	private String editTable;
+//	/**编辑页面模型(HTML代码)*/
+//	private String editTable;
+	/**独立页面的页面模型(id:code,name:名称,data:HTML代码)*/
+	private List<Node> pageHTMLAry = new ArrayList<Node>();
 	/**简单流程模板*/
 	private FlowModel flowModel;
 	
@@ -91,6 +93,27 @@ public class FastModelStructure {
 	public void setForward(String name,String uri){
 		forwards.add(new Node(name,uri));
 		forwardsMap.put(name,uri);
+	}
+
+	public void setPageHTML(String id, String text, String data){
+		Node n = getPageHTMLNode(id);
+		if(n==null){
+			n = new Node(id, text, null, data);
+			pageHTMLAry.add(n);
+		}
+		else{
+			n.setText(text);
+			n.setData(data);
+		}
+	}
+	
+	public Node getPageHTMLNode(String id){
+		for(Node n:getPageHTMLAry()){
+			if(id.equals(n.getId())){
+				return n;
+			}
+		}
+		return null;
 	}
 
 	public String getVcName() {
@@ -253,13 +276,13 @@ public class FastModelStructure {
 		this.dictData = dictData;
 	}
 
-	public String getEditTable() {
-		return editTable;
-	}
-
-	public void setEditTable(String editTable) {
-		this.editTable = editTable;
-	}
+//	public String getEditTable() {
+//		return editTable;
+//	}
+//
+//	public void setEditTable(String editTable) {
+//		this.editTable = editTable;
+//	}
 
 	public List<String> getInitDataSqlList() {
 		return initDataSqlList;
@@ -331,6 +354,21 @@ public class FastModelStructure {
 
 	public void setVcVersion(String vcVersion) {
 		this.vcVersion = vcVersion;
+	}
+
+	public List<Node> getPageHTMLAry() {
+		if(pageHTMLAry==null){
+			pageHTMLAry = new ArrayList<Node>();
+		}
+		if(pageHTMLAry.isEmpty()){
+			pageHTMLAry.add(new Node("edit","编辑页面"));
+			pageHTMLAry.add(new Node("view","查看页面"));
+		}
+		return pageHTMLAry;
+	}
+	
+	public void setPageHTMLAry(List<Node> pageHTMLAry) {
+		this.pageHTMLAry = pageHTMLAry;
 	}
 	
 }

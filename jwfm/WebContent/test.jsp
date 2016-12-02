@@ -4,6 +4,7 @@
 <script type="text/javascript" src="/jwfm/js/easyui/jquery.min.js"></script> <!-- jquery框架 -->
 <script type="text/javascript">
 var t = new Date().getTime();
+document.write(navigator.appVersion.toLowerCase());
 </script>
 <div id=timediv>begin test</div>
 <%} %>

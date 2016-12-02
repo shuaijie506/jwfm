@@ -75,6 +75,12 @@
     <description><![CDATA[编辑页面的内容展示]]></description>
 	<tagclass>com.dx.jwfm.framework.web.tag.EditTableTag</tagclass>
 	<bodycontent>empty</bodycontent>
+	<attribute>
+		<name>type</name>
+		<description><![CDATA[HTML页面的id值，如edit,view等]]></description>
+		<required>true</required>
+		<rtexprvalue>true</rtexprvalue>
+	</attribute>
     <dynamic-attributes>true</dynamic-attributes>
 </tag>
 <tag>
