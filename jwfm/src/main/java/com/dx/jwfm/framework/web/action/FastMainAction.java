@@ -1,6 +1,7 @@
 package com.dx.jwfm.framework.web.action;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,10 +13,12 @@ import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
+import com.dx.jwfm.framework.core.parser.MacroValueNode;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.view.Node;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JsonConfig;
 
 public class FastMainAction extends FastBaseAction {
 
@@ -126,6 +129,15 @@ public class FastMainAction extends FastBaseAction {
 				ary.add(new Node(key,map.get(key)));
 			}
 		}
+		return writeHTML(ary.toString());
+	}
+	
+	public String loadMacroListJson(){
+		Collection<MacroValueNode> list = SystemContext.getAllMacros();
+		JSONArray ary = new JSONArray();
+		JsonConfig conf = new JsonConfig();
+		conf.setExcludes(new String[]{"valueHandel"});
+		ary.addAll(list,conf);
 		return writeHTML(ary.toString());
 	}
 	

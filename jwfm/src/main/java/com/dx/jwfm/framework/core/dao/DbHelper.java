@@ -22,11 +22,9 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
-import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class DbHelper {
@@ -276,13 +274,7 @@ public class DbHelper {
 					value = params.get(pa);
 				}
 				else{//如果指定参数中未找到对应名称的解析器，则从模型和系统的解析器中进行解析
-					List<IDefaultValueParser> list = RequestContext.getDefaultValueParser();;
-					for(int i=0;list!=null && i<list.size();i++){
-						if(list.get(i).hasDefaultValue(pa)){
-							value = list.get(i).getDefaultValue(pa);
-							break;
-						}
-					}
+					value = SystemContext.getMacroValue(pa);
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);

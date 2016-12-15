@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import com.dx.jwfm.framework.core.RequestContext;
+import com.dx.jwfm.framework.util.FastUtil;
+
 public class PropertyTag extends BaseViewTag {
 
 	/**  */
@@ -18,8 +21,8 @@ public class PropertyTag extends BaseViewTag {
 	public int doEndTag() throws JspException {
 	    JspWriter out = pageContext.getOut();
 	    try{
-			Object val = getBeanValue(name);
-			String value = getFormatValue(val,format);
+			Object val = RequestContext.getBeanValue(name);
+			String value = FastUtil.format(val,format);
 			if(value!=null && "html".equals(format)){
 				value = value.replaceAll("\\r*\\n\\r*", "<br/>");
 			}

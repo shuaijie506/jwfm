@@ -5,16 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.PageContext;
 
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.contants.RequestContants;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.model.FastModel;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.core.wrapper.ParameterRequestWrapper;
+import com.dx.jwfm.framework.util.FastUtil;
 
 public class RequestContext {
 
@@ -86,6 +89,58 @@ public class RequestContext {
 		}
 		return null;
 	}
+	public static Object getBeanValue(String name){
+		int pos = name.indexOf(":");
+		String format = null;
+		if(pos>0){//存在格式化内容
+			format = name.substring(pos+1);
+			name = name.substring(0,pos);
+		}
+		pos = name.indexOf(".");
+		Object val = null;
+		if(pos>0){
+			Object bean = getBean(name.substring(0,pos));
+			val = FastUtil.getProptValue(bean,name.substring(pos+1));
+		}
+		else{
+			val = getBean(name);
+		}
+		if(val!=null && format!=null){
+			val = FastUtil.format(val,format);
+		}
+		return val;
+	}
+	private static Object getBean(String name) {
+		HttpServletRequest request = getRequest();
+		HttpSession session = null;
+		PageContext pageContext = request==null?null:(PageContext)request.getAttribute("PageContext");
+		Object obj = null;
+		if(pageContext!=null){//优先从page中取值
+			obj = pageContext.getAttribute(name);
+		}
+		if(obj==null){//page中取不到值时从action的属性中取值
+			Object action = RequestContext.getRequestAction();
+			obj = action==null?null:FastUtil.getProptValue(action, name);
+		}
+		if(obj==null && request!=null){//action属性中取不到值时从Request中取值
+			obj = request==null?null:request.getAttribute(name);
+		}
+		if(obj==null && request!=null){//从session中取值
+			session = request.getSession();
+			obj = session==null?null:session.getAttribute(name);
+		}
+		if(obj==null && session!=null){//从ServletContext中取值
+			ServletContext sc = session.getServletContext();
+			obj = sc==null?null:sc.getAttribute(name);
+		}
+		if(obj==null){//从宏定义中取值
+			obj = SystemContext.getMacroValue(name);
+		}
+		return obj;
+	}
+
+
+	
 	/**
 	 * Servlet在对用户请求进行处理时，如果为.action或.jsp时，会调用本方法将用户请求信息设置到线程变量
 	 * @param request
@@ -151,17 +206,6 @@ public class RequestContext {
 			return request.getParameterValues(name);
 		}
 		return null;
-	}
-	/**
-	 * 获得当前线程中用于处理默认值的对象列表，已包含系统指定的默认值对象列表
-	 * @return
-	 */
-	public static List<IDefaultValueParser> getDefaultValueParser() {
-		FastModel model = getFastModel();
-		if(model!=null){
-			return model.getActionDefaultValueParserBeans();
-		}
-		return SystemContext.getSystemDefaultValueParser();
 	}
 
 }

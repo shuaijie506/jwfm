@@ -45,6 +45,7 @@ public class ResultTag extends BaseViewTag {
 	/*** 是否显示复选框列，可选值为true/false，默认值为false */
 	private String hasChkCol;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public int doEndTag() throws JspException {
 	    FastModel model = RequestContext.getFastModel();
@@ -106,12 +107,12 @@ public class ResultTag extends BaseViewTag {
 			if(FastUtil.isNotBlank(col.getCanSort())){
 				thbuff.append(" sort=\"").append(col.getVcCode()).append("\" order=\"").append(col.getCanSort()).append("\"");
 			}
-			if(FastUtil.isNotBlank(col.getVcThCss())){
-				thbuff.append(" class=\"").append(col.getVcThCss()).append("\"");
-			}
-			if(FastUtil.isNotBlank(col.getVcThStyle())){
-				thbuff.append(" style=\"").append(col.getVcThStyle()).append("\"");
-			}
+//			if(FastUtil.isNotBlank(col.getVcThCss())){
+//				thbuff.append(" class=\"").append(col.getVcThCss()).append("\"");
+//			}
+//			if(FastUtil.isNotBlank(col.getVcThStyle())){
+//				thbuff.append(" style=\"").append(col.getVcThStyle()).append("\"");
+//			}
 			if(col.isFrozen()){
 				thbuff.append(" frozen=\"true\"");
 			}
@@ -134,12 +135,12 @@ public class ResultTag extends BaseViewTag {
 				for (SearchResultColumn col : list) {
 		    		if(col.isHidden())continue;
 					buff.append("<td");
-					if (FastUtil.isNotBlank(col.getVcTdCss())) {
-						buff.append(" class=\"").append(col.getVcTdCss()).append("\"");
-					}
-					if (FastUtil.isNotBlank(col.getVcTdStyle())) {
-						buff.append(" style=\"").append(col.getVcTdStyle()).append("\"");
-					}
+//					if (FastUtil.isNotBlank(col.getVcTdCss())) {
+//						buff.append(" class=\"").append(col.getVcTdCss()).append("\"");
+//					}
+//					if (FastUtil.isNotBlank(col.getVcTdStyle())) {
+//						buff.append(" style=\"").append(col.getVcTdStyle()).append("\"");
+//					}
 					buff.append(">");
 					if (col.getVcFormat()!=null && col.getVcFormat().startsWith("dict:")) {
 						String val = row.getString(col.getVcCode());

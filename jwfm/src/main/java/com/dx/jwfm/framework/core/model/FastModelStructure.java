@@ -7,9 +7,9 @@ import java.util.List;
 
 import com.dx.jwfm.framework.core.dao.model.FastDbObject;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
-import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.flow.FlowModel;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
+import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.web.view.Node;
 
 public class FastModelStructure {
@@ -55,13 +55,13 @@ public class FastModelStructure {
 	/**用户自定义默认值解析器类名*/
 	private String actionDefaultValueParser;
 	/**菜单按钮权限列表*/
-	private List<ButtonAuth> buttonAuths;
+	private List<ButtonAuth> buttonAuths = new ArrayList<ButtonAuth>();
 	/**action中的转向页面*/
 	private List<Node> forwards = new ArrayList<Node>();
 	private LinkedHashMap<String,String> forwardsMap = new LinkedHashMap<String, String>();
 	
 	/**业务主表表结构*/
-	private FastTable mainTable;
+	private FastTable mainTable = new FastTable();
 	/**业务附加表表结构*/
 	private List<FastTable> otherTables = new ArrayList<FastTable>();
 	/**业务相关的触发器、函数、存储过程等数据库对象*/
@@ -71,15 +71,15 @@ public class FastModelStructure {
 	
 	
 	/**查询条件及结果展示格式*/
-	private SearchModel search;
+	private SearchModel search = new SearchModel();
 	/**模型字典数据*/
-	private List<FastPo> dictData;
+	private List<DictNode> dictData = new ArrayList<DictNode>();
 //	/**编辑页面模型(HTML代码)*/
 //	private String editTable;
 	/**独立页面的页面模型(id:code,name:名称,data:HTML代码)*/
 	private List<Node> pageHTMLAry = new ArrayList<Node>();
 	/**简单流程模板*/
-	private FlowModel flowModel;
+	private FlowModel flowModel = new FlowModel();
 	
 	private List<FastModelUpdateLog> updateLogs = new ArrayList<FastModelUpdateLog>();
 	
@@ -126,7 +126,7 @@ public class FastModelStructure {
 
 	public String getMainTableName() {
 		if(mainTableName==null && mainTable!=null){
-			mainTableName = mainTable.getName();
+			mainTableName = mainTable.getCode();
 		}
 		return mainTableName;
 	}
@@ -268,11 +268,11 @@ public class FastModelStructure {
 	public void setUseAjaxOperator(boolean useAjaxOperator) {
 		this.useAjaxOperator = useAjaxOperator;
 	}
-	public List<FastPo> getDictData() {
+	public List<DictNode> getDictData() {
 		return dictData;
 	}
 
-	public void setDictData(List<FastPo> dictData) {
+	public void setDictData(List<DictNode> dictData) {
 		this.dictData = dictData;
 	}
 

@@ -72,7 +72,7 @@ public class HtmlUtil {
     		}
     		out.print("</textarea>");
 		}
-		else{//文本或日期
+		else if("text".equals(editorType) || editorType.startsWith("date")){//文本或日期
     		out.print("<input type=text");
     		out.print(createIdAndName(prefix,fieldName));
     		if(value!=null){
@@ -85,6 +85,9 @@ public class HtmlUtil {
     			out.print("class=\"Wdate\" onfocus=\"WdatePicker({dateFmt:'"+editorType.substring(5)+"'})\"");
     		}
     		out.print(" />");
+		}
+		else{
+			out.print(editorType);
 		}
 		out.flush();
 		return buff.toString();

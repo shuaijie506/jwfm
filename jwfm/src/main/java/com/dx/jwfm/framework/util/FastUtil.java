@@ -328,5 +328,73 @@ public class FastUtil {
 		strUUID = strUUID.replaceAll("-","");
 		return strUUID;
 	}
-	
+
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月14日 上午8:59:34
+	 * 功能描述: 获取指定对象的指定属性值，属性名支持.取多级属性
+	 * 方法的参数和返回值: 
+	 * @param bean
+	 * @param name
+	 * @return
+	 */
+	public static Object getProptValue(Object bean, String name) {
+		int pos = name.indexOf(".");
+		if(pos>0){
+			Object proptbean = getProptValue(bean,name.substring(0,pos));
+			Object val = getProptValue(proptbean,name.substring(pos+1));
+			return val;
+		}
+		else{
+			Object val = null;
+			if(bean instanceof Map){
+				Map<?,?> map = (Map<?,?>) bean;
+				val = map.get(name);
+			}
+			try {
+				val = PropertyUtils.getProperty(bean, name);
+			} catch (Exception e) {
+				logger.debug(e.getMessage(),e);
+			}
+			return val;
+		}
+	}
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月14日 上午9:00:51
+	 * 功能描述: 按指定格式将对象格式化并返回格式化后的内容
+	 * 方法的参数和返回值: 
+	 * @param val
+	 * @param format
+	 * @return
+	 */
+	public static String format(Object val,String format) {
+		if(val==null || "".equals(val)){
+			return "";
+		}
+		else if(val instanceof Date){
+			Date d = (Date) val;
+			if(FastUtil.isBlank(format)){
+				format = "yyyy-MM-dd HH:mm";
+			}
+			return new SimpleDateFormat(format).format(d);
+		}
+		else if(val instanceof java.sql.Date){
+			java.sql.Date d = (java.sql.Date) val;
+			if(FastUtil.isBlank(format)){
+				format = "yyyy-MM-dd HH:mm";
+			}
+			return new SimpleDateFormat(format).format(d);
+		}
+		else if(val instanceof Number){
+			Number n = (Number) val;
+			if(FastUtil.isBlank(format)){
+				return new DecimalFormat().format(n);
+			}
+			else{
+				return new DecimalFormat(format).format(n);
+			}
+		}
+		return val.toString();
+	}
 }

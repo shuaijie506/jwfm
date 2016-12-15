@@ -15,8 +15,25 @@ input[type=text]{padding:0px 3px;}
 .icon{display:inline-block;width:16px;height:16px;}
 body .left{text-align:left;}
 body .right{text-align:right;}
+body .center{text-align:center;}
 body .top{vertical-align:top;}
 body .bottom{vertical-align:bottom;}
+body .middle{vertical-align:middle;}
+body .hvcenter{text-align:center;vertical-align:middle;}
+
+rq{font-size:12px;color:red;margin-left:2px;}
+rq:before{content:"*"}
+
+/*easyui兼容fa图标*/
+.l-btn-icon{
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: 16px;color:green;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.char-icon{font-size:17px;font-weight:900;}
 
 .hand{cursor:pointer;}
 .delete,.delete td,.delete input,.delete select,.delete textarea{text-decoration:line-through;}
@@ -26,7 +43,7 @@ body .bottom{vertical-align:bottom;}
 .fast-notice-body{list-style:none;font-size:12px;color:#363636;margin:0;padding:0;line-height:20px}
 
 .loading-mask{position:absolute;left:0;top:0;background:#ccc;opacity:0.3;filter:alpha(opacity=30);display:none;}
-.loading-mask-msg{position:absolute;left:100px;top:50px;width:auto;height:16px;padding:12px 5px 10px 30px;white-space:nowrap;
+.loading-mask-msg{position:absolute;left:100px;top:50px;width:auto;padding:12px 5px 10px 30px;white-space:nowrap;
 background:#fff url('../images/show_loading.gif') no-repeat scroll 5px 10px;border:2px solid #6593CF;color:#222;display:none;}
 
 .fast-tip{border:1px solid #fcefa1;background-color:#fcfaf1;padding:5px;color:#363636;position: absolute;z-index:999999;}
@@ -94,13 +111,14 @@ border-top:#a5c2e8 1px solid;text-align:right; padding:4px 10px 0px;width:99%;ov
 .fast-edit-table caption {padding: 0 0 5px 0;width: 100%;font: bold 13px "宋体", Verdana, Arial, Helvetica, sans-serif;text-align: center;color: #333333}
 .fast-edit-table tr.subtitle{height:30px}
 .fast-edit-table tr.subtitle td{font-weight: bold;background:#99CCFF;font-size: 14px;color: #555;height:30px}
-.fast-edit-table th,.fast-edit-table td.th {font: 12px "宋体", Verdana, Arial, Helvetica, sans-serif;font-weight:normal;color: #333333;border-right: 1px solid #d2dfe6;border-bottom: 1px solid #d2dfe6;border-top: 1px solid #d2dfe6;letter-spacing: 2px;text-align: right;padding: 3px 3px 3px 6px;background: #f3f7fa;}
+.fast-edit-table th,.fast-edit-table td.th {font: 12px "宋体", Verdana, Arial, Helvetica, sans-serif;font-weight:normal;color: #333333;border: 1px solid #d2dfe6;letter-spacing: 2px;text-align: right;padding: 3px 3px 3px 6px;background: #f3f7fa;}
 .fast-edit-table th.nobg {border-top: 0;border-left: 0;border-right: 1px solid #d2dfe6;background: none;}
-.fast-edit-table td {font: 12px "宋体", Verdana, Arial, Helvetica, sans-serif;overflow:hidden;border-right: 1px solid #d2dfe6;border-bottom: 1px solid #d2dfe6;background: #fff;padding: 3px 3px 3px 6px;color: #666666;height: 22px}
+.fast-edit-table td {font: 12px "宋体", Verdana, Arial, Helvetica, sans-serif;overflow:hidden;border: 1px solid #d2dfe6;background: #fff;padding: 3px 3px 3px 6px;color: #666666;height: 22px}
 .fast-edit-table td input[type="text"]{ width:80%;border:1px solid #ccc;}
 .fast-edit-table td span.combo input[type="text"]{border:0px;}
 .fast-edit-table td input[type="text"]:hover{border:1px solid #F30;}
 .fast-edit-table td input[type="text"].combo-text:hover{border:0px;}
 .fast-edit-table td select{ width:80%}
 .fast-edit-table td textarea{ width:80%; height:60px}
+.fast-edit-table tbody tr .hvcenter{text-align:center;vertical-align:middle;}
 .subtitle{font-weight: bold;background: #ccffff;font-size: 14px;color: #555;}

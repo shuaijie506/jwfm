@@ -14,10 +14,10 @@ public class SearchResultColumn {
 	private String vcFormat;
 	/**是否能够按此字段排序 为空时不排序 desc默认倒序 asc 默认正序*/
 	private String canSort;
-	/**表头样式和css*/
-	private String vcThStyle,vcThCss;
-	/**表格内容样式和css*/
-	private String vcTdStyle,vcTdCss;
+//	/**表头样式和css*/
+//	private String vcThStyle,vcThCss;
+//	/**表格内容样式和css*/
+//	private String vcTdStyle,vcTdCss;
 	/**是否冻结此列*/
 	private boolean frozen;
 	/**显示时的对齐方式，默认为居中 */
@@ -70,30 +70,30 @@ public class SearchResultColumn {
 	public void setCanSort(String canSort) {
 		this.canSort = canSort;
 	}
-	public String getVcThStyle() {
-		return vcThStyle;
-	}
-	public void setVcThStyle(String vcThStyle) {
-		this.vcThStyle = vcThStyle;
-	}
-	public String getVcThCss() {
-		return vcThCss;
-	}
-	public void setVcThCss(String vcThCss) {
-		this.vcThCss = vcThCss;
-	}
-	public String getVcTdStyle() {
-		return vcTdStyle;
-	}
-	public void setVcTdStyle(String vcTdStyle) {
-		this.vcTdStyle = vcTdStyle;
-	}
-	public String getVcTdCss() {
-		return vcTdCss;
-	}
-	public void setVcTdCss(String vcTdCss) {
-		this.vcTdCss = vcTdCss;
-	}
+//	public String getVcThStyle() {
+//		return vcThStyle;
+//	}
+//	public void setVcThStyle(String vcThStyle) {
+//		this.vcThStyle = vcThStyle;
+//	}
+//	public String getVcThCss() {
+//		return vcThCss;
+//	}
+//	public void setVcThCss(String vcThCss) {
+//		this.vcThCss = vcThCss;
+//	}
+//	public String getVcTdStyle() {
+//		return vcTdStyle;
+//	}
+//	public void setVcTdStyle(String vcTdStyle) {
+//		this.vcTdStyle = vcTdStyle;
+//	}
+//	public String getVcTdCss() {
+//		return vcTdCss;
+//	}
+//	public void setVcTdCss(String vcTdCss) {
+//		this.vcTdCss = vcTdCss;
+//	}
 	public boolean isFrozen() {
 		return frozen;
 	}

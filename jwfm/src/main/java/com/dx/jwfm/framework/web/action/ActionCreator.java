@@ -3,10 +3,8 @@ package com.dx.jwfm.framework.web.action;
 import java.util.HashMap;
 import java.util.List;
 
-import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.annotations.FastModelInfo;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
-import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.ButtonAuth;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.FastModelStructure;
@@ -69,6 +67,7 @@ public abstract class ActionCreator extends FastBaseAction {
 			model.setVcAuth(info.author());
 			model.setVcAdd(info.author());
 			model.setVcModify(info.updateInfo());
+			model.setDtAdd(FastUtil.parseDate(info.devDate()));
 		}
 		FastModelStructure struct = new FastModelStructure();
 		FastUtil.copyBeanPropts(struct, model);
@@ -89,15 +88,6 @@ public abstract class ActionCreator extends FastBaseAction {
 		initModel(model);
 		model.init();
 		return model;
-	}
-	
-	protected FastPo getDictData(String code,String text,String groupName,int nseq){
-		return getDictData(code, text, null, groupName, nseq);
-	}
-	protected FastPo getDictData(String code,String text,String note,String groupName,int nseq){
-		FastPo p = FastPo.getPo(SystemContext.dbObjectPrefix+"T_DICT");
-		p.element("VC_CODE", code).element("VC_TEXT", text).element("VC_NOTE", note).element("VC_GROUP", groupName).element("N_SEQ", nseq);
-		return p;
 	}
 	protected String getSimpleEditTableHtml(String[] hiddenCols,String[] cols,int editColCnt){
 		FastTable mt = getMainTable();

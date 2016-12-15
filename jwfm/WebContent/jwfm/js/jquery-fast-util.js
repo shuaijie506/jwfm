@@ -82,13 +82,12 @@
 	$.fn.formdata = function(){
 		var params = {};
 		$('input[name],select[name],textarea[name]',this).each(function(){
-			var tagName = (this.tagName||'').toLowerCase();
-			if(tagName=='select' || tagName=='textarea' || tagName=='input'){
+			var th = $(this);
+			if(th.is('select,textarea,input')){
 				params[$(this).attr('name')] = $(this).val();
 			}
-			if(tagName=='input'){//如果是checkbox和radio控件，并且控件属于未选中状态，则将值置为空
-				var type = ($(this).attr('type')||'').toLowerCase();
-				if((type=='checkbox' || type=='radio') && !$(this).attr('checked')){
+			if(th.is('input')){//如果是checkbox和radio控件，并且控件属于未选中状态，则将值置为空
+				if(th.is(':checkbox,:radio') && !$(this).attr('checked')){
 					params[$(this).attr('name')] = '';
 				}
 			}
@@ -97,36 +96,16 @@
 	};
 	//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
 	$.fn.autoInputWidth = function(){
-		if(this[0].tagName!='TABLE'){
+		if(!$(this).is('table')){
 			return;
 		}
 		var rightpos = 0,objs=$();
 		$('input[type=text],select,textarea',this).each(function(){
 			$(this).width($(this).width());
 		});
-		$('tr.subtitle',this).each(function(){//给标题行增加收起功能
-			$('<span class="icon expand-icon tree-expanded"></span>').prependTo($('>td:first',this)).click(function(){
-				var collapsed = !$(this).data('collapsed');
-				var ntr = $(this).parent().parent().next();
-				while(ntr.length==1 && !ntr.hasClass('subtitle')){
-					collapsed?ntr.hide():ntr.show();
-					ntr = ntr.next();
-				}
-				$(this).data('collapsed',collapsed).toggleClass('tree-expanded',!collapsed).toggleClass('tree-collapsed',collapsed);
-				if(!collapsed){//展开时判断信息是否显示完整，如果显示不完整，则滚动页面
-					
-				}
-				return false;
-			});
-			$('>td:first',this).css('cursor','pointer').bind('click',function(){
-				if(event.srcElement && event.srcElement.tagName=='TD'){
-					$('.expand-icon',this).click();
-				}
-			});
-		});
 		$('>*>tr',this).each(function(){
 			$('>td:last',this).each(function(){
-				var obj = $('>input[type=text]:visible,>select:visible,>textarea:visible,>span.combo:visible',this);
+				var obj = $('>input[type=text],>select,>textarea,>span.combo',this).filter(':visible');
 				if(obj.length==1 && obj.parent().find('>*:visible').length==1){
 					rightpos = Math.max(rightpos,obj.offset().left+obj.outerWidth());
 					objs = objs.add(obj);
@@ -137,8 +116,46 @@
 			var obj = $(this);
 			var diff = rightpos-(obj.offset().left+obj.outerWidth());
 			obj.width(obj.width()+diff);
-			if(this.tagName=='SPAN'){
+			if(obj.is('span.combo')){
 				$('.combo-text',obj).width($('.combo-text',obj).width()+diff);
+			}
+		});
+		$('tr.subtitle',this).each(function(){//给标题行增加收起功能
+			$('<span class="icon expand-icon tree-expanded"></span>').prependTo($('>td:first',this).attr('title','按Ctrl键展开栏目时可隐藏其他栏目')).click(function(){
+				var collapsed = $(this).hasClass('tree-expanded');//是否收起操作
+				var tr = $(this).parent().parent();
+				tr.nextUntil('.subtitle')[collapsed?'hide':'show']();
+				$(this).toggleClass('tree-expanded',!collapsed).toggleClass('tree-collapsed',collapsed);
+				if(!collapsed){//展开时判断信息是否显示完整，如果显示不完整，则滚动页面
+					if(event.ctrlKey){//按住Ctrl展开时，隐藏其他副标题内容
+						tr.siblings().hide();
+						$('.expand-icon',tr.siblings('.subtitle')).not(tr[0]).toggleClass('tree-expanded',false).toggleClass('tree-collapsed',true);
+						tr.show();
+						tr.nextUntil('.subtitle').show();
+					}
+				}
+				else{
+					tr.siblings('.subtitle:hidden').show();
+				}
+				return false;
+			});
+			$('>td:first',this).css('cursor','pointer').bind('click',function(){
+				if($($.event.fix(event||{}).target).is('TD')){
+					$('.expand-icon',this).click();
+				}
+			});
+		});
+		//增加必填标记和验证
+		$('*[required],*[notnull],*[validType]',this).each(function(){
+			var th = $(this);
+			var required = (th.attr('notnull')||th.attr('required'))=='true';
+			if(th.is(':visible')){
+				var tip = th.attr('missingMessage')||(th.parent().prev().text().replace(/:|：/g,'')+'不能为空！');
+				if(required)th.after('<rq/>');
+				th.validatebox({required:required,missingMessage:tip,validType:th.attr('validType')});
+			}
+			else if(th.next().is('span.combo')){
+				if(required)th.next().after('<rq/>');
 			}
 		});
 		return this;

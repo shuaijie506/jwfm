@@ -1,11 +1,9 @@
 package com.dx.jwfm.framework.web.action;
 
 import java.util.Date;
-import java.util.List;
 
 import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
-import com.dx.jwfm.framework.core.model.ButtonAuth;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.FastModelStructure;
 import com.dx.jwfm.framework.util.FastUtil;
@@ -29,7 +27,7 @@ public class MenuAction extends FastBaseAction {
 
 	@Override
 	protected String addItem() throws ValidateException {
-		// TODO Auto-generated method stub
+		initModel();
 		return super.addItem();
 	}
 
@@ -52,9 +50,25 @@ public class MenuAction extends FastBaseAction {
 
 	@Override
 	protected String modifyItem() throws ValidateException {
-//		return super.modifyItem();
-		List<ButtonAuth> list = model.getButtonAuths();
-		return null;
+		initModel();
+		return super.modifyItem();
+	}
+
+	private void initModel() {
+		model.setVcName(po.getString("VC_NAME"));
+		model.setVcAdd(po.getString("VC_ADD"));
+		model.setDtAdd(FastUtil.parseDate(po.getString("DT_ADD")));
+		model.setVcAuth(po.getString("VC_ADD"));
+		model.setVcGroup(po.getString("VC_GROUP"));
+		model.setVcId(po.getString("VC_ID"));
+		model.setVcModify(po.getString("VC_MODIFY"));
+		model.setVcNote(po.getString("VC_NOTE"));
+		model.setVcUrl(po.getString("VC_URL"));
+		model.setVcVersion(po.getString("VC_VERSION"));
+		FastModel fm = new FastModel();
+		fm.setModelStructure(model);
+		fm.doPersistent();
+		po.put("VC_STRUCTURE", fm.getVcStructure());
 	}
 
 	public FastModelStructure getModel() {

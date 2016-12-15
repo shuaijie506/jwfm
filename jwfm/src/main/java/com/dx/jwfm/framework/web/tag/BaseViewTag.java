@@ -1,19 +1,13 @@
 package com.dx.jwfm.framework.web.tag;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.StringWriter;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.RequestContext;
@@ -28,108 +22,74 @@ public class BaseViewTag extends TagSupport implements DynamicAttributes {
 
 	protected LinkedHashMap<String,String> attr = new LinkedHashMap<String, String>();
 
+	@Override
+	public void setPageContext(PageContext pageContext) {
+		if(pageContext!=null){
+			pageContext.getRequest().setAttribute("PageContext", pageContext);
+		}
+		super.setPageContext(pageContext);
+	}
+
 	public void setDynamicAttribute(String uri,String localeName,Object value) throws JspException {
 		attr.put(localeName, ""+value);
 	}
 
-	protected String getFormatValue(Object val,String format) {
-		if(val==null || "".equals(val)){
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年11月4日 上午8:31:55
+	 * 功能描述: 将内容中的${vars.propts:format}进行值替换，值会从page action request session servletcontext中依次取值
+	 * 方法的参数和返回值: 
+	 * @param str
+	 * @return
+	 */
+	protected String replaceVars(String str) {
+		if(str==null || str.length()==0){
 			return "";
 		}
-		else if(val instanceof Date){
-			Date d = (Date) val;
-			if(FastUtil.isBlank(format)){
-				format = "yyyy-MM-dd HH:mm";
+		StringBuffer buff = new StringBuffer();
+		int pos = str.indexOf("${");
+		int lastpos = 0;
+		if(pos>=0){
+			while(pos>=0){
+				buff.append(str.substring(lastpos, pos));
+				int nextpos = str.indexOf("}",pos);
+				String key = str.substring(pos+2, nextpos);
+				Object val = FastUtil.format(getVarValue(key),null);
+				if(val!=null){
+					buff.append(val);
+				}
+				lastpos = nextpos+1;
+				pos = str.indexOf("${",lastpos);
 			}
-			return new SimpleDateFormat(format).format(d);
-		}
-		else if(val instanceof java.sql.Date){
-			java.sql.Date d = (java.sql.Date) val;
-			if(FastUtil.isBlank(format)){
-				format = "yyyy-MM-dd HH:mm";
+			if(lastpos<str.length()){
+				buff.append(str.substring(lastpos));
 			}
-			return new SimpleDateFormat(format).format(d);
-		}
-		else if(val instanceof Number){
-			Number n = (Number) val;
-			if(FastUtil.isBlank(format)){
-				return new DecimalFormat().format(n);
-			}
-			else{
-				return new DecimalFormat(format).format(n);
-			}
-		}
-		return val.toString();
-	}
-
-	protected Object getBeanValue(String name){
-		int pos = name.indexOf(":");
-		String format = null;
-		if(pos>0){//存在格式化内容
-			format = name.substring(pos+1);
-			name = name.substring(0,pos);
-		}
-		pos = name.indexOf(".");
-		Object val = null;
-		if(pos>0){
-			Object bean = getBean(name.substring(0,pos));
-			val = getProptValue(bean,name.substring(pos+1));
 		}
 		else{
-			val = getBean(name);
+			return str;
 		}
-		if(val!=null && format!=null){
-			val = getFormatValue(val,format);
-		}
-		return val;
+		return buff.toString();
 	}
 
-	protected Object getProptValue(Object bean, String name) {
-		int pos = name.indexOf(".");
-		if(pos>0){
-			Object proptbean = getBean(name.substring(0,pos));
-			Object val = getProptValue(proptbean,name.substring(pos+1));
-			return val;
-		}
-		else{
-			Object val = null;
-			if(bean instanceof Map){
-				Map<?,?> map = (Map<?,?>) bean;
-				val = map.get(name);
+	private Object getVarValue(String key) {
+		//处理${$select$fieldName:sql:SQL语句}
+		if(key.startsWith("$select$")){
+			int pos = key.indexOf(":",8);
+			if(pos<0){
+				return "下拉选择框格式错误，请使用${$select$fieldName:sql:SQL语句}或${$select$fieldName:dict:字典名称}定义下拉选择框";
 			}
-			try {
-				val = PropertyUtils.getProperty(bean, name);
-			} catch (Exception e) {
-				logger.debug(e.getMessage(),e);
-			}
-			return val;
+			String fieldName = key.substring(8,pos);
+			Object val = RequestContext.getBeanValue(fieldName);
+			SelectTag sel = new SelectTag();
+			sel.setName(fieldName);
+			sel.setValue(val==null?"":val.toString());
+			sel.setEmptyOption(true);
+			sel.setList(key.substring(pos+1));
+			sel.setId(fieldName.replaceAll("\\.", "_"));
+			StringWriter sw = new StringWriter();
+			sel.writeHtml(sw);
+			return sw.toString();
 		}
-	}
-
-	protected Object getBean(String name) {
-		if(pageContext==null){
-			return null;
-		}
-		//优先从page中取值
-		Object obj = pageContext.getAttribute(name);
-		HttpServletRequest request = null;
-		HttpSession session = null;
-		if(obj==null){//page中取不到值时从action的属性中取值
-			Object action = RequestContext.getRequestAction();
-			obj = action==null?null:getProptValue(action, name);
-		}
-		if(obj==null){//action属性中取不到值时从Request中取值
-			request = (HttpServletRequest) pageContext.getRequest();
-			obj = request==null?null:request.getAttribute(name);
-		}
-		if(obj==null){//从session中取值
-			session = request.getSession();
-			obj = session==null?null:session.getAttribute(name);
-		}
-		if(obj==null){//从ServletContext中取值
-			ServletContext sc = session.getServletContext();
-			obj = sc==null?null:sc.getAttribute(name);
-		}
-		return obj;
+		return RequestContext.getBeanValue(key);
 	}
 }

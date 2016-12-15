@@ -62,28 +62,35 @@ function dealMultiRow(tblId,url,info,param){
 	});
 }
 //进行添加或编辑操作后，根据返回的json数据获取操作结果信息的通用方法
-function returnOptMsgEasyui(data,reMsg,callback){
+function returnOptMsgEasyui(opt){
+	if(!opt){
+		$.messager.alert('提示','参数不正确，请使用{data:data}传参');
+		return;
+	}
+	if(typeof(opt)=='string'){
+		opt = {data:opt};
+	}
     try{
-        jsonReStr = jQuery.parseJSON(data);  //获取从服务器得到的数据反馈信息
+        jsonReStr = jQuery.parseJSON(opt.data);  //获取从服务器得到的数据反馈信息
         if(jsonReStr.successed){    //操作成功处理
-            $.util.showTip({content:(reMsg||jsonReStr.info||'保存成功！')});
-            $('#searchGrid').datagrid('reload'); //刷新数据列
-         	if(callback && typeof(callback)=='function'){
-         		callback(true);
+            $.util.showTip({content:(opt.reMsg||jsonReStr.info||'保存成功！')});
+            $(opt.gridId||'#searchGrid').datagrid('reload'); //刷新数据列
+         	if(opt.callback && typeof(opt.callback)=='function'){
+         		opt.callback(true);
          	}
            	return true;
         }else{  //操作失败处理
-            try{$('#operateWindow').window("open");}catch(e){;}
+            try{$(opt.winId||'#operateWindow').window("open");}catch(e){;}
             $.messager.alert('消息提示','操作处理失败！原因如下：<br><font color=red>'+jsonReStr.info+'</font>','error',function(){
-             	if(callback && typeof(callback)=='function'){
-             		callback(false);
+             	if(opt.callback && typeof(opt.callback)=='function'){
+             		opt.callback(false);
              	}
             });
         }
     }catch(e){
-        $.messager.alert('消息提示','出现系统错误!系统返回错误信息：<br><font color=red>'+data+'</font>','error',function(){
-         	if(callback && typeof(callback)=='function'){
-         		callback(false);
+        $.messager.alert('消息提示','出现系统错误!系统返回错误信息：<br><font color=red>'+opt.data+'</font>','error',function(){
+         	if(opt.callback && typeof(opt.callback)=='function'){
+         		opt.callback(false);
          	}
         });
     }
@@ -122,14 +129,3 @@ $.fn.datagrid.dealParam = function(param,fcols,cols){
 	return param;
 };
 
-window.initValid = function(doc){
-	$('*[required],*[notnull]',doc).each(function(){
-		var th = $(this);
-		if(th.next().attr('tagName')!='FONT'){
-			var tip = th.attr('missingMessage')||(th.parent().prev().text().replace(/:|：/g,'')+'不能为空！');
-			var required = (th.attr('notnull')||th.attr('required'))=='true';
-			if(required)th.after('<font color=red>*</font>');
-			th.validatebox({required:required,missingMessage:tip,validType:th.attr('validType')});
-		}
-	});
-};

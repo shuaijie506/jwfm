@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,7 +31,7 @@ import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.dialect.impl.MySqlDialect;
 import com.dx.jwfm.framework.core.dao.dialect.impl.OracleDialect;
 import com.dx.jwfm.framework.core.model.FastModel;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
+import com.dx.jwfm.framework.core.parser.MacroValueNode;
 import com.dx.jwfm.framework.core.process.ClassActionProcess;
 import com.dx.jwfm.framework.core.process.FastActionProcess;
 import com.dx.jwfm.framework.core.process.FastResourceProcess;
@@ -85,7 +86,7 @@ public class FastFilter implements Filter {
 	/**
 	 * 用户自定义默认值处理类
 	 */
-	ArrayList<IDefaultValueParser> defaultValueParser = new ArrayList<IDefaultValueParser>();
+	HashMap<String,MacroValueNode> macroValueMap = new LinkedHashMap<String,MacroValueNode>();
 
 	/** 用户请求字符集设置 */
 	private String charset;
@@ -143,16 +144,6 @@ public class FastFilter implements Filter {
 				userProc.add(proc);
 			} catch (Exception e) {
 				logger.error(e.getMessage(),e);
-			}
-		}
-		ary = (FastUtil.nvl(SystemContext.systemParam.get("defaultValueParser"),"")+","+FastUtil.nvl(map.get("defaultValueParser"),"")).split(",");
-		for(String str:ary){//初始化系统默认值解析部分
-			if(str.trim().length()>0){
-				try {
-					defaultValueParser.add((IDefaultValueParser) FastUtil.newInstance(str.trim()));
-				} catch (Exception e) {
-					logger.error(e.getMessage(),e);
-				}
 			}
 		}
 		//初始化三个拦截处理器
@@ -238,11 +229,18 @@ public class FastFilter implements Filter {
 					SAXReader reader = new SAXReader();  
 					Document doc = reader.read(url.openStream());  
 					Element root = doc.getRootElement();
-					UtilPrepareClass.loadFastXml(root);
-					List<Element> list = root.selectNodes("config/item");
+					List<Element> list = root.selectNodes("config/item");//一般配置项
 					for(Element e:list){
 						String val = e.getText();
 						map.put(e.attributeValue("name"), val==null?"":val.trim());
+					}
+					UtilPrepareClass.loadFastXml(root);//注册项的默认值读取
+					list = root.selectNodes("macrovalue/item");//系统内默认值处理器
+					for(Element e:list){
+						MacroValueNode n = MacroValueNode.genNode(e.attributeValue("code"), e.attributeValue("name"), e.getText());
+						if(n!=null && !macroValueMap.containsKey(n.getCode())){//以第一次加载为准
+							macroValueMap.put(n.getCode(), n);
+						}
 					}
 				} catch (Exception e) {
 					logger.error(e.getMessage(),e);

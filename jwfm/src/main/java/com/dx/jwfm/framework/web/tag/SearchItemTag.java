@@ -13,10 +13,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.RequestContext;
+import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.MapObject;
 import com.dx.jwfm.framework.core.model.search.SearchColumn;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
 
 
@@ -50,7 +50,7 @@ public class SearchItemTag extends BaseViewTag {
 	    	for(SearchColumn col:items){
 	    		out.print("<span class=\"searchItem\"> ");
 	    		out.print(col.getVcTitle());
-	    		out.print(getEditorHtml(col, "search", getValue(col)));
+	    		out.print(replaceVars(getEditorHtml(col, "search", getValue(col))));
 	    		out.println("</span>");
 	    		if(FastUtil.isNotBlank(col.getVcEditorJs())){
 	    			jsOut.println(col.getVcEditorJs());
@@ -83,10 +83,10 @@ public class SearchItemTag extends BaseViewTag {
 			buff.append("<input type=hidden").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()))
 			.append(" value=1 /><input type=text").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()+"Begin"))
 			.append(" class=\"Wdate\" onfocus=\"WdatePicker({dateFmt:'").append(format).append("'})\" value=\"")
-			.append(FastUtil.nvl((String)getBeanValue(prefix+"."+col.getVcCode()+"Begin"),""))
+			.append(FastUtil.nvl((String)RequestContext.getBeanValue(prefix+"."+col.getVcCode()+"Begin"),""))
 			.append("\" style=\"width:").append(width).append("px;\" /> 至 <input type=text").append(HtmlUtil.createIdAndName(prefix, col.getVcCode()+"End"))
 			.append(" class=\"Wdate\" onfocus=\"WdatePicker({dateFmt:'").append(format).append("'})\" value=\"")
-			.append(FastUtil.nvl((String)getBeanValue(prefix+"."+col.getVcCode()+"End"),"")).append("\" style=\"width:").append(width).append("px;\" />");
+			.append(FastUtil.nvl((String)RequestContext.getBeanValue(prefix+"."+col.getVcCode()+"End"),"")).append("\" style=\"width:").append(width).append("px;\" />");
 			return buff.toString();
 		}
 		return HtmlUtil.createEditorHtml(prefix, col.getVcCode(), col.getVcEditorType(), value);
@@ -100,7 +100,7 @@ public class SearchItemTag extends BaseViewTag {
 				if(srh instanceof MapObject){//如果search属性是MAP对象，则按MAP对象取值
 					MapObject map = (MapObject) srh;
 					if(map.containsKey(col.getVcCode())){
-						val = FastUtil.nvl(getFormatValue(map.get(col.getVcCode()),null), "");
+						val = FastUtil.nvl(FastUtil.format(map.get(col.getVcCode()),null), "");
 					}
 				}//否则按一般对象取属性值
 				else if(srh!=null && PropertyUtils.isReadable(srh, col.getVcCode())){
@@ -113,16 +113,8 @@ public class SearchItemTag extends BaseViewTag {
 		if(val==null){//如果未取到值，从用户请求的参数中取值
 			val = RequestContext.getParameter("search."+col.getVcCode());
 		}
-		if(val==null && FastUtil.isNotBlank(col.getDefaults())){//如果请求参数中不包含相应的值，则取默认值
-			List<IDefaultValueParser> list = RequestContext.getDefaultValueParser();
-			String defaults = col.getDefaults();
-			for(int i=0;i<list.size();i++){
-				if(list.get(i).hasDefaultValue(defaults)){
-					Object obj = list.get(i).getDefaultValue(defaults);
-					val = obj==null?null:obj.toString();
-					break;
-				}
-			}
+		if(val==null && col.getDefaults()!=null && col.getDefaults().indexOf("${")>=0){//如果请求参数中不包含相应的值，则取默认值
+			val = SystemContext.replaceMacroString(col.getDefaults());
 		}
 		return val;
 	}

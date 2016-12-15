@@ -58,8 +58,8 @@ ${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
     		return {};
     	}
     	function addItem(){
-    		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>1',width:600,height:400,
-    			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption()));
+    		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>',width:600,height:400,
+    			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption(),window.winOption));
     	}
     	function modifyItem(){
     		var rows = $('#searchGrid').datagrid('getSelections');					
@@ -69,8 +69,8 @@ ${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
     		else if (rows.length>1){
  		       $.messager.alert('警告', '您选择了 '+rows.length+' 条记录，请选择单条记录进行修改！','warning');return;
     		}
-    		$.openWin({title:'修改数据',href:'<%=bpath%>_modify<%=actionExt%>?chkSelf='+rows[0]['VC_ID'],width:600,height:400,
-    			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]});
+    		$.openWin($.extend({title:'修改数据',href:'<%=bpath%>_modify<%=actionExt%>?chkSelf='+rows[0]['VC_ID'],width:600,height:400,
+    			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption(),window.winOption));
     	}
     	function delItem(){
     		dealMultiRow('searchGrid','<%=bpath%>_delete<%=actionExt%>','刪除');
@@ -85,7 +85,7 @@ html,body{overflow:hidden;}
     <!-- 查询条件行 --> 
    <tr height="20px"><td valign="top">
    <div id="searchDiv" class="searchDiv"><div class="searchDivContent">
-<f:searchitem />
+<f:searchitem /><rq/><font color=red>*</font>
      </div></div>
    </td><td nowrap="nowrap"><a id="search" href="javascript:void(0)"  class="easyui-linkbutton" iconCls="icon-search">查询</a></td></tr>
    <!-- 数据结果列表 -->

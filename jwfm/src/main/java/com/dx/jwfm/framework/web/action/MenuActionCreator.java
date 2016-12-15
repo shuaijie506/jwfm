@@ -8,14 +8,14 @@ import com.dx.jwfm.framework.core.annotations.FastModelInfo;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
-import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.ButtonAuth;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
+import com.dx.jwfm.framework.core.model.view.DictNode;
 
-@FastModelInfo(author="宋帅杰", devDate = "2016-11-09", updateInfo = "")
+@FastModelInfo(author="宋帅杰", devDate = "2016-11-09 00:00", updateInfo = "")
 public class MenuActionCreator extends ActionCreator {
 
 	static FastModel model;
@@ -110,11 +110,11 @@ public class MenuActionCreator extends ActionCreator {
 		model.getModelStructure().setActionName(MenuAction.class.getName());
 		model.getModelStructure().setForward("openAddPage", "/jwfm/core/menuEdit.jsp");
 		model.getModelStructure().setForward("openModifyPage", "/jwfm/core/menuEdit.jsp");
-		ArrayList<FastPo> dictData = new ArrayList<FastPo>();
-		String dictTbl = SystemContext.dbObjectPrefix+"T_DICT";
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_BASE_PACKAGE").element("VC_TEXT", "com.dx.jwfm.framework.web").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "新建菜单时基础包路径").element("N_SEQ", "0"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "SYSMENU_DEFAULT_HIDE_COLNAMES").element("VC_TEXT", "VC_ID,VC_MID,N_DEL,N_STAT").element("VC_GROUP", "SYS_REGEDIT").element("VC_NOTE", "查询结果中默认隐藏列的列名").element("N_SEQ", "0"));
+		ArrayList<DictNode> dictData = new ArrayList<DictNode>();
+		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_BASE_PACKAGE", "com.dx.jwfm.framework.web","新建菜单时基础包路径",0));
+		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_DEFAULT_HIDE_COLNAMES", "VC_ID,VC_MID,N_DEL,N_STAT", "查询结果中默认隐藏列的列名",0));
 		model.getModelStructure().setDictData(dictData);
+		model.getModelStructure().getSearch().setHeadHTML("<script>window.winOption={divId:'menuEditWin'}</script>");
 	}
 
 

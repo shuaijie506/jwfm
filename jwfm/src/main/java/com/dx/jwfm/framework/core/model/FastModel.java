@@ -24,7 +24,7 @@ import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
+import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.core.process.IActionHandel;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.action.FastBaseAction;
@@ -67,8 +67,6 @@ public class FastModel {
 	private Class<?> actionClass;
 	/**AOP处理器，用于处理action方法执行前后的预处理和后处理*/
 	private Class<IActionHandel> actionHandel;
-	/**用户自定义默认值解析器*/
-	private ArrayList<IDefaultValueParser> actionDefaultValueParserBeans;
 	/**模型结构对象*/
 	private FastModelStructure modelStructure;
 
@@ -99,26 +97,28 @@ public class FastModel {
 	@SuppressWarnings("rawtypes")
 	public synchronized void undoPersistent(){
 		if(FastUtil.isBlank(vcStructure)){
-			return;
+			modelStructure = new FastModelStructure();
 		}
-		JSONObject obj = JSONObject.fromObject(vcStructure);
-		Map<String, Class> cmap = new HashMap<String, Class>();
-		cmap.put("mainTable", FastTable.class);
-		cmap.put("otherTables", FastTable.class);
-		cmap.put("columns", FastColumn.class);
-		cmap.put("otherDbObjects", FastDbObject.class);
-		cmap.put("search", SearchModel.class);
-		cmap.put("dictData", FastPo.class);
-		cmap.put("searchColumns", SearchColumn.class);
-		cmap.put("searchColumnMap", SearchColumn.class);
-		cmap.put("searchResultColumns", SearchResultColumn.class);
-		cmap.put("forwards", Node.class);
-		try {
-			modelStructure = (FastModelStructure) JSONObject.toBean(obj, FastModelStructure.class,cmap);
-			FastUtil.copyBeanPropts(this, modelStructure);
-		} catch (Exception e) {
-			e.printStackTrace();
+		else{
+			JSONObject obj = JSONObject.fromObject(vcStructure);
+			Map<String, Class> cmap = new HashMap<String, Class>();
+			cmap.put("mainTable", FastTable.class);
+			cmap.put("otherTables", FastTable.class);
+			cmap.put("columns", FastColumn.class);
+			cmap.put("otherDbObjects", FastDbObject.class);
+			cmap.put("search", SearchModel.class);
+			cmap.put("dictData", DictNode.class);
+			cmap.put("searchColumns", SearchColumn.class);
+			cmap.put("searchColumnMap", SearchColumn.class);
+			cmap.put("searchResultColumns", SearchResultColumn.class);
+			cmap.put("forwards", Node.class);
+			try {
+				modelStructure = (FastModelStructure) JSONObject.toBean(obj, FastModelStructure.class,cmap);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		FastUtil.copyBeanPropts(this, modelStructure);
 	}
 	private boolean inited = false;
 	/**
@@ -147,7 +147,7 @@ public class FastModel {
 			} catch (SQLException e1) {
 				logger.error(e1.getMessage(),e1);
 			}
-			if(modelStructure==null)return;//因反序列代码尚未开发，所以结构为空的不执行
+//			if(modelStructure==null)return;//因反序列代码尚未开发，所以结构为空的不执行
 			if(version==null || version.compareTo(this.vcVersion)<0){
 				//比对主业务表并进行表结构更新
 				FastTable tbl = modelStructure.getMainTable();
@@ -312,7 +312,8 @@ public class FastModel {
 		ArrayList<String> sqls = new ArrayList<String>();
 		ArrayList<Object[]> params = new ArrayList<Object[]>();
 		if(modelStructure.getDictData()!=null){
-			for(FastPo dict:modelStructure.getDictData()){
+			for(DictNode n:modelStructure.getDictData()){
+				FastPo dict = n.toPo();
 				try {
 					if(db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=? and vc_code=?",
 							new Object[]{dict.getString("VC_GROUP"),dict.getString("VC_CODE")})==0){
@@ -366,29 +367,6 @@ public class FastModel {
 			}
 		}
 		return actionClass;
-	}
-
-	public ArrayList<IDefaultValueParser> getActionDefaultValueParserBeans() {
-		if(actionDefaultValueParserBeans==null){
-			actionDefaultValueParserBeans = new ArrayList<IDefaultValueParser>();
-			String[] ary = FastUtil.nvl(modelStructure.getActionDefaultValueParser(),"").split(",");
-			for(String str:ary){//初始化模块默认值解析部分
-				if(str.trim().length()>0){
-					try {
-						actionDefaultValueParserBeans.add((IDefaultValueParser) FastUtil.newInstance(str.trim()));
-					} catch (Exception e) {
-						logger.error(e.getMessage(),e);
-					}
-				}
-			}
-			List<IDefaultValueParser> list = SystemContext.getSystemDefaultValueParser();
-			if(list!=null){//附加系统默认值解析部分
-				for(int i=0;i<list.size();i++){
-					actionDefaultValueParserBeans.add(list.get(i));
-				}
-			}
-		}
-		return actionDefaultValueParserBeans;
 	}
 
 	public void setActionClass(Class<?> actionClass) {

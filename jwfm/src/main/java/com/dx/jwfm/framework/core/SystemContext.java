@@ -3,10 +3,13 @@ package com.dx.jwfm.framework.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -15,7 +18,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
+import com.dx.jwfm.framework.core.parser.MacroValueNode;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.builder.IDatagridBuilder;
 import com.dx.jwfm.framework.web.logic.SQLConditionParser;
@@ -196,12 +199,49 @@ public class SystemContext {
 		return getSysParam("databaseTableDelFlagFieldName","N_DEL");
 	}
 	/**
-	 * 获得当前系统中指定的处理默认值的对象列表
+	 * 获得当前系统中指定的宏定义的值
 	 * @return
 	 */
-	public static List<IDefaultValueParser> getSystemDefaultValueParser() {
-		return FastFilter.filter.defaultValueParser;
+	public static Object getMacroValue(String name) {
+		MacroValueNode n = FastFilter.filter.macroValueMap.get(name);
+		if(n!=null){
+			return n.getValueHandel().getValue(name);
+		}
+		return null;
 	}
+
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月14日 上午10:43:41
+	 * 功能描述: 获得当前系统中所有宏定义列表
+	 * 方法的参数和返回值: 
+	 * @return
+	 */
+	public static Collection<MacroValueNode> getAllMacros() {
+		return FastFilter.filter.macroValueMap.values();
+	}
+	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月13日 下午4:11:22
+	 * 功能描述: 将文本中的宏定义替换为字符串
+	 * 方法的参数和返回值: 
+	 * @param str
+	 * @return
+	 */
+	public static String replaceMacroString(String str){
+		if(str!=null && str.indexOf("${")>=0){
+			String defaults = str;
+			Matcher mat = varPat.matcher(defaults);
+			while(mat.find()){//组合匹配时，按字符串处理
+				Object obj = SystemContext.getMacroValue(mat.group(1));
+				defaults = defaults.replace(mat.group(), obj==null?"":obj.toString());
+			}
+			str = defaults;
+		}
+		return str;
+	}
+	private static Pattern varPat = Pattern.compile("\\$\\{(.+?)\\}");
 
 	private static List<SQLConditionParser> sqlcondparserList = null;
 	public static List<SQLConditionParser> getSQLConditionParserList() {
@@ -221,5 +261,5 @@ public class SystemContext {
 		}
 		return sqlcondparserList;
 	}
-	
+
 }

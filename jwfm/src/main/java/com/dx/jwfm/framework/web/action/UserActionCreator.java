@@ -8,16 +8,16 @@ import com.dx.jwfm.framework.core.annotations.FastModelInfo;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
-import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.ButtonAuth;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
+import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.exception.ValidateException;
 
-@FastModelInfo(author="宋帅杰", devDate = "2015-12-03", updateInfo = "")
+@FastModelInfo(author="宋帅杰", devDate = "2015-12-03 00:00", updateInfo = "")
 public class UserActionCreator extends ActionCreator {
 
 	@Override
@@ -88,15 +88,15 @@ public class UserActionCreator extends ActionCreator {
 	protected SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
 		List<SearchColumn> cols = search.getSearchColumns();
-		cols.add(new SearchColumn("级别", "N_LEVEL", "select:dict:"+lvlDictName, 120, null, "=", "and t.N_LEVEL=${N_LEVEL} "));
+		cols.add(new SearchColumn("级别", "N_LEVEL", "select:dict:"+lvlDictName, 0, null, "=", "and t.N_LEVEL=${N_LEVEL} "));
 		cols.get(cols.size()-1).setVcEditorJs("$('#search_N_LEVEL').change(function(){doSearch();});");
-		cols.add(new SearchColumn("用户名", "VC_NAME", "text", 120, null, "like", "t.vc_name"));
-		cols.add(new SearchColumn("创建时间", "DT_ADD", "date:yyyy-MM-dd", 120, null, "dateRange", "t.dt_add"));
+		cols.add(new SearchColumn("用户名", "VC_NAME", "text", 0, null, "like", "t.vc_name"));
+		cols.add(new SearchColumn("创建时间", "DT_ADD", "date:yyyy-MM-dd", 0, null, "dateRange", "t.dt_add"));
 		search.setSearchSelectSql("select t.* from "+SystemContext.dbObjectPrefix+"T_USER t ");
 		search.setSearchOrderBySql("n_level,dt_add desc");
-		search.getSearchResultColumns().add(new SearchResultColumn("姓名", "VC_NAME", 85, null, "asc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("权限级别", "N_LEVEL", 75, "dict:"+lvlDictName, "asc"));
-		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", "desc"));
+		search.getSearchResultColumns().add(new SearchResultColumn("姓名", "VC_NAME", 85, null, "true"));
+		search.getSearchResultColumns().add(new SearchResultColumn("权限级别", "N_LEVEL", 75, "dict:"+lvlDictName, "true"));
+		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", "true"));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", ""));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", ""));
 		search.getSearchResultColumns().add(new SearchResultColumn("创建时间", "DT_ADD", 120, "yyyy-MM-dd HH:mm", ""));
@@ -146,12 +146,12 @@ public class UserActionCreator extends ActionCreator {
 	@Override
 	protected void initModel(FastModel model) {
 		model.getModelStructure().setActionName(this.getClass().getName());
-		ArrayList<FastPo> dictData = new ArrayList<FastPo>();
-		String dictTbl = SystemContext.dbObjectPrefix+"T_DICT";
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "0").element("VC_TEXT", "管理员").element("VC_GROUP", lvlDictName).element("N_SEQ", "0"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "1").element("VC_TEXT", "开发人员").element("VC_GROUP", lvlDictName).element("N_SEQ", "1"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "2").element("VC_TEXT", "用户维护人员").element("VC_GROUP", lvlDictName).element("N_SEQ", "2"));
-		dictData.add(FastPo.getPo(dictTbl).element("VC_CODE", "3").element("VC_TEXT", "作废").element("VC_GROUP", lvlDictName).element("N_SEQ", "3"));
+		
+		ArrayList<DictNode> dictData = new ArrayList<DictNode>();
+		dictData.add(new DictNode(lvlDictName,"0", "管理员", 0));
+		dictData.add(new DictNode(lvlDictName,"1", "开发人员", 1));
+		dictData.add(new DictNode(lvlDictName,"2", "用户维护人员", 2));
+		dictData.add(new DictNode(lvlDictName,"9", "作废", 3));
 		model.getModelStructure().setDictData(dictData);
 	}
 

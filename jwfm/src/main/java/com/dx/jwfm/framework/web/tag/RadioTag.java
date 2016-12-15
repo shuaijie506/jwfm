@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class RadioTag extends HiddenTag {
@@ -52,12 +53,12 @@ public class RadioTag extends HiddenTag {
 			}
 		}
 		else{
-			Object bean = getBean(list);
+			Object bean = RequestContext.getBeanValue(list);
 			if(bean instanceof Collection){
 				Collection list = (Collection) bean;
 				for(Object row:list){
-					String val = (String) getProptValue(row, valueField);
-					String text = (String) getProptValue(row, textField);
+					String val = (String) FastUtil.getProptValue(row, valueField);
+					String text = (String) FastUtil.getProptValue(row, textField);
 					addOption(out,val,text);
 				}
 			}

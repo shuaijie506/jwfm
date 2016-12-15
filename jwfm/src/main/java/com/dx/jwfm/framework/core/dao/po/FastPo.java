@@ -10,14 +10,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastColumnType;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
 import com.dx.jwfm.framework.core.model.MapObject;
-import com.dx.jwfm.framework.core.parser.IDefaultValueParser;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class FastPo extends MapObject implements Serializable {
@@ -79,25 +77,7 @@ public class FastPo extends MapObject implements Serializable {
 	public void initDefaults() {
 		if(tblModel!=null){
 			for(FastColumn col:tblModel.getColumns()){
-				if(FastUtil.isNotBlank(col.getDefaults())){
-					String defaults = col.getDefaults();
-					if(defaults.indexOf("$")>=0){
-						Matcher mat = varPat.matcher(defaults);
-						if(mat.matches()){//完整匹配时，可以是任意对象
-							put(col.getCode(),getDefaultValue(mat.group(1)));
-						}
-						else{
-							while(mat.find()){//组合匹配时，按字符串处理
-								Object obj = getDefaultValue(mat.group(1));
-								defaults = defaults.replace(mat.group(), obj==null?"":obj.toString());
-							}
-							put(col.getCode(),defaults);
-						}
-					}
-					else{
-						put(col.getCode(),defaults);
-					}
-				}
+				initDefaults(col);
 			}
 		}
 	}
@@ -115,11 +95,11 @@ public class FastPo extends MapObject implements Serializable {
 			if(defaults.indexOf("$")>=0){
 				Matcher mat = varPat.matcher(defaults);
 				if(mat.matches()){//完整匹配时，可以是任意对象
-					put(col.getCode(),getDefaultValue(mat.group(1)));
+					put(col.getCode(),SystemContext.getMacroValue(mat.group(1)));
 				}
 				else{
 					while(mat.find()){//组合匹配时，按字符串处理
-						Object obj = getDefaultValue(mat.group(1));
+						Object obj = SystemContext.getMacroValue(mat.group(1));
 						defaults = defaults.replace(mat.group(), obj==null?"":obj.toString());
 					}
 					put(col.getCode(),defaults);
@@ -129,16 +109,6 @@ public class FastPo extends MapObject implements Serializable {
 				put(col.getCode(),defaults);
 			}
 		}
-	}
-
-	private Object getDefaultValue(String name) {
-		List<IDefaultValueParser> list = RequestContext.getDefaultValueParser();;
-		for(int i=0;list!=null && i<list.size();i++){
-			if(list.get(i).hasDefaultValue(name)){
-				return list.get(i).getDefaultValue(name);
-			}
-		}
-		return null;
 	}
 
 	public void setTableModelName(String tblName) {

@@ -39,6 +39,9 @@ public class ParameterActionHandle implements IActionHandel {
 			Enumeration<String> en = request.getParameterNames();
 			while(en.hasMoreElements()){
 				String key = en.nextElement();
+				if("model.mainTable.columns[0].name".equals(key)){
+					key = key+"";
+				}
 				setObjectPropt(action,key,request,request.getParameter(key));
 			}
 		}
@@ -73,7 +76,7 @@ public class ParameterActionHandle implements IActionHandel {
 				int idx = Integer.parseInt(m.group(2));
 				try {
 					Class cls = PropertyUtils.getPropertyType(obj, proptName);
-					if(cls!=null && cls.isAssignableFrom(List.class)){//只针对实现List类型的对象
+					if(cls!=null && List.class.isAssignableFrom(cls)){//只针对实现List类型的对象
 						Object propt = PropertyUtils.getProperty(obj, proptName);
 						if(propt==null){
 							propt = new ArrayList();
@@ -113,7 +116,7 @@ public class ParameterActionHandle implements IActionHandel {
 					}
 					setObjectPropt(propt,fieldName.substring(pos+1),request,value);
 				} catch (Exception e) {
-//					e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		}

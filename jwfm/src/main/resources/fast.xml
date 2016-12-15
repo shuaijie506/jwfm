@@ -15,11 +15,16 @@ com.dx.jwfm.framework.core.handle.ParameterActionHandle</item>
 com.dx.jwfm.framework.web.builder.impl.EasyuiDatagridBuilder</item>
 <item name="datagridBuilder.html" comment="模块更新文件存放目录">
 com.dx.jwfm.framework.web.builder.impl.HtmlDatagridBuilder</item>
-<item name="defaultValueParser" comment="默认值解析类名，类必须实现IDefaultValueParser接口">
-com.dx.jwfm.framework.core.parser.CommonDefaultValueParser</item>
 <item name="searchSQLConditionParser" comment="查询条件过滤处理类，多个类之间使用逗号分隔，必须实现SQLConditionParser接口">
 com.dx.jwfm.framework.web.logic.DefaultSQLConditionParser</item>
 </config>
+<macrovalue>
+	<info>宏定义值可以使用在SQL查询的参数定义、业务表的默认值、查询条件和独立界面的${}变量中，不能用在Jsp原生El表达式中</info>
+	<info>默认值实现类必须实现IMacroValueGenerator接口，多个默认值可对应一个类</info>
+	<item code="uuid" name="生成32位随机字符串">com.dx.jwfm.framework.core.parser.CommonMacroValue</item>
+	<item code="nowDate" name="生成当天的日期对象，0点0分0秒">com.dx.jwfm.framework.core.parser.CommonMacroValue</item>
+	<item code="nowTime" name="生成当前的时间对象，包含时分秒">com.dx.jwfm.framework.core.parser.CommonMacroValue</item>
+</macrovalue>
 <regedit-default>
 <item name="SYSMENU_PRESET_BTN_ARY">['add,modify,del;add,modify,del,exportExcel;add,modify,del,submitItem,checkItem;add,modify,del,submitItem,checkItem,exportExcel',
 				{code:'add',name:'添加',iconCls:'icon-add',note:'点击按钮后打开添加界面'},
