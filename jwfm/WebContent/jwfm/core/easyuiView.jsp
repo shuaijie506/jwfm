@@ -13,6 +13,9 @@ long ltime = System.currentTimeMillis();
 <%@ taglib uri="/fast-tags" prefix="f" %>
 <SCRIPT type=text/javascript>
 	$(function(){
+		$('#closeBtn').click(function(){
+			$('#editTbl<%=ltime%>').closest('.window-body').window('close');
+		});
 	});
 </SCRIPT>
 <div id="editTbl<%=ltime%>">

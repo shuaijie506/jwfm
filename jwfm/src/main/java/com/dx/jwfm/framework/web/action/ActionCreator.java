@@ -24,14 +24,14 @@ public abstract class ActionCreator extends FastBaseAction {
 	abstract protected String getUrl();
 	/*** 开发人员姓名 */
 	abstract protected String getAuthor();
-	protected HashMap<String,String> getForwards(){
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("success", 			"/jwfm/core/easyuiSearch.jsp");
-		map.put("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
-		map.put("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
-		map.put("openViewPage",		"/jwfm/core/htmlView.jsp");
-		return map;
-	}
+//	protected HashMap<String,String> getForwards(){
+//		HashMap<String,String> map = new HashMap<String, String>();
+//		map.put("success", 			"/jwfm/core/easyuiSearch.jsp");
+//		map.put("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
+//		map.put("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
+//		map.put("openViewPage",		"/jwfm/core/easyuiView.jsp");
+//		return map;
+//	}
 	/*** 主表信息 */
 	abstract protected FastTable getMainTable();
 	/*** 查询条件信息 */
@@ -73,14 +73,20 @@ public abstract class ActionCreator extends FastBaseAction {
 		FastUtil.copyBeanPropts(struct, model);
 		model.setModelStructure(struct);
 		struct.setMainTable(getMainTable());
-		struct.setMainTableName(struct.getMainTable().getCode());
+		struct.setMainTableName(struct.getMainTable().getName());
 //		struct.setPackageName("fast.main");
+		int pos = clsName.lastIndexOf(".");
+		String pn = clsName.substring(0, pos);
+		if(pn.endsWith(".action")){
+			pn = pn.substring(0, pn.length()-7);
+		}
+		struct.setPackageName(pn);
 		struct.setActionName("com.dx.jwfm.framework.web.action.FastBaseAction");
 		struct.setDefaultSearchData(false);
 		struct.setForward("success", 			"/jwfm/core/easyuiSearch.jsp");
 		struct.setForward("openAddPage",		"/jwfm/core/easyuiEdit.jsp");
-		struct.setForward("openModifyPage",	"/jwfm/core/easyuiEdit.jsp");
-		struct.setForward("openViewPage",		"/jwfm/core/htmlView.jsp");
+		struct.setForward("openModifyPage",		"/jwfm/core/easyuiEdit.jsp");
+		struct.setForward("openViewPage",		"/jwfm/core/easyuiView.jsp");
 		struct.setSearch(getSearchModel());
 		struct.setPageHTML("edit", "编辑页面", getEditTable());
 		struct.setButtonAuths(getButtonList());

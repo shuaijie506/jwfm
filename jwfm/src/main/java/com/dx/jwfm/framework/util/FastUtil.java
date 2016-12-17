@@ -34,11 +34,11 @@ public class FastUtil {
 	 * @return
 	 */
 	public static String nvl(String s1,String s2){
-		return s1!=null?s1:s2;
+		return s1!=null&&s1.length()>0?s1:s2;
 	}
 	public static String nvl(String s1,String s2,String s3){
 		String val=nvl(s1,s2);
-		return val!=null?val:s3;
+		return val!=null&&val.length()>0?val:s3;
 	}
 	/**
 	 * 判断字符串非空

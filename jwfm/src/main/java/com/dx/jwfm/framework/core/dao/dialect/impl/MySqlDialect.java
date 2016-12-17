@@ -24,7 +24,23 @@ public class MySqlDialect implements DatabaseDialect {
 	private String vcSid;
 	
 	private String filterSid(String fieldName){
-		return vcSid==null || vcSid.trim().length()==0?"":" and "+fieldName+"='"+vcSid+"'";
+		return getVcSid().trim().length()==0?"":" and "+fieldName+"='"+vcSid+"'";
+	}
+	
+	private String getVcSid(){
+		if(vcSid==null){
+			DbHelper db = new DbHelper();
+			try {
+				vcSid = db.getFirstStringSqlQuery("select database()");
+			} catch (SQLException e) {
+				logger.error(e.getMessage(),e);
+			}
+		}
+		if(vcSid==null){
+			vcSid = "";
+		}
+		vcSid = vcSid.toUpperCase();
+		return vcSid;
 	}
 	
 	
@@ -39,7 +55,7 @@ public class MySqlDialect implements DatabaseDialect {
 		DbHelper db = new DbHelper();
 		int cnt = 0;
 		try {
-			cnt = db.getFirstIntSqlQuery("select count(*) from information_schema.tables t where t.table_name='"+tbl.getCode()+"'"+filterSid("t.table_schema"));
+			cnt = db.getFirstIntSqlQuery("select count(*) from information_schema.tables t where t.table_name='"+tbl.getName()+"'"+filterSid("t.table_schema"));
 		} catch (SQLException e) {
 			logger.error(e.getMessage(),e);
 		}
@@ -56,13 +72,13 @@ public class MySqlDialect implements DatabaseDialect {
 	public List<String> getTableUpdateSql(FastTable tbl) {
 		DbHelper db = new DbHelper();
 		List<String> list = new ArrayList<String>();
-		String name = tbl.getCode();
+		String name = tbl.getName();
 		try {
 			StringBuffer buff = new StringBuffer();
 			String comment = getSafeComment(db.getFirstStringSqlQuery("select t.table_comment from information_schema.tables t " +
 					"where t.table_type='BASE TABLE' and t.table_name='"+name+"'"+filterSid("t.table_schema")));
 			if(!equals(tbl.getComment(),comment)){//注释不一样
-				buff.append("alter table ").append(tbl.getCode()).append(LINE_SEPARATOR);
+				buff.append("alter table ").append(tbl.getName()).append(LINE_SEPARATOR);
 				buff.append("  comment= '").append(tbl.getComment().replaceAll("'", "''")).append("'");
 				list.add(buff.toString());
 				buff.setLength(0);
@@ -82,7 +98,7 @@ public class MySqlDialect implements DatabaseDialect {
 				//如果字段类型或is null发生改变，则生成alter语句
 				if(!oldType.equals(po.get("DATA_TYPE")) || col.isCanNull()!="Y".equals(po.get("NULLABLE")) || 
 						!equals(col.getComment(),po.getString("COMMENTS"))){
-					buff.append("alter table ").append(name).append(" modify ").append(col.getCode()).append(" ").append(getDbType(col));
+					buff.append("alter table ").append(name).append(" modify ").append(col.getName()).append(" ").append(getDbType(col));
 					if(col.isCanNull()=="Y".equals(po.get("NULLABLE"))){
 						buff.append(col.isCanNull()?" not null":" null");
 					}
@@ -92,8 +108,8 @@ public class MySqlDialect implements DatabaseDialect {
 				}
 			}
 			for(FastColumn col:tbl.getColumns()){
-				if(!oldCols.contains(col.getCode())){//如果在旧表中不存在列，则新添加列
-					buff.append("alter table ").append(name).append(" add ").append(col.getCode()).append(" ").append(getDbType(col));
+				if(!oldCols.contains(col.getName())){//如果在旧表中不存在列，则新添加列
+					buff.append("alter table ").append(name).append(" add ").append(col.getName()).append(" ").append(getDbType(col));
 					if(!col.isCanNull()){//不能为空时，要加not null
 						buff.append(" not null");
 					}
@@ -117,16 +133,16 @@ public class MySqlDialect implements DatabaseDialect {
 		List<String> list = new ArrayList<String>();
 		StringBuffer buff = new StringBuffer();
 		StringBuffer key = new StringBuffer();
-		buff.append("create table "+tbl.getCode()+LINE_SEPARATOR);
+		buff.append("create table "+tbl.getName()+LINE_SEPARATOR);
 		buff.append("("+LINE_SEPARATOR);
 		int nameMax=0,typeMax=0,nullMax=0;
 		for(FastColumn col:tbl.getColumns()){
-			nameMax = Math.max(nameMax, col.getCode().length());
+			nameMax = Math.max(nameMax, col.getName().length());
 			typeMax = Math.max(typeMax, getDbType(col).length());
 			nullMax = Math.max(nullMax, col.isCanNull()?0:"not null".length());
 		}
 		for(FastColumn col:tbl.getColumns()){
-			buff.append(col.getCode()).append(getBlank(nameMax+1-col.getCode().length()))
+			buff.append(col.getName()).append(getBlank(nameMax+1-col.getName().length()))
 			.append(getDbType(col)).append(getBlank(typeMax+1-getDbType(col).length()));
 			if(nullMax>0){
 				if(!col.isCanNull()){
@@ -143,10 +159,10 @@ public class MySqlDialect implements DatabaseDialect {
 					}
 				}
 				else{
-					key.append(",").append(col.getCode());
+					key.append(",").append(col.getName());
 				}
 			}
-			buff.append(" comment '").append(FastUtil.nvl(col.getComment(),col.getName()).replaceAll("'", "''")).append("'");
+			buff.append(" comment '").append(FastUtil.nvl(col.getComment(),col.getTitle()).replaceAll("'", "''")).append("'");
 			buff.append(",").append(LINE_SEPARATOR);
 		}
 		if(key.length()>1){
@@ -155,12 +171,12 @@ public class MySqlDialect implements DatabaseDialect {
 		else{
 			buff.deleteCharAt(buff.length()-LINE_SEPARATOR.length()-1);
 		}
-		buff.append(") Comment='").append(FastUtil.nvl(tbl.getComment(),tbl.getName()).replaceAll("'", "''")).append("'");
+		buff.append(") Comment='").append(FastUtil.nvl(tbl.getComment(),tbl.getTitle()).replaceAll("'", "''")).append("'");
 		list.add(buff.toString());
 		buff.setLength(0);//清空SQL语句
 		for(FastColumn col:tbl.getColumns()){
 			if(col.isPrimaryKey()){
-				key.append(",").append(col.getCode());
+				key.append(",").append(col.getName());
 			}
 		}
 		return list;
@@ -244,4 +260,76 @@ public class MySqlDialect implements DatabaseDialect {
 		}
 	}
 
+	public List<FastPo> listTables() {
+		DbHelper db = new DbHelper();
+		String sql = "select t.table_name VC_CODE,t.table_comment VC_NAME,'TABLE' table_type VC_TYPE from information_schema.tables t " +
+				"where t.table_type='BASE TABLE' and t.table_schema='"+getVcSid()+"' order by t.table_name";
+		List<FastPo> list = null;
+		try {
+			list = db.executeSqlQuery(sql);
+		} catch (SQLException e) {
+			logger.error(e.getMessage(),e);
+			list = new ArrayList<FastPo>();
+		}
+		return list;
+	}
+
+
+	public FastTable loadTableInfo(String tableCode) {
+		FastTable tbl = new FastTable();
+		tbl.setName(tableCode);
+		if(FastUtil.isBlank(tableCode)){
+			return tbl;
+		}
+		tableCode = tableCode.toUpperCase();
+		DbHelper db = new DbHelper();
+		try {
+			tbl.setTitle(db.getFirstStringSqlQuery("select table_comment from information_schema.tables where t.table_schema='"+getVcSid()+"' and table_name=?",new Object[]{tableCode}));
+			tbl.setComment(tbl.getTitle());
+			String sql = "select t.COLUMN_NAME,t.COLUMN_TYPE," +
+					"floor(t.character_maximum_length) AS DATA_LENGTH,t.column_comment AS COMMENTS,t.column_DEFAULT,t.is_NULLABLE AS NULLABLE," +
+					"(case when t.column_key='PRI' then 'y' else 'n' end) AS IS_PK " +
+					"from information_schema.columns t where t.table_schema='"+getVcSid()+"' " +
+					"and t.table_name='"+tableCode+"' order by t.ordinal_position";
+			List<FastPo> cols = db.executeSqlQuery(sql);
+			for(FastPo po:cols){
+				FastColumn col = new FastColumn();
+				col.setName(po.getString("COLUMN_NAME"));
+				col.setTitle(po.getString("COMMENTS"));
+				col.setComment(po.getString("COMMENTS"));
+				col.setType(dbType2JavaType(po.getString("COLUMN_TYPE")));
+				col.setTypeLen(po.getInteger("DATA_LENGTH"));
+				col.setCanNull("Y".equals(po.getString("NULLABLE")));
+				col.setPrimaryKey(po.getInteger("IS_PK")>0);
+				tbl.getColumns().add(col);
+			}
+			tbl.setColumns(tbl.getColumns());
+		} catch (SQLException e) {
+			logger.error(e.getMessage(),e);
+		}
+		return tbl;
+	}
+
+	private String dbType2JavaType(String type) {
+		if(FastUtil.isBlank(type)){
+			return null;
+		}
+		type = type.toUpperCase();
+		if(type.indexOf("INT")>=0){
+			return "Integer";
+		}
+		else if(type.indexOf("FLOAT")>=0){
+			return "Float";
+		}
+		else if(type.indexOf("DOUBLE")>=0){
+			return "Double";
+		}
+		else if(type.indexOf("LONG")>=0){
+			return "Long";
+		}
+		else if(type.indexOf("TIME")>=0 || type.indexOf("DATE")>=0){
+			return "Date";
+		}
+		return "String";
+	}
 }

@@ -3,13 +3,15 @@ package com.dx.jwfm.framework.core.dao.model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.dx.jwfm.framework.util.FastUtil;
+
 public class FastColumn {
 
 	/** 名称，一般为汉字 */
-	protected String name;
+	protected String title;
 
 	/** 编码，一般为大写英文字母、数字和下划线组成 */
-	protected String code;
+	protected String name;
 
 	/** 备注说明，此列为空时备注取name中的值 */
 	protected String comment;
@@ -51,10 +53,10 @@ public class FastColumn {
 		super();
 	}
 
-	public FastColumn(String name, String code, String comment, String type, int typeLen, String defaults, String dictName, boolean canNull, boolean primaryKey) {
+	public FastColumn(String title, String name, String comment, String type, int typeLen, String defaults, String dictName, boolean canNull, boolean primaryKey) {
 		super();
+		this.title = title;
 		this.name = name;
-		this.code = code;
 		this.comment = comment;
 		this.type = type;
 		this.typeLen = typeLen;
@@ -100,6 +102,14 @@ public class FastColumn {
 		return rs.getObject(columnName);
 	}
 
+	public String getTitle() {
+		return FastUtil.nvl(title,comment);
+	}
+
+	public void setTitle(String title) {
+		this.title = title==null?null:title.toUpperCase();
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -108,16 +118,8 @@ public class FastColumn {
 		this.name = name==null?null:name.toUpperCase();
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code==null?null:code.toUpperCase();
-	}
-
 	public String getComment() {
-		return comment==null?name:comment;
+		return FastUtil.nvl(comment,title);
 	}
 
 	public void setComment(String comment) {

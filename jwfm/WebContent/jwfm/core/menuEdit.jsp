@@ -29,6 +29,8 @@ long ltime = System.currentTimeMillis();
 <script type="text/javascript" src="<%=path %>/js/codemirror/addon/hint/css-hint.js"></script> <!-- 代码编辑器所用JS文件 -->
 <script type="text/javascript" src="<%=path %>/js/codemirror/addon/hint/xml-hint.js"></script> <!-- 代码编辑器所用JS文件 -->
 <script type="text/javascript" src="<%=path %>/js/codemirror/addon/hint/javascript-hint.js"></script> <!-- 代码编辑器所用JS文件 -->
+
+
 <SCRIPT type=text/javascript>
 	$(function(){
 		//最大化，不使用最大化是为了防止恢复窗口大小之后表单中的输入框变形
@@ -45,16 +47,7 @@ long ltime = System.currentTimeMillis();
 			width:$('#po_VC_GROUP').width(),required:true,
 			queryParams:{sql:'select vc_group code,vc_group from (select distinct vc_group from <%=SystemContext.dbObjectPrefix %>t_menu_lib where n_del=0) order by vc_group'}
 		});
-		$('.fast-edit-table').bind('mouseover',function(){//鼠标经过时整行变色
-			var src=$($(event.srcElement).parents('tr')[0]);
-			if(src.find('tr').length==0){
-				$('tr.hover').removeClass('hover');
-				src.addClass('hover');
-			}
-		}).bind('mouseout',function(){
-			$('tr.hover').removeClass('hover');
-		});	
-			
+		tableTrHover('.fast-edit-table');
 			
 		//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
 		$('.fast-edit-table').autoInputWidth();
@@ -74,8 +67,20 @@ long ltime = System.currentTimeMillis();
 		if('${po.VC_ID}'){//修改页面中默认只显示基本信息和按钮信息
 			$('tr.subtitle:eq(1)').nextAll('.subtitle').find('.tree-expanded').click();
 		}
+		if(!$('#po_VC_URL').val()){
+			$('#po_VC_URL').attr('readonly',false);
+		}
+		$('#editForm').data('model',model);
+		$.sysmenu.dbDataTypes = '<%=FastColumnType.types %>'.split(',');//数据类型列表
+		loadMacrosMenu();
+		loadBtns();
+		loadForwards();
+		loadDbTables();
+		loadSearchInfo();
+		loadDicts();
+		loadPageInfo();
 		//表单验证及提交处理操作
-		$('#editForm').data('model',model).form({
+		$('#editForm').form({
 			url:'<%=addActionName%>',
 			onSubmit : function() {
 				$(this).trigger('beforeSubmit');
@@ -98,9 +103,7 @@ long ltime = System.currentTimeMillis();
 			}
 		});
 	});
-	var dbDataTypes = '<%=FastColumnType.types %>';
 </SCRIPT>
-<script type="text/javascript" src="<%=path %>/jwfm/core/menuEdit.js"></script> <!-- 菜单功能编辑所用JS文件 -->
 <style>
 input.index{text-align:center;}
 .fast-child-table tr td input[type=text],.fast-child-table tr td textarea{width:97%;}
@@ -127,16 +130,20 @@ tr.hover td,tr.hover th,tr.hover td input,tr.hover td textarea,tr.hover td span.
 #htmlEWBox{width:100%;height:100%;}
 .dbtbl-editor-cols{position:relative;overflow:hidden;}
 .editortype-tbl{overflow:auto;}
-.editortype-div{position:absolute;width:100%;height:80px;bottom:0px;left:0px;background:#fff;border-top:solid 1px #ccc;}
+.editortype-div{position:absolute;width:100%;height:120px;bottom:0px;left:0px;background:#fff;border-top:solid 1px #ccc;}
 .editortype-div a{display:inline-block;margin-left:4px;}
-.editortype-div textarea{width:100%;height:60px;}
+.editortype-div textarea{width:100%;height:100px;}
 .CodeMirror{height:auto;}
-.macroicon{color:#999933;margin-left:2px;cursor:pointer;}
+.macroicon,.jsicon{color:#999933;margin-left:2px;cursor:pointer;}
+i.opt-icon.fa{font-size:14px;margin-left:3px;cursor:pointer;}
+.mode-sel-div{margin-top:7px;}
+.mode-sel-div label{margin:0px 5px;display:inline-block;cursor:default;}
 </style>
 <div id="editTbl<%=ltime%>">
 <form id="editForm" method="post">
 <input type=hidden name=op value="save" >
 <f:hidden name="po.VC_ID"/>
+<f:hidden name="model.packageName"/>
 <table class="fast-edit-table" >
 <colgroup>
 <col width="10%" />
@@ -146,12 +153,14 @@ tr.hover td,tr.hover th,tr.hover td input,tr.hover td textarea,tr.hover td span.
 <col width="10%" />
 <col width="30%" />
 </colgroup>
+<thead>
 <tr class=subtitle>
 	<td colspan=6>基本信息</td>
 </tr>
+</thead>
 <tr>
 	<th>菜单名称</th><td><f:textfield name="po.VC_NAME" id="po_VC_NAME" notnull="true" validType="length[1,50]"/></td>
-	<th>菜单Url</th><td><f:textfield name="po.VC_URL" id="po_VC_URL" notnull="true" validType="length[1,100]"/></td>
+	<th>菜单Url</th><td><f:textfield name="po.VC_URL" id="po_VC_URL" readonly="true"/></td>
 	<th>所在分组</th><td><f:textfield name="po.VC_GROUP" id="po_VC_GROUP" notnull="true" validType="length[1,100]"/></td>
 </tr>
 <tr>
@@ -187,7 +196,7 @@ tr.hover td,tr.hover th,tr.hover td input,tr.hover td textarea,tr.hover td span.
 	<table class="classaction-info fast-child-table" cellpadding="0" cellspacing="0">
 	<tbody>
 	<tr>
-	<td colspan=3 align=left>控制器类<input type=text name=model.actionName style="width:85%" /></td>
+	<td colspan=3 align=left>控制器类<input type=text name=model.actionName readonly="true" style="width:85%" /></td>
 	</tr>
 	</tbody></table>
 	<table class=fast-child-table cellpadding="0" cellspacing="0">
@@ -198,7 +207,7 @@ tr.hover td,tr.hover th,tr.hover td input,tr.hover td textarea,tr.hover td span.
 </tr>
 <%--业务表结构区域 --%>
 <tr class=subtitle>
-	<td colspan=6 id="dbtable-title">业务表结构  <a href="javascript:void(0)" id="addMtblColBtn">添加</a>
+	<td colspan=6 id="dbtable-title">业务表结构  <a href="javascript:void(0)" id="addMtblColBtn">添加列</a>
 	<a href="javascript:void(0)" id="delMtblColBtn" class=delRowBtn>删除选中</a>
 	<select id="dbtblselect" style="width:200px;"><option value="maintbl-tr">主表：</option><option value="createnewtbl">增加业务从表</option></select>
 	</td>
@@ -209,8 +218,8 @@ tr.hover td,tr.hover th,tr.hover td input,tr.hover td textarea,tr.hover td span.
 	<table class="dbtbl-info fast-child-table" cellpadding="0" cellspacing="0">
 	<tbody>
 	<tr>
-	<td colspan=3 align=left>英文表名<input type=text name=model.mainTable.code style="width:85%" /></td>
-	<td colspan=3 align=left>中文表名<input type=text name=model.mainTable.name style="width:85%" /></td>
+	<td colspan=3 align=left>英文表名<input type=text name=model.mainTable.name readonly="true" style="width:85%" /></td>
+	<td colspan=3 align=left>中文表名<input type=text name=model.mainTable.title style="width:85%" /></td>
 	<td colspan=4 align=left>注释<input type=text name=model.mainTable.comment style="width:85%" /></td>
 	</tr>
 	</tbody></table>

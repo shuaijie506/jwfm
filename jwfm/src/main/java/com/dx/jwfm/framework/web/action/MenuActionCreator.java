@@ -52,8 +52,8 @@ public class MenuActionCreator extends ActionCreator {
 	@Override
 	public FastTable getMainTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("Fast菜单库");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_MENU_LIB");
+		tbl.setTitle("Fast菜单库");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_MENU_LIB");
 		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("菜单名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("菜单URL", "VC_URL", null, FastColumnType.String, 200, "", null, false, false));
@@ -73,6 +73,11 @@ public class MenuActionCreator extends ActionCreator {
 	@Override
 	protected SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
+		search.setHeadHTML("<script type=\"text/javascript\" src=\"menuEdit.js\"></script> <!-- 菜单功能编辑所用JS文件 -->\n<script>"
+				+ "window.winOption={divId:'menuEditWin'};\n"
+				+ "$(function(){"
+				+ "window.viewItem = function(id,row){window.open('${path}'+row.VC_URL)};"
+				+ "});</script>");
 		List<SearchColumn> cols = search.getSearchColumns();
 		cols.add(new SearchColumn("所在分组", "VC_GROUP", "select:sql:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
 						120, null, "=", "and t.VC_GROUP=${VC_GROUP} "));
@@ -108,13 +113,12 @@ public class MenuActionCreator extends ActionCreator {
 	@Override
 	protected void initModel(FastModel model) {
 		model.getModelStructure().setActionName(MenuAction.class.getName());
-		model.getModelStructure().setForward("openAddPage", "/jwfm/core/menuEdit.jsp");
+		model.getModelStructure().setForward("openAddPage", "/jwfm/core/menuAdd.jsp");
 		model.getModelStructure().setForward("openModifyPage", "/jwfm/core/menuEdit.jsp");
 		ArrayList<DictNode> dictData = new ArrayList<DictNode>();
 		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_BASE_PACKAGE", "com.dx.jwfm.framework.web","新建菜单时基础包路径",0));
 		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_DEFAULT_HIDE_COLNAMES", "VC_ID,VC_MID,N_DEL,N_STAT", "查询结果中默认隐藏列的列名",0));
 		model.getModelStructure().setDictData(dictData);
-		model.getModelStructure().getSearch().setHeadHTML("<script>window.winOption={divId:'menuEditWin'}</script>");
 	}
 
 

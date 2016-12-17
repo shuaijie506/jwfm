@@ -90,6 +90,9 @@ public class RequestContext {
 		return null;
 	}
 	public static Object getBeanValue(String name){
+		return getBeanValue(name,null);
+	}
+	public static Object getBeanValue(String name, String scope){
 		int pos = name.indexOf(":");
 		String format = null;
 		if(pos>0){//存在格式化内容
@@ -99,7 +102,7 @@ public class RequestContext {
 		pos = name.indexOf(".");
 		Object val = null;
 		if(pos>0){
-			Object bean = getBean(name.substring(0,pos));
+			Object bean = getBean(name.substring(0,pos),scope);
 			val = FastUtil.getProptValue(bean,name.substring(pos+1));
 		}
 		else{
@@ -111,29 +114,32 @@ public class RequestContext {
 		return val;
 	}
 	private static Object getBean(String name) {
+		return getBean(name,null);
+	}
+	private static Object getBean(String name, String scope) {
 		HttpServletRequest request = getRequest();
 		HttpSession session = null;
 		PageContext pageContext = request==null?null:(PageContext)request.getAttribute("PageContext");
 		Object obj = null;
-		if(pageContext!=null){//优先从page中取值
+		if(pageContext!=null && (scope==null || "page".equals(scope))){//优先从page中取值
 			obj = pageContext.getAttribute(name);
 		}
-		if(obj==null){//page中取不到值时从action的属性中取值
+		if(obj==null && (scope==null || "action".equals(scope))){//page中取不到值时从action的属性中取值
 			Object action = RequestContext.getRequestAction();
 			obj = action==null?null:FastUtil.getProptValue(action, name);
 		}
-		if(obj==null && request!=null){//action属性中取不到值时从Request中取值
+		if(obj==null && request!=null && (scope==null || "request".equals(scope))){//action属性中取不到值时从Request中取值
 			obj = request==null?null:request.getAttribute(name);
 		}
-		if(obj==null && request!=null){//从session中取值
+		if(obj==null && request!=null && (scope==null || "session".equals(scope))){//从session中取值
 			session = request.getSession();
 			obj = session==null?null:session.getAttribute(name);
 		}
-		if(obj==null && session!=null){//从ServletContext中取值
+		if(obj==null && session!=null && (scope==null || "servletContext".equals(scope))){//从ServletContext中取值
 			ServletContext sc = session.getServletContext();
 			obj = sc==null?null:sc.getAttribute(name);
 		}
-		if(obj==null){//从宏定义中取值
+		if(obj==null && (scope==null || "macros".equals(scope))){//从宏定义中取值
 			obj = SystemContext.getMacroValue(name);
 		}
 		return obj;

@@ -1,6 +1,5 @@
 package com.dx.jwfm.framework.web.action;
 
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -56,16 +55,16 @@ public class FastBaseAction extends BaseAction {
 	 * @return
 	 */
 	public String execute(){
-		if(FastUtil.isNotBlank(op)){
-			try {
-				Method m = this.getClass().getMethod(op, new Class[0]);
-				if(m!=null){
-					return (String) m.invoke(this, new Object[0]);
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
-			}
-		}
+//		if(FastUtil.isNotBlank(op)){//此代码将产生权限漏洞
+//			try {
+//				Method m = this.getClass().getMethod(op, new Class[0]);
+//				if(m!=null){
+//					return (String) m.invoke(this, new Object[0]);
+//				}
+//			} catch (Exception e) {
+//				logger.error(e.getMessage(),e);
+//			}
+//		}
 		FastModel fmodel = RequestContext.getFastModel();
 		if(fmodel!=null && fmodel.getModelStructure().isDefaultSearchData()){
 			searchData();
@@ -297,7 +296,7 @@ public class FastBaseAction extends BaseAction {
 			if(tbl==null){
 				return writeHTML(ajaxResult(false, "在功能模型中找不到主表模型！"));
 			}
-			String sql = "update "+tbl.getCode()+" set "+tbl.getDelCol()+"=1 where "+tbl.pkColumns().get(0).getCode()+
+			String sql = "update "+tbl.getName()+" set "+tbl.getDelCol()+"=1 where "+tbl.pkColumns().get(0).getName()+
 					" in ('"+FastUtil.join(ids,"','")+"')";
 			DbHelper db = new DbHelper();
 			try {

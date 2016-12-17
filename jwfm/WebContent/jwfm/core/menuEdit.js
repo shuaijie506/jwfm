@@ -77,7 +77,7 @@ function initSysMenuPresetData(){
 				{code:'success',name:'success',uri:'/jwfm/core/easyuiSearch.jsp'},
 				{code:'openAddPage',name:'openAddPage',uri:'/jwfm/core/easyuiEdit.jsp'},
 				{code:'openModifyPage',name:'openModifyPage',uri:'/jwfm/core/easyuiEdit.jsp'},
-				{code:'openViewPage',name:'openViewPage',uri:'/jwfm/core/htmlView.jsp'}
+				{code:'openViewPage',name:'openViewPage',uri:'/jwfm/core/easyuiView.jsp'}
 				]).attr('groupMenus','success,openAddPage,openModifyPage,openViewPage'),
 			presetTblcolAry:new MenuList([//增加数据库表时的预设列信息及相应组合
 				{code:'VC_ID',name:'主键',type:'String',typeLen:'50',defaults:'',canNull:false,primaryKey:true,comment:''},
@@ -92,24 +92,29 @@ function initSysMenuPresetData(){
 					
 			]).attr('groupMenus','VC_ID,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,N_STAT,VC_STAT,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY;VC_ID,VC_MID,N_DEL,VC_ADD,DT_ADD;'),
 			editorType:new MenuList([/*如果类型值可修改并扩展，请将类型值写入data属性。禁止使用数字做为value值*/
-				{value:'hidden',text:'隐藏域',handel:function(field){return '<input type=hidden id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}},
-				{value:'text',text:'单行文本框',handel:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}},
-				{value:'textarea',text:'多行文本框',handel:function(field){return '<textarea id="'+field.replace(/\./g,'_')+'" name="'+field+'" >${'+field+'}"</textarea>';}},
-				{value:'date:',text:'格式化日期',handel:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+':yyyy-MM-dd HH:mm}" class="Wdate" onfocus="WdatePicker({dateFmt:\'yyyy-MM-dd HH:mm\'})" />';}},
-				{value:'select:dict:',text:'字典下拉框',handel:function(field){return '${$select$'+field+':dict:字典名称}';}},
-				{value:'select:sql:',text:'SQL结果下拉框',handel:function(field){return '${$select$'+field+':sql:SQL语句}';}},
-				{value:'combobox:',text:'JSON动态下拉框',handel:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combobox({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
-				{value:'combotree:',text:'JSON动态下拉树',handel:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combotree({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
-				{value:'html:',text:'自定义输入控件',handel:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\');</script>';}}
+				{value:'hidden',text:'隐藏域',handle:function(field){return '<input type=hidden id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}},
+				{value:'text',text:'单行文本框',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}},
+				{value:'textarea',text:'多行文本框',handle:function(field){return '<textarea id="'+field.replace(/\./g,'_')+'" name="'+field+'" >${'+field+'}</textarea>';}},
+				{value:'date:',text:'格式化日期',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+':yyyy-MM-dd HH:mm}" class="Wdate" onfocus="WdatePicker({dateFmt:\'yyyy-MM-dd HH:mm\'})" />';}},
+				{value:'select:dict:',text:'字典下拉框',handle:function(field){return '${$select$'+field+':dict:字典名称}';}},
+				{value:'select:sql:',text:'SQL结果下拉框',handle:function(field){return '${$select$'+field+':sql:SQL语句}';}},
+				{value:'combobox:',text:'JSON动态下拉框',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combobox({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
+				{value:'combotree:',text:'JSON动态下拉树',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combotree({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
+				{value:'html:',text:'自定义输入控件',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\');</script>';}}
 			],'value'),
 			searchType:new MenuList([/*如果在生成SQL时需要进行JAVA运算，则请实现SQLConditionParser接口并将类名配置到参数searchSQLConditionParser中。禁止使用数字做为value值*/
-				{value:'=',text:'相等',handel:function(field){return 'and t.'+field+'=${'+field+'}';}},
-				{value:'in',text:'多选匹配',handel:function(field){return 't.'+field;}},
-				{value:'like',text:'模糊匹配',handel:function(field){return 't.'+field;}},
-				{value:'date>=',text:'日期>=',handel:function(field){return 't.'+field;}},
-				{value:'date<=',text:'日期<=',handel:function(field){return 't.'+field;}},
-				{value:'dateRange',text:'日期范围限定',handel:function(field){return 't.'+field;}}
-			],'value')
+				{value:'=',text:'相等',handle:function(field){return 'and t.'+field+'=${'+field+'}';}},
+				{value:'in',text:'多选匹配',handle:function(field){return 't.'+field;}},
+				{value:'like',text:'模糊匹配',handle:function(field){return 't.'+field;}},
+				{value:'date>=',text:'日期>=',handle:function(field){return 't.'+field;}},
+				{value:'date<=',text:'日期<=',handle:function(field){return 't.'+field;}},
+				{value:'dateRange',text:'日期范围限定',handle:function(field){return 't.'+field;}}
+			],'value'),
+			commonJsList:[
+				{title:'下拉框变化时执行查询操作',handle:function(field){return '$("#'+field+'").change(function(){$("#search").click();});';}}
+			],
+			//独立页面中需要隐藏的列
+			editPageHiddenCols:'VC_ID,VC_MID,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY'.split(',')
 	};
 }
 initSysMenuPresetData();
@@ -183,18 +188,19 @@ function createMenuHTML(menuData){
 	return btnGroup.join('')+btnMenuHtm.join('');
 }
 //获得字段的默认编辑类型，可通过重写此方法对机构ID等特定名称的字段进行设置默认编辑框
-function getDefaultEditorType(item){
+function getDefaultEditor(item){
+	var obj = $.sysmenu.editorType;
 	if(item.type=='Date'){
-		return 'date:yyyy-MM-dd HH:mm';
+		return obj['date'];
 	}
 	else if(item.typeLen>=500){
-		return 'textarea';
+		return obj['textarea'];
 	}
-	else if(',VC_ID,VC_MID,N_DEL,VC_ADD,DT_ADD,VC_MODIFY,DT_MODIFY,'.indexOf(','+item.code+',')>=0){
-		return 'hidden';
+	else if($.sysmenu.editPageHiddenCols.indexOf(item.name)>=0){
+		return obj['hidden'];
 	}
 	else{
-		return 'text';
+		return obj['text'];
 	}
 }
 //根据指定参数创建一个select的HTML对象
@@ -217,7 +223,7 @@ function createSelectHTML(selObj){
 	if(ary){
 		if(ary.length>0){
 			for(var i=0;i<ary.length;i++){
-				var val = ary[i][selObj.dataValueField],txt=ary[i][selObj.dataTextField];
+				var val = typeof(ary[i])=='string'?ary[i]:ary[i][selObj.dataValueField],txt=typeof(ary[i])=='string'?ary[i]:ary[i][selObj.dataTextField];
 				ary[val] = ary[i];
 				pushOption(htm,val,txt,selObj.value)
 			}
@@ -238,7 +244,7 @@ function getEditorTypeSelect(name,val,fieldName,showHidden){
 	var htm = [];
 	var ary = $.sysmenu.editorType||[];
 	if(showHidden){
-		ary = new MenuList([{value:'hidden',text:'隐藏域',handel:function(field){return '<input type=hidden id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}}],'value').putAll(ary);
+		ary = new MenuList([{value:'hidden',text:'隐藏域',handle:function(field){return '<input type=hidden id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />';}}],'value').putAll(ary);
 	}
 	for(var i=0;i<ary.length;i++){
 		ary[ary[i].value] = ary[i];
@@ -246,7 +252,7 @@ function getEditorTypeSelect(name,val,fieldName,showHidden){
 	var selVal = (val||'').toString();
 	htm.push(createSelectHTML({htmlAttrs:'class=editortype fieldName='+(fieldName||''),value:selVal,data:ary,skipValue:{'hidden':showHidden}}));
 	$.sysmenu.editorType = ary;
-	htm.push('<textarea name="'+name+'" class="seltextarea">'+escapeValue(val)+'</textarea>');
+	htm.push('<textarea name="'+name+'" class="seltextarea" title="${}中如果要使用}请使用& # 125;">'+escapeValue(val)+'</textarea>');
 	return htm.join('');
 }
 //输入类型下拉框选择事件
@@ -262,26 +268,46 @@ function editorTypeChange(){
 	else if($.sysmenu.editorType[sel.val()]){
 		var fieldName = sel.attr('fieldName')||'';
 		var item = $.sysmenu.editorType[sel.val()];
-		txt.val(item.handel.call(sel,fieldName)||'');
+		txt.val(item.handle.call(sel,fieldName)||'');
 	}
 }
-$.getJSON('main_loadMacroListJson.action',function(ary){
-	var htm = [];
-	for(var i=0;i<ary.length;i++){
-		var code = '${'+ary[i].code+'}';
-		htm.push('<div data-options="code:\''+code+'\'">'+code+' '+ary[i].name+'</div>');
-	}
+//加载系统定义的宏名称
+function loadMacrosMenu(){
 	if($('#macrosMenuDiv').length==0){
 		$('<div id=macrosMenuDiv></div>').appendTo('body').hide();
+		$.getJSON('main_loadMacroListJson.action',function(ary){
+			var htm = [];
+			for(var i=0;i<ary.length;i++){
+				var code = '${'+ary[i].code+'}';
+				htm.push('<div data-options="code:\''+code+'\'">'+code+' '+ary[i].name+'</div>');
+			}
+			$('#macrosMenuDiv').html(htm.join(''));
+		});
 	}
-	$('#macrosMenuDiv').html(htm.join(''));
-});
+}
+//显示系统定义的宏名称菜单
 function showMacrosMenu(clickFun){
 	if($('#macrosMenuDiv').length==0){
 		$('<div id=macrosMenuDiv></div>').appendTo('body');
 	}
 	var evt = $.event.fix(event);
 	$('#macrosMenuDiv').show().menu({onClick:clickFun}).menu('show',{left:evt.pageX,top:evt.pageY});
+}
+//显示系统定义的宏名称菜单
+function showCommonJsMenu(clickFun){
+	if($('#commonJsMenuDiv').length==0){
+		$('<div id=commonJsMenuDiv></div>').appendTo('body');
+		var htm = [],ary = $.sysmenu.commonJsList;
+		for(var i=0;i<ary.length;i++){
+			htm.push('<div data-options="idx:'+i+'">'+ary[i].title+'</div>');
+		}
+		$('#commonJsMenuDiv').html(htm.join(''));
+	}
+	var evt = $.event.fix(event);
+	$('#commonJsMenuDiv').data('field',$(this).attr('field')).show().menu({onClick:function(item){
+		$.extend(item,$.sysmenu.commonJsList[item.idx]);
+		clickFun(item);
+	}}).menu('show',{left:evt.pageX,top:evt.pageY});
 }
 //打开一个HTML编辑器窗口
 function openHTMLEditorWin(opt){
@@ -335,18 +361,18 @@ function pushCheckboxTds(htmary,object,namepre,nameary){
 		htmary.push('<td><input type=checkbox name='+namepre+'.'+nameary[i]+' class="chk-'+nameary[i]+'" value=true'+(object[nameary[i]]?' checked':'')+' /></td>');
 	}
 }
-
-$(function(){
-	initModel();
-});
-function initModel(){
-	loadBtns();
-	loadForwards();
-	loadDbTables();
-	loadSearchInfo();
-	loadDicts();
-	loadPageInfo();
+function tableTrHover(selecter){
+	$(selecter).bind('mouseover',function(){//鼠标经过时整行变色
+		var src=$(event.srcElement).closest('tr');
+		if(src.find('tr').length==0){
+			$('tr.hover').removeClass('hover');
+			src.addClass('hover');
+		}
+	}).bind('mouseout',function(){
+		$('tr.hover').removeClass('hover');
+	});	
 }
+
 
 //=====================================以下为按钮和权限部分的JS========================================
 function loadBtns(){
@@ -400,6 +426,9 @@ function loadBtns(){
 	}
 	//将已有按钮组显示
 	addBtnRows(model.buttonAuths);
+	if(model.newMenu){
+		$('#btnMenu>.menu-item:first').click();
+	}
 }
 
 //=====================================以下为控制类及相关信息部分的JS========================================
@@ -433,6 +462,22 @@ function loadForwards(){
 		});
 		resetBtnTblIndex('#forward-tbl-body');
 	});
+	function useDefaultPage(){
+		var th = $(this),tr=th.parent().parent();
+		var code = $('input[name$=id]',tr).val();
+		var item = $.sysmenu.presetForwardAry[code];
+		if(!item){
+			$.util.showTip({content:'此转向没有默认页面'});return;
+		}
+		$(this).prevAll().val(item.uri);
+	}
+	function useUserPage(){
+		var th = $(this),tr=th.parent().parent();
+		var code = $('input[name$=id]',tr).val().replace(/^open/,'').replace(/Page$/,'');
+		code = code=='success'?'Search':code;
+		var url = $('#po_VC_URL').val().replace(/\.action/,'')+code.substr(0,1).toUpperCase()+code.substr(1)+'.jsp';
+		$(this).prevAll().val(url);
+	}
 	function addForwardRows(items){
 		var htm = [];
 		for(var i=0;i<items.length;i++){
@@ -443,16 +488,29 @@ function loadForwards(){
 			htm.push('</tr>');
 		}
 		var trs = $(htm.join('')).appendTo('#forward-tbl-body');
+		$('input[name$=text]',trs).css('width','90%').after('<i class="opt-icon fa fa-home" title="使用默认页面"></i><i class="opt-icon fa fa-plus-circle" title="使用自定义页面"></i>');
+		$('.opt-icon.fa-home').click(useDefaultPage);
+		$('.opt-icon.fa-plus-circle').click(useUserPage);
 		$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
 		resetBtnTblIndex('#forward-tbl-body');
 	}
 	//对类名信息赋值
 	setValueByName('.classaction-info');
-	$('<i class="fa fa-rotate-left" title="使用默认控制类"></i>').insertAfter('.classaction-info input[name$=actionName]').click(function(){
+	$('<i class="opt-icon fa fa-plus-circle" title="创建新的控制类"></i>').insertAfter('.classaction-info input[name$=actionName]').click(function(){
+		var model = $('#editForm').data('model')||{};
+		var url = $('#po_VC_URL').val();
+		var pos = url.lastIndexOf('/');
+		url = url.substr(pos+1,1).toUpperCase()+url.substr(pos+2);
+		$('.classaction-info input[name$=actionName]').val((model.packageName||'com.xxx')+'.action.'+url+'Action');
+	});
+	$('<i class="opt-icon fa fa-home" title="使用默认控制类"></i>').insertAfter('.classaction-info input[name$=actionName]').click(function(){
 		$('.classaction-info input[name$=actionName]').val('com.dx.jwfm.framework.web.action.FastBaseAction');
 	});
 	//将已有按钮组显示
 	addForwardRows(model.forwards);
+	if(model.newMenu){
+		$('#forwardMenu>.menu-item:first').click();
+	}
 }
 //=====================================以下为业务表结构部分的JS========================================
 function loadDbTables(){
@@ -508,23 +566,15 @@ function loadDbTables(){
 			resetBtnTblIndex(this);
 		});
 	});
-	//生成数据类型下拉框
-	function getDataTypeSelect(name,val){
-		var htm = ['<select name="'+name+'" value="'+escapeValue(val)+'">'];
-		for(var i=0,ary=dbDataTypes.split(',');i<ary.length;i++){
-			htm.push('<option value="'+ary[i]+'"'+(val==ary[i]?' selected':'')+'>'+ary[i]+'</option>');
-		}
-		htm.push('</select>');
-		return htm.join('');
-	}
 	//添加指定行
 	function addTblCols(items,namepre,container){
 		var htm = [];
 		for(var i=0;i<items.length;i++){
 			htm.push('<tr>');
 			htm.push(createIndexTd());
-			pushInputTds(htm,items[i],namepre,'name,code'.split(','));
-			htm.push('<td>'+getDataTypeSelect(namepre+'.type',items[i].type||'')+'<input type=hidden name='+namepre+'.editorType value="'+escapeValue(items[i].editorType||'')+'" /></td>');
+			pushInputTds(htm,items[i],namepre,'title,name'.split(','));
+			htm.push('<td>'+createSelectHTML({htmlAttrs:'name='+namepre+'.type',value:items[i].type||'',data:$.sysmenu.dbDataTypes,blankOption:false})+
+					'<input type=hidden name='+namepre+'.editorType value="'+escapeValue(items[i].editorType||'')+'" /></td>');
 			pushInputTds(htm,items[i],namepre,'typeLen,defaults'.split(','));
 			pushCheckboxTds(htm,items[i],namepre,'canNull,primaryKey'.split(','));
 			pushInputTds(htm,items[i],namepre,'dictName,comment'.split(','));
@@ -536,12 +586,12 @@ function loadDbTables(){
 		$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
 		$('.chk-searchCondition',trs).click(function(){//调用menuEditSrhModel.jsp中定义的事件
 			if(this.checked){
-				$('.srhmodel-tr').trigger('addsrhcond',[$(this).parent().parent()]);
+				$('.srhmodel-tr').triggerHandler('addsrhcond',[$(this).parent().parent()]);
 			}
 		});
 		$('.chk-serachResultCol',trs).click(function(){//调用menuEditSrhModel.jsp中定义的事件
 			if(this.checked){
-				$('.srhmodel-tr').trigger('addsrhresult',[$(this).parent().parent()]);
+				$('.srhmodel-tr').triggerHandler('addsrhresult',[$(this).parent().parent()]);
 			}
 		});
 		$('input[name$=defaults]',trs).css('width','92%').after('<i class="fa fa-map-marker macroicon"></i>');
@@ -553,7 +603,7 @@ function loadDbTables(){
 		resetBtnTblIndex($('.dbtbl-body',container));
 	}
 	function refreshTblCode(){
-		if($(this).attr('name').endWith('.code')){
+		if($(this).attr('name').endWith('.name')){
 			var opt = $('#dbtblselect option[value='+($(this).data('trcls')||'maintbl-tr')+']');
 			opt.text(opt.text().replace(/：.+/g,'：')+$(this).val());
 		}
@@ -564,6 +614,7 @@ function loadDbTables(){
 			var cls = 'itemtbl-tr'+i;
 			$('<option value="'+cls+'">从表：'+model.otherTables[i].name+'</option>').insertBefore('#dbtblselect option[value=createnewtbl]');
 			var tr = $('.maintbl-tr').clone().removeClass('maintbl-tr').addClass(cls).insertAfter('.maintbl-tr').hide();
+			$('.dbtbl-info input[name$=name]',tr).attr('readonly',false);
 			//对表名等信息赋值
 			setValueByName('.'+cls+' .dbtbl-info');
 			('.dbtbl-info input[type=text]',tr).data('trcls',cls).bind('keyup paste blur',refreshTblCode);
@@ -577,6 +628,7 @@ function loadDbTables(){
 		if($(this).val()=='createnewtbl'){
 			var cls = 'itemtbl-tr'+model.otherTables.length;
 			var tr = $('.maintbl-tr').clone().removeClass('maintbl-tr').addClass(cls).insertAfter('.maintbl-tr').show();
+			$('.dbtbl-info input[name$=name]',tr).attr('readonly',false);
 			$('.dbtbl-info input[type=text]',tr).val('').data('trcls',cls).bind('keyup paste blur',refreshTblCode);
 			$('.dbtbl-body',tr).empty();
 			$('<option value="'+cls+'">从表：NEW_TABLE'+model.otherTables.length+'</option>').insertBefore('#dbtblselect option[value=createnewtbl]');
@@ -586,7 +638,7 @@ function loadDbTables(){
 		$('.dbtable-tr:visible').hide();
 		$('.'+$(this).val()).show();
 	});
-	$('#dbtblselect option[value=maintbl-tr]').text('主表：'+model.mainTable.code);
+	$('#dbtblselect option[value=maintbl-tr]').text('主表：'+model.mainTable.name);
 	//对表名等信息赋值
 	setValueByName('.maintbl-tr .dbtbl-info');
 	$('.maintbl-tr .dbtbl-info input[type=text]').data('trcls','maintbl-tr').bind('keyup paste blur',refreshTblCode);
@@ -660,7 +712,7 @@ function loadSearchInfo(){
 		var sel=$(this),tr=sel.parent().parent();
 		var item = $.searchTypeAry[sel.val()];
 		var vcCode = $('input[name$=vcCode]',tr).val();
-		$('textarea[name$=sqlFragment]',tr).val(item&&item.handel?item.handel.call(this,vcCode):'t.'+vcCode);
+		$('textarea[name$=sqlFragment]',tr).val(item&&item.handle?item.handle.call(this,vcCode):'t.'+vcCode);
 	}
 	//添加指定行
 	function addTblCols(items,namepre){
@@ -670,7 +722,7 @@ function loadSearchInfo(){
 			htm.push(createIndexTd());
 			pushInputTds(htm,items[i],namepre,'vcTitle,vcCode'.split(','));
 			htm.push('<td class=selecttextarea>'+getEditorTypeSelect(namepre+'.vcEditorType',items[i].vcEditorType||'','search.'+items[i].vcCode)+'</td>');
-			htm.push('<td><textarea name='+namepre+'.vcEditorJs >'+escapeValue(items[i].vcEditorJs||'')+'</textarea></td>');
+			htm.push('<td><textarea style="width:90%;" name='+namepre+'.vcEditorJs >'+escapeValue(items[i].vcEditorJs||'')+'</textarea><i class="jsicon fa fa-map-marker"></i></td>');
 			pushInputTds(htm,items[i],namepre,'defaults'.split(','));
 			htm.push('<td>'+getSearchTypeSelect(namepre+'.sqlSearchType',items[i].sqlSearchType||'')+'</td>');
 			htm.push('<td><textarea name='+namepre+'.sqlFragment >'+escapeValue(items[i].sqlFragment||'')+'</textarea></td>');
@@ -682,10 +734,16 @@ function loadSearchInfo(){
 		$('input[name$=vcCode]',trs).bind('type keyup paste blur',function(){$(this).parent().parent().find('select.editortype').attr('fieldName','search.'+$(this).val());});
 		$('select.editortype',trs).change(editorTypeChange);
 		$('select.searchtype',trs).change(searchTypeChange).tooltip({content:'多选、模糊匹配、日期相关的过滤条件在后台查询时会自动根据数据库类型进行函数转换'});
-		$('input[name$=defaults]',trs).css('width','92%').after('<i class="fa fa-map-marker macroicon"></i>');
+		$('input[name$=defaults]',trs).css('width','90%').after('<i class="fa fa-map-marker macroicon"></i>');
 		$('.macroicon',trs).click(function(){
 			showMacrosMenu($.proxy(function(item){
 				$(this).prev().val(item.code);
+			},this));
+		});
+		$('.jsicon',trs).click(function(){
+			showCommonJsMenu($.proxy(function(item){
+				var th = $(this),tr=th.parent().parent();
+				$(this).prev().val(item.handle('search_'+$('input[name$=vcCode]',tr).val()));
 			},this));
 		});
 		resetBtnTblIndex('.srhcond-body');
@@ -716,11 +774,12 @@ function loadSearchInfo(){
 		resetBtnTblIndex('.srhresult-body');
 	}
 	//供menuEditDbTable.jsp中的JS方法调用
-	$('.srhmodel-tr').bind('addsrhcond',function(event,coltr){//添加查询条件
+	$('.srhmodel-tr').unbind('addsrhcond').bind('addsrhcond',function(event,coltr){//添加查询条件
 		function getVal(name){return $('input[name$=\\.'+name+']',coltr).val();}
-		addTblCols([{vcTitle:getVal('name'),vcCode:getVal('code'),vcEditorType:'text',sqlSearchType:'like',sqlFragment:'t.'+getVal('code')}],'model.search.searchColumns[0]');
-	}).bind('addsrhresult',function(event,coltr){//添加查询结果列
-		
+		addTblCols([{vcTitle:getVal('title'),vcCode:getVal('name'),vcEditorType:'text',sqlSearchType:'like',sqlFragment:'t.'+getVal('name')}],'model.search.searchColumns[0]');
+	}).unbind('addsrhresult').bind('addsrhresult',function(event,coltr){//添加查询结果列
+		function getVal(name){return $('input[name$=\\.'+name+']',coltr).val();}
+		addResultCols([{vcTitle:getVal('title'),vcCode:getVal('name'),width:120,vcFormat:getVal('type')=='Date'?'yyyy-MM-dd HH:mm':'',align:'center'}],'model.search.searchResultColumns[0]');
 	});
 	//数据库表下拉框选择事件
 	$('#dbtblselect').change(function(){
@@ -743,7 +802,7 @@ function loadDicts(){
 		])).insertBefore('#dict-tbl-body');
 	var model = $('#editForm').data('model')||{};
 	$('#addRegBtn').linkbutton({iconCls:'icon-add',plain:true}).click(function(){
-		addDictRows([{VC_GROUP:'SYS_REGEDIT'}]);
+		addDictRows([{group:'SYS_REGEDIT'}]);
 	});
 	$('#addDictBtn').linkbutton({iconCls:'icon-add',plain:true}).click(function(){
 		addDictRows([{}]);
@@ -764,7 +823,7 @@ function loadDicts(){
 		}
 		var trs = $(htm.join('')).appendTo('#dict-tbl-body');
 		$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
-		$('input[name$=group]',trs).attr('readonly',function(){return this.value=='SYS_REGEDIT'}).css('background-color',function(){return this.value=='SYS_REGEDIT'?'#efefef':''});
+		$('input[name$=group]',trs).attr('readonly',function(){return this.value=='SYS_REGEDIT'});
 		resetBtnTblIndex('#dict-tbl-body');
 	}
 	//将已有按钮组显示
@@ -842,9 +901,9 @@ function loadPageInfo(){
 		var htm = [];
 		var len = $('.edittbl-cols-body>tr').length;
 		for(var i=0;i<items.length;i++){
-			htm.push('<tr code="'+items[i].code+'">');
+			htm.push('<tr code="'+items[i].name+'">');
 			htm.push('<td>'+(len+i+1)+'</td>');
-			htm.push('<td class=name>'+items[i].code+'['+items[i].name+']</td>');
+			htm.push('<td class=name>'+items[i].name+'['+items[i].title+']</td>');
 			htm.push('</tr>');
 		}
 		var trs = $(htm.join('')).appendTo('.edittbl-cols-body');
@@ -858,7 +917,8 @@ function loadPageInfo(){
 			}
 			else{//编辑模式
 				$('.editortype-div').remove();
-				$('<div class="editortype-div">'+getEditorTypeSelect('editorType',item.editorType,($('#dbtbl-editor-sel').val()=="maintbl-tr"?'po':'items[0]')+'.'+item.code,true)+'</div>').appendTo('.dbtbl-editor-cols');
+				var fieldName = ($('#dbtbl-editor-sel').val()=="maintbl-tr"?'po':'items[0]')+'.'+item.name;
+				$('<div class="editortype-div">'+getEditorTypeSelect('editorType',item.editorType||getDefaultEditor(item).handle(fieldName),fieldName,true)+'</div>').appendTo('.dbtbl-editor-cols');
 				$('<a href="javascript:void(0);">插入代码</a>').insertAfter('.editortype-div select').click(function(){
 					replaceEditorSel(item.editorType=$('.editortype-div textarea').val());
 					$(item.target).val(item.editorType);
@@ -883,11 +943,11 @@ function loadPageInfo(){
 			columns[columns[i].code] = columns[i];
 		}
 		var changed = false;
-		$('.'+tblCls+' .dbtbl-body input[name$=\\.code]').each(function(){
-			var th=$(this),code = th.val(),tr=th.parent().parent(),etTxt=$('input[name$=\\.editorType]',tr);
-			var item = {code:code,name:$('input[name$=\\.name]',tr).val(),type:$('input[name$=\\.type]',tr).val(),editorType:etTxt.val(),target:etTxt[0]};
+		$('.'+tblCls+' .dbtbl-body input[name$=\\.name]').each(function(){
+			var th=$(this),name = th.val(),tr=th.parent().parent(),etTxt=$('input[name$=\\.editorType]',tr);
+			var item = {name:name,title:$('input[name$=\\.title]',tr).val(),type:$('select[name$=\\.type]',tr).val(),typeLen:$('input[name$=\\.typeLen]',tr).val(),editorType:etTxt.val(),target:etTxt[0]};
 			ary.push(item);
-			ary[code] = item;
+			ary[name] = item;
 		});
 		$('#dbtbl-editor-sel').data('tblcols',ary);
 		if(ary.length>0){
@@ -955,7 +1015,7 @@ function loadPageInfo(){
 			dbpnl.addClass('dbtbl-editor-cols').html('<select id="dbtbl-editor-sel"></select><div class=editortype-tbl>'+
 					'<table class=fast-child-table cellpadding="0" cellspacing="0"><tbody class="edittbl-cols-body"></tbody></table></div>');
 			(dbpnl.panel('options').onResize = function(){
-				$('.editortype-tbl').height(dbpnl.height()-(viewMode?0:80)-$('#dbtbl-editor-sel').height());
+				$('.editortype-tbl').height(dbpnl.height()-(viewMode?0:120)-$('#dbtbl-editor-sel').height());
 			})();
 			$(createThead([{width:'35px',text:'序号'},
 				{width:'70%',text:'字段名称'}
@@ -1043,6 +1103,7 @@ function loadPageInfo(){
 					$('<td class=blank></td>').appendTo(tr).attr('colspan',cols-dealidx%cols);
 				}
 				i--;
+				dealidx = 0;
 				continue;
 			}
 			td.appendTo(tr);
@@ -1140,17 +1201,20 @@ function loadPageInfo(){
 		var tbl=$('#pageHTMLDiv table:first');
 		$('>colgroup>col:eq('+col+')',tbl).remove();
 		$('>thead>tr>th:eq('+col+')',tbl).remove();
+		if($('>tbody>tr:first>td',tbl).length==0){
+			$('>tbody',tbl).empty();
+		}
 	}
 	//增加减少单元格的合并列数
 	function addColspan(num){
-		var tds = $('#pageHTMLDiv .selected'),tbody=$(tds[0]).parent().parent();
+		var tds = $('#pageHTMLDiv .selected'),tbody=$(tds[0]).parent().parent(),tbl=tbody.parent();
 		bindRowColIndex(tbody);
 		if($('td[p-rowspan!=1],th[p-rowspan!=1]',tbody).length>0){
 			$.messager.alert('提示','有跨行合并单元格时，不能重新排列表格，所以不能增减单元格合并列数，请使用其他功能。');
 			return;//如果有跨行合并单元格时，不能重新排列
 		}
-		var cols = $('#pageHTMLDiv>colgroup>col').length;//计算列数
-		tds.each(function(){
+		var cols = $('#pageHTMLDiv table:first>colgroup>col').length;//计算列数
+		tds.each(function(){console.log(99)
 			var td=$(this),colspan=parseInt(td.attr('colspan')||1),newspan=Math.min(cols,colspan+num);
 			if(newspan!=cols && newspan>0 && newspan<=cols){
 				td.attr('colspan',newspan);
@@ -1246,12 +1310,40 @@ function loadPageInfo(){
 			$.messager.alert('提示','有跨行合并单元格时，不能重新排列表格');
 			return;//如果有跨行合并单元格时，不能重新排列
 		}
-		$.messager.prompt('提示','请输入您要设定的列数，建议使用偶数列',function(str){
+		var win = $.messager.prompt('提示','请输入您要设定的列数，建议使用偶数列',function(str){
 			if(!isNaN(str) && parseInt(str)>0){
-				resetCols($('#pageHTMLDiv table:first'),parseInt(str));
+				var cols = parseInt(str);
+				var mode = $('input[name=pageMode]').val();
+				if(mode){//重新生成
+					$('#pageHTMLDiv').html('<input type=hidden name=po.VC_ID value="${po.VC_ID}" /><div style="width:565px;margin:10px auto;">'+
+							'<table id="editFormTable" class="fast-edit-table"><colgroup></colgroup><thead><tr><th colspan='+cols+'></th></tr></thead><tbody><tr></tr></tbody></table></div>');
+					var tbl=$('#pageHTMLDiv table:first'),tr=$('tbody tr:first',tbl);
+					$('>colgroup',tbl).html(buildAry('<col width="15%" /><col width="35%" />',parseInt(cols/2)).join(''));
+					var htm = [],hiddenhtm=[];
+					$('.maintbl-tr .dbtbl-body input[name$=\\.name]').each(function(){
+						var th=$(this),name = th.val(),tr=th.parent().parent(),etTxt=$('input[name$=\\.editorType]',tr);
+						var item = {name:name,title:$('input[name$=\\.title]',tr).val(),type:$('select[name$=\\.type]',tr).val(),typeLen:$('input[name$=\\.typeLen]',tr).val(),editorType:etTxt.val()};
+						if($.sysmenu.editPageHiddenCols.indexOf(item.name)>=0)return;
+						htm.push('<td class=th>'+item.title+'</td><td>');
+						if(mode=='input'){
+							htm.push(getDefaultEditor(item).handle('po.'+item.name));
+						}
+						else{
+							htm.push('${po.'+item.name+(item.type=='Date'?':yyyy-MM-dd HH:mm':'')+'}');
+						}
+						htm.push('</td>');
+					});
+					tr.html(htm.join(''));
+				}
+				resetCols($('#pageHTMLDiv table:first'),cols);
 				$('#pageHTMLDiv').trigger('change');
 			}
-		}).find('input:text').val(cols);
+		});
+		win.find('input:text').val(cols||4);
+		if(tbl.length==0 || $('>tbody>tr',tbl).length==0){
+			win.find('input:text').after('<div class="mode-sel-div"><label><input value="input" name="pageMode" checked type=radio>生成输入页面</label>'+
+					'<label><input name="pageMode" value="view" type=radio>生成查看页面</label></div>');
+		}
 	}
 	//以HTML格式编辑
 	function editAsHTML(){
@@ -1346,44 +1438,44 @@ function loadPageInfo(){
 		$('#pageHTMLDiv').trigger('change');
 	}
 	var btns = [
-		{id:'tbltoolbar-recreate',icon:'fa-table',text:'重新设定表格列数',handel:resetTableCols},
-		{id:'tbltoolbar-undo',icon:'fa-reply disable',text:'撤消',handel:function(){moveStackCursor(-1);}},
-		{id:'tbltoolbar-redo',icon:'fa-share disable',text:'重复',handel:function(){moveStackCursor(1);}},
-//		{id:'tbltoolbar-editstyle',icon:'fa-chain',text:'设置所选单元格样式，不选任何单元格时设置表格样式',handel:function(){}},
-		{id:'tbltoolbar-htmledit',icon:'fa-edit',text:'以HTML格式编辑',handel:editAsHTML},
-		{id:'tbltoolbar-jsedit',icon:'fa-stack"><i class="fa char-icon fa-stack-1x" style="font-size: 12px;line-height: 12px;top: 3px;">Js</i><i style="font-size: 20px;top:-3px" class="fa fa-stack-1x fa-square-o',text:'编辑Javascript',handel:editJavascript},
-		{id:'tbltoolbar-insertrow',icon:'fa-ellipsis-h',text:'插入空白行',handel:insertBlankRow},
-		{id:'tbltoolbar-insertcol',icon:'fa-ellipsis-v',text:'插入空白列',handel:insertBlankCol},
-		{id:'tbltoolbar-mergecell',icon:'fa-life-ring',text:'合并单元格并居中',handel:mergeSplitCells},
-		{id:'tbltoolbar-removecell',icon:'fa-remove',text:'删除选中单元格',handel:deleteSelectCells},
-		{id:'tbltoolbar-removerow',icon:'fa-stack"><i class="fa delete char-icon fa-stack-1x">R</i><i class="fa-stack-1x',text:'删除选中单元格所在行',handel:function(){
+		{id:'tbltoolbar-recreate',icon:'fa-table',text:'重新设定表格列数',handle:resetTableCols},
+		{id:'tbltoolbar-undo',icon:'fa-reply disable',text:'撤消',handle:function(){moveStackCursor(-1);}},
+		{id:'tbltoolbar-redo',icon:'fa-share disable',text:'重复',handle:function(){moveStackCursor(1);}},
+//		{id:'tbltoolbar-editstyle',icon:'fa-chain',text:'设置所选单元格样式，不选任何单元格时设置表格样式',handle:function(){}},
+		{id:'tbltoolbar-htmledit',icon:'fa-edit',text:'以HTML格式编辑',handle:editAsHTML},
+		{id:'tbltoolbar-jsedit',icon:'fa-stack"><i class="fa char-icon fa-stack-1x" style="font-size: 12px;line-height: 12px;top: 3px;">Js</i><i style="font-size: 20px;top:-3px" class="fa fa-stack-1x fa-square-o',text:'编辑Javascript',handle:editJavascript},
+		{id:'tbltoolbar-insertrow',icon:'fa-ellipsis-h',text:'插入空白行',handle:insertBlankRow},
+		{id:'tbltoolbar-insertcol',icon:'fa-ellipsis-v',text:'插入空白列',handle:insertBlankCol},
+		{id:'tbltoolbar-mergecell',icon:'fa-life-ring',text:'合并单元格并居中',handle:mergeSplitCells},
+		{id:'tbltoolbar-removecell',icon:'fa-remove',text:'删除选中单元格',handle:deleteSelectCells},
+		{id:'tbltoolbar-removerow',icon:'fa-stack"><i class="fa delete char-icon fa-stack-1x">R</i><i class="fa-stack-1x',text:'删除选中单元格所在行',handle:function(){
 			while($('#pageHTMLDiv .selected').length>0)delSelectRow();
 			$('#pageHTMLDiv').trigger('change');
 		}},
-		{id:'tbltoolbar-removecol',icon:'fa-stack"><i class="fa delete char-icon fa-stack-1x">C</i><i class="fa-stack-1x',text:'删除选中单元格所在列',handel:function(){
+		{id:'tbltoolbar-removecol',icon:'fa-stack"><i class="fa delete char-icon fa-stack-1x">C</i><i class="fa-stack-1x',text:'删除选中单元格所在列',handle:function(){
 			while($('#pageHTMLDiv .selected').length>0)delSelectCol();
 			$('#pageHTMLDiv').trigger('change');
 		}},
-		{id:'tbltoolbar-rowup',icon:'fa-angle-double-up',text:'选中单元格所在行上移',handel:function(){moveRows('up');}},
-		{id:'tbltoolbar-rowdown',icon:'fa-angle-double-down',text:'选中单元格所在行下移',handel:function(){moveRows('down');}},
-		{id:'tbltoolbar-cellleft',icon:'fa-angle-left',text:'选中单元格左移',handel:function(){moveCells('left');}},
-		{id:'tbltoolbar-cellright',icon:'fa-angle-right',text:'选中单元格右移',handel:function(){moveCells('right');}},
-		{id:'tbltoolbar-addcol',icon:'fa-plus-square',text:'单元格增加占用列数',handel:function(){addColspan(1);}},
-		{id:'tbltoolbar-removecol',icon:'fa-minus-square',text:'单元格减少占用列数',handel:function(){addColspan(-1);}},
-		{id:'tbltoolbar-subtitle',icon:'fa-toggle-on',text:'切换当前行为副标题',handel:function(){
+		{id:'tbltoolbar-rowup',icon:'fa-angle-double-up',text:'选中单元格所在行上移',handle:function(){moveRows('up');}},
+		{id:'tbltoolbar-rowdown',icon:'fa-angle-double-down',text:'选中单元格所在行下移',handle:function(){moveRows('down');}},
+		{id:'tbltoolbar-cellleft',icon:'fa-angle-left',text:'选中单元格左移',handle:function(){moveCells('left');}},
+		{id:'tbltoolbar-cellright',icon:'fa-angle-right',text:'选中单元格右移',handle:function(){moveCells('right');}},
+		{id:'tbltoolbar-addcol',icon:'fa-plus-square',text:'单元格增加占用列数',handle:function(){addColspan(1);}},
+		{id:'tbltoolbar-removecol',icon:'fa-minus-square',text:'单元格减少占用列数',handle:function(){addColspan(-1);}},
+		{id:'tbltoolbar-subtitle',icon:'fa-toggle-on',text:'切换当前行为副标题',handle:function(){
 			$('#pageHTMLDiv .selected').parent().toggleClass('subtitle');
 			$('#pageHTMLDiv').trigger('change');
 		}},
-		{id:'tbltoolbar-thtd',icon:'fa-retweet',text:'切换单元格类别（标签/显示值）',handel:function(){
+		{id:'tbltoolbar-thtd',icon:'fa-retweet',text:'切换单元格类别（标签/显示值）',handle:function(){
 			$('#pageHTMLDiv .selected').toggleClass('th');
 			$('#pageHTMLDiv').trigger('change');
 		}},
-		{id:'tbltoolbar-dbcontrol',icon:'fa-object-group',text:'插入数据输入控件',handel:function(){insertDataInput(false);}},
-		{id:'tbltoolbar-dbview',icon:'fa-object-ungroup',text:'插入数据显示值',handel:function(){insertDataInput(true);}},
-		{id:'tbltoolbar-help',icon:'fa-question',text:'操作说明',handel:function(){$.openWin({divId:'pageHTMLHelpWin',_content:$('#pageHTMLHelp').html()})}}
+		{id:'tbltoolbar-dbcontrol',icon:'fa-object-group',text:'插入数据输入控件',handle:function(){insertDataInput(false);}},
+		{id:'tbltoolbar-dbview',icon:'fa-object-ungroup',text:'插入数据显示值',handle:function(){insertDataInput(true);}},
+		{id:'tbltoolbar-help',icon:'fa-question',text:'操作说明',handle:function(){$.openWin({divId:'pageHTMLHelpWin',_content:$('#pageHTMLHelp').html()})}}
 	];
 	for(var i=0;i<btns.length;i++){
-		$('<a id="'+btns[i].id+'" title="'+btns[i].text+'" class="fa '+btns[i].icon+'"></a>').appendTo('.page-toolbar').click(btns[i].handel);
+		$('<a id="'+btns[i].id+'" title="'+btns[i].text+'" class="fa '+btns[i].icon+'"></a>').appendTo('.page-toolbar').click(btns[i].handle);
 	}
 	$('#pageHTMLDiv').mouseover(function(){
 		//禁止日期弹出窗口

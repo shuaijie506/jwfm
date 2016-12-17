@@ -8,6 +8,7 @@ import com.dx.jwfm.framework.core.dao.dialect.impl.MySqlDialect;
 import com.dx.jwfm.framework.core.dao.dialect.impl.OracleDialect;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
+import com.dx.jwfm.framework.core.dao.po.FastPo;
 
 public interface DatabaseDialect {
 	
@@ -100,5 +101,23 @@ public interface DatabaseDialect {
 	 * @return
 	 */
 	public String concatString(String[] strary);
+	
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月15日 上午11:08:31
+	 * 功能描述: 列出所有表和视图，此列表中的对象有以下属性 VC_CODE,VC_NAME,VC_TYPE，分别对应表名，表注释，类型（TABLE、VIEW）
+	 * 方法的参数和返回值: 
+	 * @return
+	 */
+	public List<FastPo> listTables();
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月15日 上午11:09:37
+	 * 功能描述: 根据表名获取整个表的全部信息，包含所有列信息
+	 * 方法的参数和返回值: 
+	 * @param tableCode
+	 * @return
+	 */
+	public FastTable loadTableInfo(String tableCode);
 	
 }

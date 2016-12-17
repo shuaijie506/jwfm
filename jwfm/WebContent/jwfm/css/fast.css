@@ -3,6 +3,7 @@ body{padding:0px;margin:0px;font-size:12px;overflow:auto;height:100%;}
 div,nobr,td,li,span,a,label,input{font-size:12px;}
 label{height:18px;line-height:18px;display:inline-block;}
 input[type=checkbox],input[type=radio]{vertical-align:top;height:16px;}
+input[type=text][readonly]{background-color:#efefef;}
 a{color:#214FA3; text-decoration:none}
 a:hover{ color:#C30; text-decoration:none}
 form{margin-bottom:0px;}

@@ -49,7 +49,7 @@ public class DefaultSQLConditionParser implements SQLConditionParser {
 			DbHelper db = new DbHelper();
 			DatabaseDialect dialect = db.getDatabaseDialect();
 			if(dialect!=null){
-				return " and "+FastUtil.nvl(sqlFragment, vcCode)+" like "+dialect.concatString(new String[]{"'%'",(String) paramMap.get(vcCode),"'%'"});
+				return " and "+FastUtil.nvl(sqlFragment, vcCode)+" like "+dialect.concatString(new String[]{"'%'","${"+vcCode+"}","'%'"});
 			}
 			else{
 				return " and "+FastUtil.nvl(sqlFragment, vcCode)+" like '%"+paramMap.get(vcCode)+"%'";

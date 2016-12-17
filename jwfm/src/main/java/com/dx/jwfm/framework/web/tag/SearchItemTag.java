@@ -43,6 +43,7 @@ public class SearchItemTag extends BaseViewTag {
 	    if(model==null){
 			return super.doEndTag();
 	    }
+	    System.out.println(this);
 	    try{
 	    	StringWriter buff = new StringWriter();
 	    	PrintWriter jsOut = new PrintWriter(buff);

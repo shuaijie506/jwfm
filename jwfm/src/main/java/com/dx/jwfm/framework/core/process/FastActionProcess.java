@@ -115,6 +115,7 @@ public class FastActionProcess implements IFastProcess {
 			method = "execute";
 		}
 		String menuUrl = uri+actionExt;//解析出菜单URL
+		request.setAttribute("path", SystemContext.path);
 		request.setAttribute(RequestContants.REQUEST_URI, menuUrl);
 		request.setAttribute(RequestContants.REQUEST_URI_PRE, uri);
 		request.setAttribute(RequestContants.REQUEST_URI_METHOD, method);
@@ -184,7 +185,7 @@ public class FastActionProcess implements IFastProcess {
 	}
 
 	public void updateFastModel(FastModel model){
-		menuMap.put(model.getVcUrl(), model);
+		menuMap.put(SystemContext.getPath()+model.getVcUrl()+actionExt, model);
 	}
 	public void testModelTableExist(FastModel main){
 		main.init();

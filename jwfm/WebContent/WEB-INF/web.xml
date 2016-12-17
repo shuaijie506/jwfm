@@ -53,12 +53,7 @@
     
     <filter-mapping>
     	<filter-name>fastFilter</filter-name>
-    	<url-pattern>/jwfm/*</url-pattern>
-    </filter-mapping>
-    
-    <filter-mapping>
-    	<filter-name>fastFilter</filter-name>
-    	<url-pattern>/mis/*</url-pattern>
+    	<url-pattern>/*</url-pattern>
     </filter-mapping>
     
   	<resource-ref>

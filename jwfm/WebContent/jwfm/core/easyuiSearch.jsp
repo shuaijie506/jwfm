@@ -17,7 +17,7 @@ String addActionName = bpath+"_"+method+actionExt;
 <META http-equiv=Content-Type content="text/html; charset=utf-8">
 <jsp:include page="/common/common.jsp"></jsp:include>
 <script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-util-easyui.js"></script>  <!-- easyui通用工具类 -->
-${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
+<f:write>${REQUEST_FAST_MODEL.modelStructure.search.headHTML }</f:write> 
 <SCRIPT type=text/javascript>
     	$(function(){
     		var fcols = <f:result type="easyui" frozen="true" hasChkCol="true"/>;
@@ -35,7 +35,8 @@ ${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
 				//功能按钮组
 				toolbar:<f:toolbar type="easyui"/>,
 				//分页信息
-				pagination:true
+				pagination:true,
+				onDblClickRow:function(idx,row){viewItem(row['VC_ID'],row);}
 			});
 			//查询操作
 			$('#search').click(function(){
@@ -61,19 +62,29 @@ ${REQUEST_FAST_MODEL.modelStructure.search.headHTML }
     		$.openWin($.extend({title:'添加数据',href:'<%=bpath%>_add<%=actionExt%>',width:600,height:400,
     			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption(),window.winOption));
     	}
-    	function modifyItem(){
-    		var rows = $('#searchGrid').datagrid('getSelections');					
-    		if (rows.length==0){
- 		       $.messager.alert('警告', '您选择要修改的记录！','warning');return;
-    		}
-    		else if (rows.length>1){
- 		       $.messager.alert('警告', '您选择了 '+rows.length+' 条记录，请选择单条记录进行修改！','warning');return;
-    		}
+    	function modifyItem(id){
+    		var rows = typeof(id)=='string'?[{'VC_ID':id}]:$('#searchGrid').datagrid('getSelections');					
+    		if (!checkSingleRow(rows))return;
     		$.openWin($.extend({title:'修改数据',href:'<%=bpath%>_modify<%=actionExt%>?chkSelf='+rows[0]['VC_ID'],width:600,height:400,
     			butParams:[{id:'addBtn',text:'保存',iconCls:'icon-save'}]},getWinOption(),window.winOption));
     	}
+    	function viewItem(id){
+    		$.openWin($.extend({title:'查看',href:'<%=bpath%>_look<%=actionExt%>?chkSelf='+id,width:600,height:400,
+    			butParams:[{id:'closeBtn',text:'关闭',iconCls:'icon-close'}]},getWinOption(),window.winOption));
+    	}
     	function delItem(){
     		dealMultiRow('searchGrid','<%=bpath%>_delete<%=actionExt%>','刪除');
+    	}
+    	function checkSingleRow(rows){				
+    		if (!rows || !rows.length || rows.length==0){
+  		       $.messager.alert('警告', '您选择要修改的记录！','warning');
+  		       return false;
+     		}
+     		else if (rows.length>1){
+  		       $.messager.alert('警告', '您选择了 '+rows.length+' 条记录，请选择单条记录进行修改！','warning');
+  		       return false;
+     		}
+    		return true;
     	}
     </SCRIPT>
 <style type="text/css">
@@ -85,7 +96,7 @@ html,body{overflow:hidden;}
     <!-- 查询条件行 --> 
    <tr height="20px"><td valign="top">
    <div id="searchDiv" class="searchDiv"><div class="searchDivContent">
-<f:searchitem /><rq/><font color=red>*</font>
+<f:searchitem />
      </div></div>
    </td><td nowrap="nowrap"><a id="search" href="javascript:void(0)"  class="easyui-linkbutton" iconCls="icon-search">查询</a></td></tr>
    <!-- 数据结果列表 -->

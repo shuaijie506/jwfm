@@ -24,7 +24,7 @@ public class MainActionCreator {
 			return model;
 		}
 		model = new FastModel();
-		model.vcVersion = "2016-11-11";
+		model.vcVersion = "2016-12-16v2";
 		model.setVcId("fast-main");
 		model.setVcGroup("Fast开发平台");
 		model.setVcName("Fast开发平台");
@@ -44,9 +44,9 @@ public class MainActionCreator {
 		struct.setMainTableName(SystemContext.dbObjectPrefix+"T_MAIN");
 		struct.setPackageName("fast.main");
 		struct.setActionName("com.dx.jwfm.framework.web.action.FastMainAction");
-		struct.setActionHandleName(null);
+//		struct.setActionHandleName(null);
 		struct.setDefaultSearchData(true);
-		struct.setActionDefaultValueParser(null);
+//		struct.setActionDefaultValueParser(null);
 		struct.setForward("success", "/jwfm/main/main.jsp");
 		struct.setForward("login", 	"/jwfm/main/login.jsp");
 		struct.setForward("loginsuccess","redirect:"+model.getVcUrl().substring(model.getVcUrl().lastIndexOf("/")+1));
@@ -82,8 +82,8 @@ public class MainActionCreator {
 
 	private static FastTable getFastDictTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("Fast字典表");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_DICT");
+		tbl.setTitle("Fast字典表");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_DICT");
 		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("分组", "VC_GROUP", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("编码", "VC_CODE", null, FastColumnType.String, 100, "", null, false, false));
@@ -96,8 +96,8 @@ public class MainActionCreator {
 	}
 	private static FastTable getFastDbUpdateTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("Fast数据库更新日志表");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_DB_UPDATE");
+		tbl.setTitle("Fast数据库更新日志表");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_DB_UPDATE");
 		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("文件路径", "VC_PATH", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("文件名", "VC_FILE", null, FastColumnType.String, 100, "", null, false, false));

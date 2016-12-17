@@ -36,6 +36,9 @@ public class FastModelStructure {
 	private Date dtModify;
 	/**备注*/
 	private String vcNote;
+
+	/**是否新增的菜单，如果是，在页面加载完成后自动处理某些操作，如按钮、转向等内容*/
+	private boolean newMenu;
 	
 	
 	/**模块主要表名称*/
@@ -47,13 +50,13 @@ public class FastModelStructure {
 	/**业务Action类名*/
 	private String actionName;
 	/**业务Action辅助类类名*/
-	private String actionHandleName;
+//	private String actionHandleName;
 	/**默认打开页面时是否执行查询数据操作*/
 	private boolean defaultSearchData;
 	/**是否使用Ajax执行增删改操作*/
 	private boolean useAjaxOperator;
 	/**用户自定义默认值解析器类名*/
-	private String actionDefaultValueParser;
+//	private String actionDefaultValueParser;
 	/**菜单按钮权限列表*/
 	private List<ButtonAuth> buttonAuths = new ArrayList<ButtonAuth>();
 	/**action中的转向页面*/
@@ -126,7 +129,7 @@ public class FastModelStructure {
 
 	public String getMainTableName() {
 		if(mainTableName==null && mainTable!=null){
-			mainTableName = mainTable.getCode();
+			mainTableName = mainTable.getName();
 		}
 		return mainTableName;
 	}
@@ -167,13 +170,13 @@ public class FastModelStructure {
 		this.actionName = actionName;
 	}
 
-	public String getActionHandleName() {
-		return actionHandleName;
-	}
-
-	public void setActionHandleName(String actionHandleName) {
-		this.actionHandleName = actionHandleName;
-	}
+//	public String getActionHandleName() {
+//		return actionHandleName;
+//	}
+//
+//	public void setActionHandleName(String actionHandleName) {
+//		this.actionHandleName = actionHandleName;
+//	}
 
 	public boolean isDefaultSearchData() {
 		return defaultSearchData;
@@ -183,13 +186,13 @@ public class FastModelStructure {
 		this.defaultSearchData = defaultSearchData;
 	}
 
-	public String getActionDefaultValueParser() {
-		return actionDefaultValueParser;
-	}
-
-	public void setActionDefaultValueParser(String actionDefaultValueParser) {
-		this.actionDefaultValueParser = actionDefaultValueParser;
-	}
+//	public String getActionDefaultValueParser() {
+//		return actionDefaultValueParser;
+//	}
+//
+//	public void setActionDefaultValueParser(String actionDefaultValueParser) {
+//		this.actionDefaultValueParser = actionDefaultValueParser;
+//	}
 
 	public List<Node> getForwards() {
 		return forwards;
@@ -369,6 +372,14 @@ public class FastModelStructure {
 	
 	public void setPageHTMLAry(List<Node> pageHTMLAry) {
 		this.pageHTMLAry = pageHTMLAry;
+	}
+
+	public boolean isNewMenu() {
+		return newMenu;
+	}
+
+	public void setNewMenu(boolean newMenu) {
+		this.newMenu = newMenu;
 	}
 	
 }

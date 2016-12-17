@@ -55,10 +55,10 @@ public class FastPo extends MapObject implements Serializable {
 	
 	public FastPo(FastTable tblModel) {
 		super();
-		if(!basePoMap.containsKey(tblModel.getCode())){
+		if(!basePoMap.containsKey(tblModel.getName())){
 			isBasePo = true;
 			this.tblModel = tblModel;
-			basePoMap.put(tblModel.getCode().toUpperCase(), this);
+			basePoMap.put(tblModel.getName().toUpperCase(), this);
 		}
 	}
 
@@ -95,18 +95,18 @@ public class FastPo extends MapObject implements Serializable {
 			if(defaults.indexOf("$")>=0){
 				Matcher mat = varPat.matcher(defaults);
 				if(mat.matches()){//完整匹配时，可以是任意对象
-					put(col.getCode(),SystemContext.getMacroValue(mat.group(1)));
+					put(col.getName(),SystemContext.getMacroValue(mat.group(1)));
 				}
 				else{
 					while(mat.find()){//组合匹配时，按字符串处理
 						Object obj = SystemContext.getMacroValue(mat.group(1));
 						defaults = defaults.replace(mat.group(), obj==null?"":obj.toString());
 					}
-					put(col.getCode(),defaults);
+					put(col.getName(),defaults);
 				}
 			}
 			else{
-				put(col.getCode(),defaults);
+				put(col.getName(),defaults);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ public class FastPo extends MapObject implements Serializable {
 	
 	public Object[] getPkParams(String pk){
 		if(pk==null){
-			return null;
+			return new Object[]{pk};
 		}
 		if(tblModel!=null && tblModel.pkColumns().size()>1){
 			String[] ary = pk.split(",");
@@ -192,7 +192,7 @@ public class FastPo extends MapObject implements Serializable {
 		ArrayList<Object> list = new ArrayList<Object>();
 		if(tblModel!=null){
 			for(FastColumn col:tblModel.pkColumns()){
-				list.add(get(col.getCode()));
+				list.add(get(col.getName()));
 			}
 		}
 		return list.toArray();
@@ -202,7 +202,7 @@ public class FastPo extends MapObject implements Serializable {
 		ArrayList<Object> list = new ArrayList<Object>();
 		if(tblModel!=null){
 			for(FastColumn col:tblModel.getColumns()){
-				Object val = get(col.getCode());
+				Object val = get(col.getName());
 				if(val instanceof String){
 					val = tranJdbcValue(col.getType(),(String)val);
 				}
@@ -218,10 +218,10 @@ public class FastPo extends MapObject implements Serializable {
 		if(tblModel!=null){
 			for(FastColumn col:tblModel.getColumns()){
 				if(col.isPrimaryKey()){
-					pklist.add(get(col.getCode()));
+					pklist.add(get(col.getName()));
 				}
 				else{
-					Object val = get(col.getCode());
+					Object val = get(col.getName());
 					if(val instanceof String){
 						val = tranJdbcValue(col.getType(),(String)val);
 					}
@@ -268,16 +268,17 @@ public class FastPo extends MapObject implements Serializable {
 	}
 
 	public void initIdDelValue() {
-		if(get(SystemContext.getDbIdField())==null){
+		if(FastUtil.isBlank(getString(SystemContext.getDbIdField()))){
 			FastTable tm = tblModel;
 			if(tm.pkColumns().size()==1){
 				FastColumn keyCol = tm.pkColumns().get(0);
 				if(FastColumnType.String.equals(keyCol.getType())){//字符串格式的ID，使用UUID
-					put(keyCol.getCode(), FastUtil.getUuid());
+					put(keyCol.getName(), FastUtil.getUuid());
 				}
 			}
 		}
-		if(get(SystemContext.getDbDelFlagField())==null){
+		Object delFlag = get(SystemContext.getDbDelFlagField());
+		if(delFlag ==null || "".equals(delFlag)){
 			put(SystemContext.getDbDelFlagField(), 0);
 		}
 	}

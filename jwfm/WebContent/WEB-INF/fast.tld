@@ -8,6 +8,27 @@
   
   
 <tag>
+	<name>write</name>
+    <description><![CDATA[输出指定的HTML内容，支持使用${}取bean中的值，要输出的内容写入标签内部]]></description>
+	<tagclass>com.dx.jwfm.framework.web.tag.WriteHtmlTag</tagclass>
+	<bodycontent>JSP</bodycontent>
+	<attribute>
+		<name>value</name>
+		<description><![CDATA[要输出的bean名称和属性链，如需支持使用${}取bean中的值并再次取值时，请将内容写入标签body中]]></description>
+		<required>false</required>
+		<rtexprvalue>true</rtexprvalue>
+	</attribute>
+	<attribute>
+		<name>scope</name>
+		<description><![CDATA[${}中的变量取值范围，默认为page、action、request、session、servletContext、macros依次取值
+指定时仅从指定的范围中取]]></description>
+		<required>false</required>
+		<rtexprvalue>true</rtexprvalue>
+	</attribute>
+    <dynamic-attributes>false</dynamic-attributes>
+</tag>
+  
+<tag>
 	<name>toolbar</name>
     <description><![CDATA[查询结果工具栏按钮组，支持HTML按钮和easyui按钮]]></description>
 	<tagclass>com.dx.jwfm.framework.web.tag.ToolBarTag</tagclass>

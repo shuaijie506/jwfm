@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -409,8 +410,10 @@ public class DbHelper {
 				}
 				st.execute();
 				ResultSet rs = st.getResultSet();
+				ResultSetMetaData md = rs.getMetaData();
+				int valIdx = md.getColumnCount()==1?1:2;
 				while(rs.next()){
-					map.put(rs.getString(1), rs.getString(2));
+					map.put(rs.getString(1), rs.getString(valIdx));
 				}
 				rs.close();
 				st.close();

@@ -16,7 +16,8 @@ var isAlertShow = false;
     	    //点击提交按钮事件
             var treedata = [{id:'1',text:'功能列表',attributes:{url:'../core/menu.action'}},
                             {id:'2',text:'用户管理',attributes:{url:'../core/user.action'}},
-                            {id:'test',text:'ACTION测试',attributes:{url:'../../mis/sys/HelloWorld_toJsp.action'}}
+                            {id:'test',text:'ACTION测试',attributes:{url:'../../mis/sys/HelloWorld_toJsp.action'}},
+                            {id:'test',text:'Awesome图标',attributes:{url:'../core/faicon.jsp'}}
             ];
     	    $('#leftTree').tree({data:treedata,onClick:function(node){
     	    	$('#main').attr('src',node.attributes.url);

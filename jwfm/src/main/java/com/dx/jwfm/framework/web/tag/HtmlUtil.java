@@ -126,7 +126,7 @@ public class HtmlUtil {
 		}
 		HashMap<String,FastColumn> colmap = new HashMap<String,FastColumn>();
 		for(FastColumn col:colList){
-			colmap.put(col.getCode(), col);
+			colmap.put(col.getName(), col);
 		}
 		if(hiddenCols!=null){
 			for(String colCode:hiddenCols){
@@ -160,7 +160,7 @@ public class HtmlUtil {
 					buff.append("<td colspan=").append((editColCnt-cells%editColCnt)*2).append("></td>\n</tr>\n<tr>");
 					cells+=editColCnt-cells%editColCnt;
 				}
-				buff.append("<td class=th>").append(col.getName()).append("</th><td");
+				buff.append("<td class=th>").append(col.getTitle()).append("</th><td");
 				if("textarea".equals(col.getEditorType())){
 					buff.append(" colspan=").append(editColCnt*2-1);
 					cells++;
@@ -169,7 +169,7 @@ public class HtmlUtil {
 				if(col.getEditorType()!=null && col.getEditorType().startsWith("date:")){//如果是日期类型，要在值后面加上日期格式
 					ext = col.getEditorType().substring(4);
 				}
-				buff.append(">").append(HtmlUtil.createEditorHtml("po", col.getCode(), col.getEditorType(), "${po."+col.getCode()+ext+"}"));
+				buff.append(">").append(HtmlUtil.createEditorHtml("po", col.getName(), col.getEditorType(), "${po."+col.getName()+ext+"}"));
 				buff.append("</td>\n");
 				cells++;
 				if(cells%editColCnt==0){

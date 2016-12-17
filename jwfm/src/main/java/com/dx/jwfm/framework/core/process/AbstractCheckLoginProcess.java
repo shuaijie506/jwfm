@@ -161,8 +161,8 @@ public abstract class AbstractCheckLoginProcess implements IFastProcess
 
 	private static FastTable getSessionTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("用户登录SESSION信息表");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_SESSION_INFO");
+		tbl.setTitle("用户登录SESSION信息表");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_SESSION_INFO");
 		tbl.getColumns().add(new FastColumn("SSO_ID", "SSO_ID", null, FastColumnType.String, 50, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("用户ID", "USER_ID", null, FastColumnType.String, 50, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("登录时间", "DT_LOGIN", null, FastColumnType.Date, 50, "", null, true, false));

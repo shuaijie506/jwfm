@@ -102,6 +102,7 @@ public class FastModel {
 		else{
 			JSONObject obj = JSONObject.fromObject(vcStructure);
 			Map<String, Class> cmap = new HashMap<String, Class>();
+			cmap.put("buttonAuths", ButtonAuth.class);
 			cmap.put("mainTable", FastTable.class);
 			cmap.put("otherTables", FastTable.class);
 			cmap.put("columns", FastColumn.class);
@@ -112,6 +113,7 @@ public class FastModel {
 			cmap.put("searchColumnMap", SearchColumn.class);
 			cmap.put("searchResultColumns", SearchResultColumn.class);
 			cmap.put("forwards", Node.class);
+			cmap.put("pageHTMLAry", Node.class);
 			try {
 				modelStructure = (FastModelStructure) JSONObject.toBean(obj, FastModelStructure.class,cmap);
 			} catch (Exception e) {

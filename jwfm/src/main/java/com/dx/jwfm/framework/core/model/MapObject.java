@@ -23,7 +23,10 @@ public class MapObject implements Map<String,Object> {
 
 	public Integer getInteger(String key){
 		Object obj = get(key);
-		if(obj instanceof Integer){
+		if(obj==null){
+			return null;
+		}
+		else if(obj instanceof Integer){
 			return (Integer)obj;
 		}
 		return Integer.parseInt(toString(obj));
@@ -31,7 +34,10 @@ public class MapObject implements Map<String,Object> {
 
 	public Long getLong(String key){
 		Object obj = get(key);
-		if(obj instanceof Long){
+		if(obj==null){
+			return null;
+		}
+		else if(obj instanceof Long){
 			return (Long)obj;
 		}
 		return Long.parseLong(toString(get(key)));
@@ -47,7 +53,10 @@ public class MapObject implements Map<String,Object> {
 
 	public Double getDouble(String key){
 		Object obj = get(key);
-		if(obj instanceof Double){
+		if(obj==null){
+			return null;
+		}
+		else if(obj instanceof Double){
 			return (Double)obj;
 		}
 		return Double.parseDouble(toString(get(key)));

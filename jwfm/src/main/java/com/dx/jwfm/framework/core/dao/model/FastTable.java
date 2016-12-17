@@ -21,10 +21,10 @@ public class FastTable implements DatabaseObject,Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** 名称，一般为汉字 */
-	protected String name;
+	protected String title;
 
 	/** 编码，一般为大写英文字母、数字和下划线组成 */
-	protected String code;
+	protected String name;
 
 	/** 备注说明，此列为空时备注取name中的值 */
 	protected String comment;
@@ -65,7 +65,7 @@ public class FastTable implements DatabaseObject,Serializable {
 			if(col.isPrimaryKey()){
 				pkCols.add(col);
 			}
-			colMap.put(col.getCode(), col);
+			colMap.put(col.getName(), col);
 		}
 		this.columns = columns;
 	}
@@ -73,7 +73,7 @@ public class FastTable implements DatabaseObject,Serializable {
 	public String keyColCode(){
 		for(FastColumn col:columns){
 			if(col.isPrimaryKey()){
-				return col.getCode();
+				return col.getName();
 			}
 		}
 		return null;
@@ -90,10 +90,10 @@ public class FastTable implements DatabaseObject,Serializable {
 	}
 
 	public String insertSql(){
-		StringBuilder buff = new StringBuilder("insert into ").append(code).append("(");
+		StringBuilder buff = new StringBuilder("insert into ").append(name).append("(");
 		StringBuilder valbuff = new StringBuilder();
 		for(FastColumn col:columns){
-			buff.append(col.getCode()).append(",");
+			buff.append(col.getName()).append(",");
 			valbuff.append(",?");
 		}
 		buff.deleteCharAt(buff.length()-1).append(") values(").append(valbuff.substring(1)).append(")");
@@ -101,31 +101,31 @@ public class FastTable implements DatabaseObject,Serializable {
 	}
 
 	public String updateSql(){
-		StringBuilder buff = new StringBuilder("update ").append(code).append(" set ");
+		StringBuilder buff = new StringBuilder("update ").append(name).append(" set ");
 		for(FastColumn col:columns){
 			if(!col.primaryKey){
-				buff.append(col.getCode()).append("=?,");
+				buff.append(col.getName()).append("=?,");
 			}
 		}
 		buff.deleteCharAt(buff.length()-1).append(" where ");
 		for(FastColumn col:pkCols){
-			buff.append(col.getCode()).append("=? and");
+			buff.append(col.getName()).append("=? and");
 		}
 		return buff.toString().substring(0,buff.length()-4);
 	}
 
 	public String deleteSql(){
-		StringBuilder buff = new StringBuilder("delete from ").append(code).append(" where ");
+		StringBuilder buff = new StringBuilder("delete from ").append(name).append(" where ");
 		for(FastColumn col:pkCols){
-			buff.append(col.getCode()).append("=? and");
+			buff.append(col.getName()).append("=? and");
 		}
 		return buff.toString().substring(0,buff.length()-4);
 	}
 
 	public String searchByIdSql(){
-		StringBuilder buff = new StringBuilder("select * from ").append(code).append(" where ");
+		StringBuilder buff = new StringBuilder("select * from ").append(name).append(" where ");
 		for(FastColumn col:pkCols){
-			buff.append(col.getCode()).append("=? and");
+			buff.append(col.getName()).append("=? and");
 		}
 		if(pkCols.isEmpty()){
 			return buff.toString();
@@ -134,9 +134,9 @@ public class FastTable implements DatabaseObject,Serializable {
 	}
 
 	public String searchCntByIdSql(){
-		StringBuilder buff = new StringBuilder("select count(*) from ").append(code).append(" where ");
+		StringBuilder buff = new StringBuilder("select count(*) from ").append(name).append(" where ");
 		for(FastColumn col:pkCols){
-			buff.append(col.getCode()).append("=? and");
+			buff.append(col.getName()).append("=? and");
 		}
 		return buff.toString().substring(0,buff.length()-4);
 	}
@@ -145,13 +145,21 @@ public class FastTable implements DatabaseObject,Serializable {
 		if(maxIdVal==null){
 			DbHelper db = new DbHelper();
 			try {
-				maxIdVal = db.getFirstLongSqlQuery("select max("+keyColCode()+") from "+code);
+				maxIdVal = db.getFirstLongSqlQuery("select max("+keyColCode()+") from "+name);
 			} catch (SQLException e) {
 				logger.error(e);
 				maxIdVal = 0L;
 			}
 		}
 		return ++maxIdVal;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title==null?null:title.toUpperCase();
 	}
 
 	public String getName() {
@@ -162,16 +170,8 @@ public class FastTable implements DatabaseObject,Serializable {
 		this.name = name==null?null:name.toUpperCase();
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code==null?null:code.toUpperCase();
-	}
-
 	public String getComment() {
-		return comment==null?name:comment;
+		return comment==null?title:comment;
 	}
 
 	public void setComment(String comment) {

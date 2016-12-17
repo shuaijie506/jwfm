@@ -160,7 +160,10 @@ public class FastFilter implements Filter {
 		request.setCharacterEncoding(charset);
 		response.setCharacterEncoding(charset);
 		String uri = request.getRequestURI();
-		urlLogger.info(uri);
+		String uriExt = uri.substring(uri.length()-actionExt.length());
+		if(actionExt.equals(uriExt) || uriExt.toLowerCase().endsWith(".jsp")){
+			urlLogger.info(uri);
+		}
 		RequestContext.setRequestInfo(this, request, response);
 		boolean finish = false;
 		for(int i=0;i<userProc.size();i++){//使用用户自定义拦截处理器

@@ -69,8 +69,8 @@ public class UserActionCreator extends ActionCreator {
 	@Override
 	protected FastTable getMainTable() {
 		FastTable tbl = new FastTable();
-		tbl.setName("Fast开发用户表");
-		tbl.setCode(SystemContext.dbObjectPrefix+"T_USER");
+		tbl.setTitle("Fast开发用户表");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_USER");
 		List<FastColumn> cols = tbl.getColumns();
 		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
 		tbl.getColumns().add(new FastColumn("姓名", "VC_NAME", null, FastColumnType.String, 100, "", null, false, false));

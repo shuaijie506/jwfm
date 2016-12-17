@@ -24,6 +24,13 @@ $(function(){
 			}
 		});
 	});
+	$('body').mouseover(function(){
+		var evt = $.event.fix(event),th=$(evt.target);
+		if(th.attr('title')){
+			th.tooltip({content:th.attr('title')}).tooltip('show');
+			th.removeAttr('title');
+		}
+	});
 });
 function dealMultiRow(tblId,url,info,param){
 	var rows = $('#'+tblId).datagrid('getSelections');					
@@ -44,13 +51,13 @@ function dealMultiRow(tblId,url,info,param){
 			console.log(param)
 		 	$.post(url,param,function(data){
 		    	try{
-		            jsonReStr = jQuery.parseJSON(data);  //获取从服务器得到的数据反馈信息
-		            if(jsonReStr.successed){    //操作成功处理
+		            jsonRes = jQuery.parseJSON(data);  //获取从服务器得到的数据反馈信息
+		            if(jsonRes.successed){    //操作成功处理
 		            	$('div.datagrid-header-check input[type="checkbox"]').attr('checked',false);//全选框复原
 			            $.util.showTip({content:'数据'+info+'成功！'});
 			            $('#searchGrid').datagrid('reload'); //刷新数据列
 		            }else{  //操作失败处理
-		                $.messager.alert('消息提示','操作处理失败！原因如下：<br><font color=red>'+jsonReStr.info+'</font>','error');
+		                $.messager.alert('消息提示','操作处理失败！原因如下：<br><font color=red>'+jsonRes.info+'</font>','error');
 		            }
 	            }catch(e){
 	            	msg = ''+e;
@@ -71,19 +78,19 @@ function returnOptMsgEasyui(opt){
 		opt = {data:opt};
 	}
     try{
-        jsonReStr = jQuery.parseJSON(opt.data);  //获取从服务器得到的数据反馈信息
-        if(jsonReStr.successed){    //操作成功处理
-            $.util.showTip({content:(opt.reMsg||jsonReStr.info||'保存成功！')});
+        jsonRes = jQuery.parseJSON(opt.data);  //获取从服务器得到的数据反馈信息
+        if(jsonRes.successed){    //操作成功处理
+            $.util.showTip({content:(opt.reMsg||jsonRes.info||'保存成功！')});
             $(opt.gridId||'#searchGrid').datagrid('reload'); //刷新数据列
          	if(opt.callback && typeof(opt.callback)=='function'){
-         		opt.callback(true);
+         		opt.callback(true,jsonRes);
          	}
            	return true;
         }else{  //操作失败处理
             try{$(opt.winId||'#operateWindow').window("open");}catch(e){;}
-            $.messager.alert('消息提示','操作处理失败！原因如下：<br><font color=red>'+jsonReStr.info+'</font>','error',function(){
+            $.messager.alert('消息提示','操作处理失败！原因如下：<br><font color=red>'+jsonRes.info+'</font>','error',function(){
              	if(opt.callback && typeof(opt.callback)=='function'){
-             		opt.callback(false);
+             		opt.callback(false,jsonRes);
              	}
             });
         }

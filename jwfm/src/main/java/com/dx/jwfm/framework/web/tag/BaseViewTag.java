@@ -5,15 +5,15 @@ import java.util.LinkedHashMap;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.DynamicAttributes;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.util.FastUtil;
 
-public class BaseViewTag extends TagSupport implements DynamicAttributes {
+public class BaseViewTag extends BodyTagSupport implements DynamicAttributes {
 
 	/**  */
 	private static final long serialVersionUID = 1L;
@@ -22,6 +22,12 @@ public class BaseViewTag extends TagSupport implements DynamicAttributes {
 
 	protected LinkedHashMap<String,String> attr = new LinkedHashMap<String, String>();
 
+	/**
+	 * ${}中的变量取值范围，默认为page、action、request、session、servletContext、macros依次取值
+	 * 指定时仅从指定的范围中取
+	 */
+	private String scope;
+	
 	@Override
 	public void setPageContext(PageContext pageContext) {
 		if(pageContext!=null){
@@ -53,7 +59,11 @@ public class BaseViewTag extends TagSupport implements DynamicAttributes {
 			while(pos>=0){
 				buff.append(str.substring(lastpos, pos));
 				int nextpos = str.indexOf("}",pos);
-				String key = str.substring(pos+2, nextpos);
+				if(nextpos<0){
+					pos+=2;
+					continue;
+				}
+				String key = str.substring(pos+2, nextpos).trim();
 				Object val = FastUtil.format(getVarValue(key),null);
 				if(val!=null){
 					buff.append(val);
@@ -79,17 +89,24 @@ public class BaseViewTag extends TagSupport implements DynamicAttributes {
 				return "下拉选择框格式错误，请使用${$select$fieldName:sql:SQL语句}或${$select$fieldName:dict:字典名称}定义下拉选择框";
 			}
 			String fieldName = key.substring(8,pos);
-			Object val = RequestContext.getBeanValue(fieldName);
+			Object val = RequestContext.getBeanValue(fieldName,scope);
 			SelectTag sel = new SelectTag();
 			sel.setName(fieldName);
 			sel.setValue(val==null?"":val.toString());
 			sel.setEmptyOption(true);
-			sel.setList(key.substring(pos+1));
+			sel.setList(key.substring(pos+1).replaceAll("&#125;", "}"));
 			sel.setId(fieldName.replaceAll("\\.", "_"));
 			StringWriter sw = new StringWriter();
 			sel.writeHtml(sw);
 			return sw.toString();
 		}
-		return RequestContext.getBeanValue(key);
+		return RequestContext.getBeanValue(key,scope);
+	}
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
 	}
 }

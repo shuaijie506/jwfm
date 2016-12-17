@@ -31,7 +31,7 @@ public class FastBaseLogic {
 		List<FastPo> list = null;
 		try {
 			String pageSql = db.getDatabaseDialect().getPagedSql(sql, pager.getBegRowNo(), pager.getEndRowNo());
-			list = db.executeSqlQuery(pageSql,FastPo.getPo(tblModel.getCode()),search);
+			list = db.executeSqlQuery(pageSql,FastPo.getPo(tblModel.getName()),search);
 			if(list.size()<pager.getRows()){
 				pager.setRowAmount(list.size());
 			}
