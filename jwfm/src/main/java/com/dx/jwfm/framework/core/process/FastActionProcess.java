@@ -108,9 +108,9 @@ public class FastActionProcess implements IFastProcess {
 			method = uri.substring(pos+1);//解析出指定要执行的方法
 			uri = uri.substring(0,pos);
 		}
-		if(method==null){//先从.action之前截取方法名，取不到时取op参数值做为参数名
-			method = request.getParameter("op");
-		}
+//		if(method==null){//先从.action之前截取方法名，取不到时取op参数值做为参数名
+//			method = request.getParameter("op");
+//		}
 		if(method==null){//如果没有指定方法，默认调用execute方法
 			method = "execute";
 		}

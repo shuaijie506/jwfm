@@ -14,6 +14,7 @@ import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.model.FastModelStructure;
 import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
+import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class MainActionCreator {
@@ -52,8 +53,9 @@ public class MainActionCreator {
 		struct.setForward("loginsuccess","redirect:"+model.getVcUrl().substring(model.getVcUrl().lastIndexOf("/")+1));
 		struct.setMainTable(getMainTable());
 		struct.getOtherTables().add(getFastDictTable());
-		struct.getOtherTables().add(getFastDbUpdateTable());
+//		struct.getOtherTables().add(getFastDbUpdateTable());
 		struct.setSearch(getSearchModel());
+		struct.getDictData().add(new DictNode("SYS_REGEDIT", "SYS_SSOID_REMOTE_URL", "", "如果需要使用远程URL进行SSO_ID到USER_ID的转换时，请配置此地址。如：http://10.0.0.1/mis/check.jsp?ssoid=", 0));
 		return model;
 	}
 	
@@ -69,6 +71,7 @@ public class MainActionCreator {
 		list.add(getModel());
 		list.add(new UserActionCreator().getFastModel());
 		list.add(new MenuActionCreator().getFastModel());
+		list.add(new ToolsAction().getFastModel());
 		for(FastModel model:list){
 			flist.add(model);
 			model.init();
@@ -85,24 +88,12 @@ public class MainActionCreator {
 		tbl.setTitle("Fast字典表");
 		tbl.setName(SystemContext.dbObjectPrefix+"T_DICT");
 		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
+		tbl.getColumns().add(new FastColumn("用户ID", "VC_USER_ID", "用户ID，此字段值为sys时表示为系统参数和字典", FastColumnType.String, 50, "sys", null, false, false));
 		tbl.getColumns().add(new FastColumn("分组", "VC_GROUP", null, FastColumnType.String, 100, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("编码", "VC_CODE", null, FastColumnType.String, 100, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("显示文本", "VC_TEXT", "", FastColumnType.String, 500, "", null, false, false));
+		tbl.getColumns().add(new FastColumn("显示文本", "VC_TEXT", "", FastColumnType.String, 500, "", null, true, false));
 		tbl.getColumns().add(new FastColumn("备注", "VC_NOTE", "", FastColumnType.String, 500, "", null, true, false));
 		tbl.getColumns().add(new FastColumn("排序", "N_SEQ", null, FastColumnType.Integer, 0, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("删除标记", "N_DEL", null, FastColumnType.Integer, 0, "0", null, false, false));
-		tbl.setColumns(tbl.getColumns());
-		return tbl;
-	}
-	private static FastTable getFastDbUpdateTable() {
-		FastTable tbl = new FastTable();
-		tbl.setTitle("Fast数据库更新日志表");
-		tbl.setName(SystemContext.dbObjectPrefix+"T_DB_UPDATE");
-		tbl.getColumns().add(new FastColumn("主键", "VC_ID", null, FastColumnType.String, 50, null, null, false, true));
-		tbl.getColumns().add(new FastColumn("文件路径", "VC_PATH", null, FastColumnType.String, 100, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("文件名", "VC_FILE", null, FastColumnType.String, 100, "", null, false, false));
-		tbl.getColumns().add(new FastColumn("执行时间", "DT_EXEC", null, FastColumnType.Date, 50, "", null, true, false));
-		tbl.getColumns().add(new FastColumn("执行结果", "VC_RESULT", null, FastColumnType.String, -1, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("删除标记", "N_DEL", null, FastColumnType.Integer, 0, "0", null, false, false));
 		tbl.setColumns(tbl.getColumns());
 		return tbl;
@@ -110,8 +101,8 @@ public class MainActionCreator {
 
 	private static SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
-		search.getSearchColumns().add(new SearchColumn("分组", "VC_GROUP", "sqlSelect", 120, null, "=", "and t.vc_group =${VC_GROUP} "));
-		search.getSearchColumns().add(new SearchColumn("菜单名", "VC_GROUP", "sqlSelect", 120, null, "like", "t.vc_name"));
+		search.getSearchColumns().add(new SearchColumn("分组", "VC_GROUP", "sqlSelect", null, "=", "and t.vc_group =${VC_GROUP} "));
+		search.getSearchColumns().add(new SearchColumn("菜单名", "VC_GROUP", "sqlSelect", null, "like", "t.vc_name"));
 		return search;
 	}
 

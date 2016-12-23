@@ -40,6 +40,16 @@ public class BaseViewTag extends BodyTagSupport implements DynamicAttributes {
 		attr.put(localeName, ""+value);
 	}
 
+	protected String getHtmlAttrString(){
+		StringBuffer html = new StringBuffer();
+		for(String k:attr.keySet()){
+			html.append(" ").append(k);
+			if(attr.get(k)!=null){
+				html.append("=\"").append(attr.get(k)).append("\"");
+			}
+		}
+		return html.toString();
+	}
 	/**
 	 * 开发人：宋帅杰
 	 * 开发日期: 2016年11月4日 上午8:31:55

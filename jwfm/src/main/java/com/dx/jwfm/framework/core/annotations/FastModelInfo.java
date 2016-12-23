@@ -10,8 +10,14 @@ import java.lang.annotation.Target;
 public @interface FastModelInfo {
 	/** 开发人员姓名 */
 	public String author();
-	/** 开发日期 */
+	/** 开发日期，同时也做版本号 */
 	public String devDate();
+	/*** 菜单对应分组名 */
+	public String group();
+	/*** 菜单名 */
+	public String name();
+	/*** 对应请求地址 */
+	public String url();
 	/** 更新信息 */
 	public String updateInfo();
 }

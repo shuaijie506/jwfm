@@ -22,6 +22,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.RequestContext;
+import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMap;
+import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMapEntry;
 import com.dx.jwfm.framework.core.process.IActionHandel;
 
 public class ParameterActionHandle implements IActionHandel {
@@ -39,9 +41,6 @@ public class ParameterActionHandle implements IActionHandel {
 			Enumeration<String> en = request.getParameterNames();
 			while(en.hasMoreElements()){
 				String key = en.nextElement();
-				if("model.mainTable.columns[0].name".equals(key)){
-					key = key+"";
-				}
 				setObjectPropt(action,key,request,request.getParameter(key));
 			}
 		}
@@ -76,7 +75,8 @@ public class ParameterActionHandle implements IActionHandel {
 				int idx = Integer.parseInt(m.group(2));
 				try {
 					Class cls = PropertyUtils.getPropertyType(obj, proptName);
-					if(cls!=null && List.class.isAssignableFrom(cls)){//只针对实现List类型的对象
+					if(cls==null)return;
+					if(List.class.isAssignableFrom(cls)){//只针对实现List类型的对象
 						Object propt = PropertyUtils.getProperty(obj, proptName);
 						if(propt==null){
 							propt = new ArrayList();
@@ -98,6 +98,27 @@ public class ParameterActionHandle implements IActionHandel {
 							if(list.get(idx)==null){
 								list.add(idx,rowCls.newInstance());
 							}
+						}
+						row = list.get(idx);
+						//得到对象后，将参数值赋给对象的属性
+						setObjectPropt(row,fieldName.substring(pos+1),request,value);
+					}
+					else if(Map.class.isAssignableFrom(cls)){//针对实现Map类型的对象
+						Object propt = PropertyUtils.getProperty(obj, proptName);
+						if(propt==null){
+							propt = new ArrayList();
+							PropertyUtils.setProperty(obj,proptName,propt);
+						}
+						if(!(propt instanceof ParamLinkedHashMap)){
+							ParamLinkedHashMap newpropt = new ParamLinkedHashMap((Map)propt);
+							PropertyUtils.setProperty(obj,proptName,newpropt);
+							propt = newpropt;
+						}
+						ParamLinkedHashMap list = (ParamLinkedHashMap) propt;
+						Object row = null;
+						if(list.size()<=idx || list.get(idx)==null){//如果列表中没有指定下标的对象，则创建之
+							ParamLinkedHashMapEntry entry = new ParamLinkedHashMapEntry();
+							list.set(idx,entry);
 						}
 						row = list.get(idx);
 						//得到对象后，将参数值赋给对象的属性

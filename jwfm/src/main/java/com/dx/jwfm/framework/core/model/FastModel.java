@@ -26,6 +26,7 @@ import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
 import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.core.process.IActionHandel;
+import com.dx.jwfm.framework.util.EncryptUtil;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.action.FastBaseAction;
 import com.dx.jwfm.framework.web.view.Node;
@@ -70,6 +71,9 @@ public class FastModel {
 	/**模型结构对象*/
 	private FastModelStructure modelStructure;
 
+
+	private String encryptKey = SystemContext.getSysParam("GLOBA_ENCRYPT_KEY", "hhkjcsmis");
+
 	public FastModel() {
 	}
 	
@@ -82,13 +86,24 @@ public class FastModel {
 		this.vcVersion = po.getString("VC_VERSION");
 		this.setVcStructure(po.getString("VC_STRUCTURE"));
 	}
+	
+	public FastModel(String jsonStruct) {
+		this.setVcStructure(jsonStruct);
+		this.undoPersistent();
+		this.setVcId(modelStructure.getVcId());
+		this.setVcName(modelStructure.getVcName());
+		this.setVcGroup(modelStructure.getVcGroup());
+		this.setVcUrl(modelStructure.getVcUrl());
+		this.setVcAuth(modelStructure.getVcAuth());
+		this.vcVersion = modelStructure.getVcVersion();
+	}
 
 	/**
 	 * 将结构化数据转换为字符串，以便于持久化到数据库
 	 */
 	public void doPersistent(){
 		JSONObject obj = JSONObject.fromObject(modelStructure);
-		vcStructure = obj.toString();
+		vcStructure = EncryptUtil.encryptMix(obj.toString(),encryptKey );
 	}
 	
 	/**
@@ -100,6 +115,9 @@ public class FastModel {
 			modelStructure = new FastModelStructure();
 		}
 		else{
+			if(vcStructure.charAt(0)!='{'){
+				vcStructure = EncryptUtil.decryptMix(vcStructure, encryptKey);
+			}
 			JSONObject obj = JSONObject.fromObject(vcStructure);
 			Map<String, Class> cmap = new HashMap<String, Class>();
 			cmap.put("buttonAuths", ButtonAuth.class);
@@ -154,7 +172,7 @@ public class FastModel {
 				//比对主业务表并进行表结构更新
 				FastTable tbl = modelStructure.getMainTable();
 				ArrayList<String> sqls = new ArrayList<String>();
-				if(tbl!=null){
+				if(tbl!=null && FastUtil.isNotBlank(tbl.getName())){
 					new FastPo(tbl);//将表注册到FastPo中
 					sqls.addAll(db.getDatabaseDialect().getTableCreateOrUpdateSql(tbl));
 				}
@@ -316,6 +334,7 @@ public class FastModel {
 		if(modelStructure.getDictData()!=null){
 			for(DictNode n:modelStructure.getDictData()){
 				FastPo dict = n.toPo();
+				dict.initDefaults();
 				try {
 					if(db.getFirstIntSqlQuery("select count(*) from "+SystemContext.dbObjectPrefix+"T_DICT where vc_group=? and vc_code=?",
 							new Object[]{dict.getString("VC_GROUP"),dict.getString("VC_CODE")})==0){

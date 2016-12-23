@@ -20,7 +20,7 @@ long ltime = System.currentTimeMillis();
 			$('#editForm').submit();
 		});
 		//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
-		$('.fast-edit-table').autoInputWidth();
+		$('.fast-edit-table').initPage();
 		//表单验证及提交处理操作
 		$('#editForm').form({
 			url:'<%=addActionName%>',

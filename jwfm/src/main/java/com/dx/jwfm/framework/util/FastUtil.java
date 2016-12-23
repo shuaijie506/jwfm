@@ -1,6 +1,15 @@
 package com.dx.jwfm.framework.util;
 
 import java.beans.PropertyDescriptor;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -215,6 +224,7 @@ public class FastUtil {
 	@SuppressWarnings("unchecked")
 	public static Object newInstance(String clsName) throws ClassNotFoundException, InstantiationException, IllegalAccessException{
 		Class<Object> cls = (Class<Object>) Thread.currentThread().getContextClassLoader().loadClass(clsName);
+		if(cls==null)return null;
 		return cls.newInstance();
 	}
 	public static void copyBeanPropts(Object dest,Object orig){
@@ -238,10 +248,19 @@ public class FastUtil {
 	 * @return
 	 */
 	public static String getDictVal(String groupName,String code){
+		return getUserDictVal("sys",groupName, code);
+	}
+	/**
+	 * 获取指定用户字典项的值
+	 * @param groupName
+	 * @param code
+	 * @return
+	 */
+	public static String getUserDictVal(String userId,String groupName,String code){
 		DbHelper db = new DbHelper();
 		try {
-			return db.getFirstStringSqlQuery("select vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? and vc_code=?",
-					new Object[]{groupName,code});
+			return db.getFirstStringSqlQuery("select vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and vc_user_id=? and VC_GROUP=? and vc_code=?",
+					new Object[]{userId,groupName,code});
 		} catch (SQLException e) {
 			logger.error(e);
 		}
@@ -254,35 +273,58 @@ public class FastUtil {
 	 * @return
 	 */
 	public static List<FastPo> getDicts(String groupName){
+		return getUserDicts("sys", groupName);
+	}
+	/**
+	 * 获取指定用户字典项的所有值列表
+	 * 字段：VC_ID,VC_GROUP,VC_CODE,VC_TEXT,VC_NOTE,N_SEQ
+	 * @param groupName
+	 * @return
+	 */
+	public static List<FastPo> getUserDicts(String userId,String groupName){
 		DbHelper db = new DbHelper();
 		try {
-			return db.executeSqlQuery("select * from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
-					FastPo.getPo(""+SystemContext.dbObjectPrefix+"T_DICT"), new Object[]{groupName});
+			return db.executeSqlQuery("select * from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and vc_user_id=? and VC_GROUP=? order by n_seq",
+					FastPo.getPo(""+SystemContext.dbObjectPrefix+"T_DICT"), new Object[]{userId,groupName});
 		} catch (SQLException e) {
 			logger.error(e);
 		}
 		return null;
 	}
 	public static Map<String,String> getDictsMap(String groupName){
+		return getUserDictsMap("sys", groupName);
+	}
+	public static Map<String,String> getUserDictsMap(String userId,String groupName){
 		DbHelper db = new DbHelper();
 		try {
-			return db.getMapSqlQuery("select vc_code,vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and VC_GROUP=? order by n_seq",
-					new Object[]{groupName});
+			return db.getMapSqlQuery("select vc_code,vc_text from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 and vc_user_id=? and VC_GROUP=? order by n_seq",
+					new Object[]{userId,groupName});
 		} catch (SQLException e) {
 			logger.error(e);
 		}
 		return null;
 	}
 	/**
-	 * 获取框架中用户配置项的值
+	 * 获取框架中配置项的值
 	 * @param name
 	 * @return
 	 */
 	public static String getRegVal(String name){
+		return getUserRegVal("sys", name);
+	}
+	/**
+	 * 获取指定用户配置项的值
+	 * @param name
+	 * @return
+	 */
+	public static String getUserRegVal(String userId,String name){
 //		UtilPrepareClass
 		return getRegVal(name,UtilPrepareClass.regDefaultMap.get(name));
 	}
 	public static String getRegVal(String name, String defaults){
+		return getUserRegVal("sys", name, defaults);
+	}
+	public static String getUserRegVal(String userId,String name, String defaults){
 		String val = getDictVal("SYS_REGEDIT",name);
 		return isBlank(val)?defaults:val;
 	}
@@ -296,11 +338,46 @@ public class FastUtil {
 	 * @return
 	 */
 	public final static String toMd5String(String s) {
+		return toMd5String(s.getBytes());
+	}
+	public final static String toMd5String(File f) {
+		char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+		BufferedInputStream in = null;
+		try {
+			MessageDigest mdTemp = MessageDigest.getInstance("MD5");
+			in = new BufferedInputStream(new FileInputStream(f));
+			byte[] buff = new byte[8192];
+			int len = 0;
+			while((len=in.read(buff))>=0){
+				mdTemp.update(buff, 0, len);
+			}
+			byte[] md = mdTemp.digest();
+			int j = md.length;
+			char str[] = new char[j * 2];
+			int k = 0;
+			for (int i = 0; i < j; i++) {
+				byte byte0 = md[i];
+				str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+				str[k++] = hexDigits[byte0 & 0xf];
+			}
+			return new String(str);
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+			return null;
+		}
+		finally{
+			try {
+				in.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage(),e);
+			}
+		}
+	}
+	public final static String toMd5String(byte[] bytes) {
 		char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 		try {
-			byte[] strTemp = s.getBytes();
 			MessageDigest mdTemp = MessageDigest.getInstance("MD5");
-			mdTemp.update(strTemp);
+			mdTemp.update(bytes);
 			byte[] md = mdTemp.digest();
 			int j = md.length;
 			char str[] = new char[j * 2];
@@ -396,5 +473,32 @@ public class FastUtil {
 			}
 		}
 		return val.toString();
+	}
+	private static String sessionid;
+	public static String getUrlContent(String testUrl) throws IOException {
+		System.out.println("LOAD_URL:"+testUrl);
+		URL url = new java.net.URL(testUrl);
+		HttpURLConnection con = (HttpURLConnection)url.openConnection(); 
+		con.setRequestProperty("User-Agent","Mozilla/4.0");
+		con.setRequestProperty("Cookie", sessionid);
+		con.setConnectTimeout(5*1000);
+		con.setReadTimeout(3*1000);
+		InputStream in = con.getInputStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+		String line = null;
+		StringBuffer buff = new StringBuffer();
+		while((line = reader.readLine())!=null){
+			buff.append(line+"\n");
+		}
+		reader.close();
+		String sid = con.getHeaderField("Set-Cookie");
+		if(sid!=null){
+			sid = sid.split(";")[0];
+		}
+		if(sid!=null&&!sid.equals(sessionid)){
+			sessionid = sid;
+		}
+		con.disconnect();
+		return buff.toString().trim();
 	}
 }

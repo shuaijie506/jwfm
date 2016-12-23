@@ -17,54 +17,34 @@ import com.dx.jwfm.framework.core.model.view.DictNode;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.exception.ValidateException;
 
-@FastModelInfo(author="宋帅杰", devDate = "2015-12-03 00:00", updateInfo = "")
+@FastModelInfo(group = "Fast开发平台", name = "用户管理", url = "/jwfm/core/user", author="宋帅杰", devDate = "2015-12-03", updateInfo = "")
 public class UserActionCreator extends ActionCreator {
 
 	@Override
 	protected String addItem() throws ValidateException {
 		if(po.getString("VC_PWD").length()<32){
-			po.put("VC_PWD", FastUtil.toMd5String(po.getString("VC_PWD")));
+			po.put("VC_PWD", FastUtil.toMd5String(FastUtil.toMd5String(po.getString("VC_PWD"))));
 		}
 		return super.addItem();
 	}
 
 	@Override
+	protected String openModifyPage() {
+		String res = super.openModifyPage();
+		po.remove("VC_PWD");
+		return res;
+	}
+
+	@Override
 	protected String modifyItem() throws ValidateException {
-		if(po.getString("VC_PWD").length()<32){
-			po.put("VC_PWD", FastUtil.toMd5String(po.getString("VC_PWD")));
+		if(FastUtil.isNotBlank(po.getString("VC_PWD")) && po.getString("VC_PWD").length()<32){
+			po.put("VC_PWD", FastUtil.toMd5String(FastUtil.toMd5String(po.getString("VC_PWD"))));
+		}
+		else{
+			po.remove("VC_PWD");
 		}
 		return super.modifyItem();
 	}
-
-	static FastModel model;
-	@Override
-	protected String getGroup() {
-		return "Fast开发平台";
-	}
-
-	@Override
-	protected String getName() {
-		return "用户管理";
-	}
-
-	@Override
-	protected String getVersion() {
-		return "2016-12-01v2";
-	}
-	@Override
-	protected String getUrl() {
-		return "/jwfm/core/user";
-	}
-	
-	@Override
-	protected String getAuthor() {
-		return "宋帅杰";
-	}
-
-	protected String getEditTable() {
-		return getSimpleEditTableHtml("VC_ID".split(","), "VC_NAME,VC_PWD,N_LEVEL,DT_ADD".split(","),1);
-	}
-
 
 	@Override
 	protected FastTable getMainTable() {
@@ -88,10 +68,10 @@ public class UserActionCreator extends ActionCreator {
 	protected SearchModel getSearchModel() {
 		SearchModel search = new SearchModel();
 		List<SearchColumn> cols = search.getSearchColumns();
-		cols.add(new SearchColumn("级别", "N_LEVEL", "select:dict:"+lvlDictName, 0, null, "=", "and t.N_LEVEL=${N_LEVEL} "));
+		cols.add(new SearchColumn("级别", "N_LEVEL", "select:dict:"+lvlDictName, null, "=", "and t.N_LEVEL=${N_LEVEL} "));
 		cols.get(cols.size()-1).setVcEditorJs("$('#search_N_LEVEL').change(function(){doSearch();});");
-		cols.add(new SearchColumn("用户名", "VC_NAME", "text", 0, null, "like", "t.vc_name"));
-		cols.add(new SearchColumn("创建时间", "DT_ADD", "date:yyyy-MM-dd", 0, null, "dateRange", "t.dt_add"));
+		cols.add(new SearchColumn("用户名", "VC_NAME", "text", null, "like", "t.vc_name"));
+		cols.add(new SearchColumn("创建时间", "DT_ADD", "date:yyyy-MM-dd", null, "dateRange", "t.dt_add"));
 		search.setSearchSelectSql("select t.* from "+SystemContext.dbObjectPrefix+"T_USER t ");
 		search.setSearchOrderBySql("n_level,dt_add desc");
 		search.getSearchResultColumns().add(new SearchResultColumn("姓名", "VC_NAME", 85, null, "true"));
@@ -153,6 +133,7 @@ public class UserActionCreator extends ActionCreator {
 		dictData.add(new DictNode(lvlDictName,"2", "用户维护人员", 2));
 		dictData.add(new DictNode(lvlDictName,"9", "作废", 3));
 		model.getModelStructure().setDictData(dictData);
+		model.getModelStructure().setPageHTML("edit", "编辑页面", getSimpleEditTableHtml("VC_ID".split(","), "VC_NAME,VC_PWD,N_LEVEL,DT_ADD".split(","),2));
 	}
 
 

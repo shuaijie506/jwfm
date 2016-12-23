@@ -55,11 +55,18 @@ public class FastPo extends MapObject implements Serializable {
 	
 	public FastPo(FastTable tblModel) {
 		super();
+		if(tblModel==null || FastUtil.isBlank(tblModel.getName())){
+			return;
+		}
 		if(!basePoMap.containsKey(tblModel.getName())){
 			isBasePo = true;
 			this.tblModel = tblModel;
 			basePoMap.put(tblModel.getName().toUpperCase(), this);
 		}
+	}
+	
+	public String getVcId(){
+		return getString("VC_ID");
 	}
 
 	@Override

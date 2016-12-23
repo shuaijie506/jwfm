@@ -275,7 +275,7 @@ function editorTypeChange(){
 function loadMacrosMenu(){
 	if($('#macrosMenuDiv').length==0){
 		$('<div id=macrosMenuDiv></div>').appendTo('body').hide();
-		$.getJSON('main_loadMacroListJson.action',function(ary){
+		$.getJSON(path+'/tools_loadMacroListJson.action',function(ary){
 			var htm = [];
 			for(var i=0;i<ary.length;i++){
 				var code = '${'+ary[i].code+'}';
@@ -441,7 +441,7 @@ function loadForwards(){
 	var model = $('#editForm').data('model')||{};
 	var presetMenus = $.sysmenu.presetForwardAry;
 	function transNode(item){
-		return {id:item.code,text:item.uri};
+		return {key:item.code,value:item.uri};
 	}
 	$('#forwardMenu').append(createMenuHTML(presetMenus)).menu({onClick:function(item){
 		var ary = (item.names||'').split(',');
@@ -464,7 +464,7 @@ function loadForwards(){
 	});
 	function useDefaultPage(){
 		var th = $(this),tr=th.parent().parent();
-		var code = $('input[name$=id]',tr).val();
+		var code = $('input[name$=key]',tr).val();
 		var item = $.sysmenu.presetForwardAry[code];
 		if(!item){
 			$.util.showTip({content:'此转向没有默认页面'});return;
@@ -473,7 +473,7 @@ function loadForwards(){
 	}
 	function useUserPage(){
 		var th = $(this),tr=th.parent().parent();
-		var code = $('input[name$=id]',tr).val().replace(/^open/,'').replace(/Page$/,'');
+		var code = $('input[name$=key]',tr).val().replace(/^open/,'').replace(/Page$/,'');
 		code = code=='success'?'Search':code;
 		var url = $('#po_VC_URL').val().replace(/\.action/,'')+code.substr(0,1).toUpperCase()+code.substr(1)+'.jsp';
 		$(this).prevAll().val(url);
@@ -483,12 +483,12 @@ function loadForwards(){
 		for(var i=0;i<items.length;i++){
 			htm.push('<tr>');
 			htm.push(createIndexTd());
-			pushInputTds(htm,items[i],'model.forwards[0]','id,text'.split(','));
+			pushInputTds(htm,items[i],'model.forwards[0]','key,value'.split(','));
 			htm.push(createDelTd());
 			htm.push('</tr>');
 		}
 		var trs = $(htm.join('')).appendTo('#forward-tbl-body');
-		$('input[name$=text]',trs).css('width','90%').after('<i class="opt-icon fa fa-home" title="使用默认页面"></i><i class="opt-icon fa fa-plus-circle" title="使用自定义页面"></i>');
+		$('input[name$=value]',trs).css('width','90%').after('<i class="opt-icon fa fa-home" title="使用默认页面"></i><i class="opt-icon fa fa-plus-circle" title="使用自定义页面"></i>');
 		$('.opt-icon.fa-home').click(useDefaultPage);
 		$('.opt-icon.fa-plus-circle').click(useUserPage);
 		$('.index',trs).bind('blur keyup',adjustTrByIndexEvt);
@@ -507,7 +507,14 @@ function loadForwards(){
 		$('.classaction-info input[name$=actionName]').val('com.dx.jwfm.framework.web.action.FastBaseAction');
 	});
 	//将已有按钮组显示
-	addForwardRows(model.forwards);
+	function toArray(obj){
+		var ary = [];
+		for(var key in obj){
+			ary.push({key:key,value:obj[key]});
+		}
+		return ary;
+	}
+	addForwardRows(toArray(model.forwards));
 	if(model.newMenu){
 		$('#forwardMenu>.menu-item:first').click();
 	}

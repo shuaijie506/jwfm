@@ -1,5 +1,6 @@
 package com.dx.jwfm.framework.web.action;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,16 +15,6 @@ import com.dx.jwfm.framework.web.tag.HtmlUtil;
 
 public abstract class ActionCreator extends FastBaseAction {
 
-	/*** 菜单对应分组名 */
-	abstract protected String getGroup();
-	/*** 菜单名 */
-	abstract protected String getName();
-	/*** 版本，建议以日期做为版本号 */
-	abstract protected String getVersion();
-	/*** 对应请求地址 */
-	abstract protected String getUrl();
-	/*** 开发人员姓名 */
-	abstract protected String getAuthor();
 //	protected HashMap<String,String> getForwards(){
 //		HashMap<String,String> map = new HashMap<String, String>();
 //		map.put("success", 			"/jwfm/core/easyuiSearch.jsp");
@@ -35,11 +26,13 @@ public abstract class ActionCreator extends FastBaseAction {
 	/*** 主表信息 */
 	abstract protected FastTable getMainTable();
 	/*** 查询条件信息 */
-	abstract protected SearchModel getSearchModel();
+	protected SearchModel getSearchModel(){
+		return new SearchModel();
+	}
 	/*** 查询界面的按钮 */
-	abstract protected List<ButtonAuth> getButtonList();
-	/*** 编辑界面的HTML */
-	abstract protected String getEditTable();
+	protected List<ButtonAuth> getButtonList(){
+		return new ArrayList<ButtonAuth>();
+	}
 	
 	protected void initModel(FastModel model){
 		
@@ -55,12 +48,6 @@ public abstract class ActionCreator extends FastBaseAction {
 		model = new FastModel();
 		modelMap.put(clsName, model);
 		model.setVcId(clsName);
-		model.setVcGroup(getGroup());
-		model.setVcName(getName());
-		model.vcVersion = getVersion();
-		model.setVcUrl(getUrl());
-		model.setVcAuth(getAuthor());
-		model.setVcAdd(getAuthor());
 //		model.setDtAdd(new Date());
 		FastModelInfo info = this.getClass().getAnnotation(FastModelInfo.class);
 		if(info!=null){
@@ -68,12 +55,16 @@ public abstract class ActionCreator extends FastBaseAction {
 			model.setVcAdd(info.author());
 			model.setVcModify(info.updateInfo());
 			model.setDtAdd(FastUtil.parseDate(info.devDate()));
+			model.setVcGroup(info.group());
+			model.setVcName(info.name());
+			model.vcVersion = info.devDate();
+			model.setVcUrl(info.url());
 		}
 		FastModelStructure struct = new FastModelStructure();
 		FastUtil.copyBeanPropts(struct, model);
 		model.setModelStructure(struct);
 		struct.setMainTable(getMainTable());
-		struct.setMainTableName(struct.getMainTable().getName());
+//		struct.setMainTableName(struct.getMainTable().getName());
 //		struct.setPackageName("fast.main");
 		int pos = clsName.lastIndexOf(".");
 		String pn = clsName.substring(0, pos);
@@ -88,7 +79,7 @@ public abstract class ActionCreator extends FastBaseAction {
 		struct.setForward("openModifyPage",		"/jwfm/core/easyuiEdit.jsp");
 		struct.setForward("openViewPage",		"/jwfm/core/easyuiView.jsp");
 		struct.setSearch(getSearchModel());
-		struct.setPageHTML("edit", "编辑页面", getEditTable());
+//		struct.setPageHTML("edit", "编辑页面", getEditTable());
 		struct.setButtonAuths(getButtonList());
 		
 		initModel(model);

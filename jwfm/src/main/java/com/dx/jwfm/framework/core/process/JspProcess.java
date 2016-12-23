@@ -62,6 +62,9 @@ public class JspProcess implements IFastProcess {
 			try {
 				PropertyDescriptor[] ps = PropertyUtils.getPropertyDescriptors(action);
 				for(PropertyDescriptor p:ps){
+					if("class".equals(p.getName())){
+						continue;
+					}
 					try {
 						Object o = PropertyUtils.getProperty(action, p.getName());
 						request.setAttribute(p.getName(), o);

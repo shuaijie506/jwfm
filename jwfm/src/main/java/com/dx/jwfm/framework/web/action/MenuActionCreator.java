@@ -15,37 +15,8 @@ import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
 import com.dx.jwfm.framework.core.model.view.DictNode;
 
-@FastModelInfo(author="宋帅杰", devDate = "2016-11-09 00:00", updateInfo = "")
+@FastModelInfo(group="Fast开发平台", name = "菜单管理", url = "/jwfm/core/menu", author="宋帅杰", devDate = "2016-11-09", updateInfo = "")
 public class MenuActionCreator extends ActionCreator {
-
-	static FastModel model;
-	@Override
-	protected String getGroup() {
-		return "Fast开发平台";
-	}
-
-	@Override
-	protected String getName() {
-		return "菜单管理";
-	}
-
-	@Override
-	protected String getVersion() {
-		return "2016-11-18";
-	}
-	@Override
-	protected String getUrl() {
-		return "/jwfm/core/menu";
-	}
-	
-	@Override
-	protected String getAuthor() {
-		return "宋帅杰";
-	}
-
-	protected String getEditTable() {
-		return getSimpleEditTableHtml("VC_ID".split(","), "VC_GROUP,VC_NAME,VC_URL,VC_VERSION,VC_NOTE".split(","),2);
-	}
 
 	private String tblPre = SystemContext.dbObjectPrefix;
 
@@ -76,14 +47,14 @@ public class MenuActionCreator extends ActionCreator {
 		search.setHeadHTML("<script type=\"text/javascript\" src=\"menuEdit.js\"></script> <!-- 菜单功能编辑所用JS文件 -->\n<script>"
 				+ "window.winOption={divId:'menuEditWin'};\n"
 				+ "$(function(){"
-				+ "window.viewItem = function(id,row){window.open('${path}'+row.VC_URL)};"
+				+ "/*window.viewItem = function(id,row){window.open('${path}'+row.VC_URL)};*/"
 				+ "});</script>");
 		List<SearchColumn> cols = search.getSearchColumns();
 		cols.add(new SearchColumn("所在分组", "VC_GROUP", "select:sql:select distinct vc_group,vc_group vc_name from "+tblPre+"T_MENU_LIB order by vc_group", 
-						120, null, "=", "and t.VC_GROUP=${VC_GROUP} "));
+						null, "=", "and t.VC_GROUP=${VC_GROUP} "));
 		cols.get(cols.size()-1).setVcEditorJs("$('#search_VC_GROUP').change(function(){doSearch();});");
-		cols.add(new SearchColumn("菜单名", "VC_NAME", "text", 120, null, "like", "and t.vc_name like '%'||${VC_NAME}||'%' "));
-		cols.add(new SearchColumn("菜单URL", "VC_URL", "text", 120, null, "like", "and t.VC_URL like '%'||${VC_URL}||'%' "));
+		cols.add(new SearchColumn("菜单名", "VC_NAME", "text", null, "like", "t.vc_name"));
+		cols.add(new SearchColumn("菜单URL", "VC_URL", "text", null, "like", "t.VC_URL"));
 		search.setSearchSelectSql("select t.* from "+tblPre+"T_MENU_LIB t ");
 		search.setSearchOrderBySql("VC_GROUP,VC_NAME");
 		List<SearchResultColumn> list = search.getSearchResultColumns();
@@ -115,10 +86,12 @@ public class MenuActionCreator extends ActionCreator {
 		model.getModelStructure().setActionName(MenuAction.class.getName());
 		model.getModelStructure().setForward("openAddPage", "/jwfm/core/menuAdd.jsp");
 		model.getModelStructure().setForward("openModifyPage", "/jwfm/core/menuEdit.jsp");
+		model.getModelStructure().setForward("openViewPage", "/jwfm/core/menuView.jsp");
 		ArrayList<DictNode> dictData = new ArrayList<DictNode>();
 		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_BASE_PACKAGE", "com.dx.jwfm.framework.web","新建菜单时基础包路径",0));
 		dictData.add(new DictNode("SYS_REGEDIT", "SYSMENU_DEFAULT_HIDE_COLNAMES", "VC_ID,VC_MID,N_DEL,N_STAT", "查询结果中默认隐藏列的列名",0));
 		model.getModelStructure().setDictData(dictData);
+		model.getModelStructure().setPageHTML("edit", "编辑页面", getSimpleEditTableHtml("VC_ID".split(","), "VC_GROUP,VC_NAME,VC_URL,VC_VERSION,VC_NOTE".split(","),2));
 	}
 
 

@@ -265,4 +265,84 @@
 	</attribute>
 </tag>
 
+<tag>
+<name>table</name>
+<tagclass>com.hhkj.tag.HtmlTableTag</tagclass>
+<bodycontent>JSP</bodycontent>
+    <attribute>
+      <description><![CDATA[request中的attr名称]]></description>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[从第N行记录开始显示，N从0开始]]></description>
+      <name>offset</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[最多显示N行]]></description>
+      <name>length</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[行元素的属性，可以引用数据对象中的属性，格式trattrs="class=\"tr#{nstat}\" style=\"font:#{fontcolor}\""]]></description>
+      <name>trattrs</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[禁用自定义顺序]]></description>
+      <name>noSortCol</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <dynamic-attributes>true</dynamic-attributes>
+</tag>
+
+<tag>
+<name>col</name>
+<tagclass>com.hhkj.tag.HtmlColumnTag</tagclass>
+<bodycontent>JSP</bodycontent>
+    <attribute>
+      <description><![CDATA[列宽]]></description>
+      <name>width</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[表头文本]]></description>
+      <name>text</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[数据字段]]></description>
+      <name>field</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[日期或数字的格式化模板]]></description>
+      <name>format</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[排序字段]]></description>
+      <name>sort</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description><![CDATA[为true时不显示此列信息]]></description>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <dynamic-attributes>true</dynamic-attributes>
+</tag>
+
 </taglib>

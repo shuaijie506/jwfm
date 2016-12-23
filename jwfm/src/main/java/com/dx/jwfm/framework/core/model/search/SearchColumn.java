@@ -24,7 +24,7 @@ public class SearchColumn {
 	/**输入框在页面加载后执行的JS代码*/
 	private String vcEditorJs;
 	/**输入控件的显示宽度，单位为像素，正常网页每个汉字宽度为12px*/
-	private int width;
+//	private int width;
 	/**查询条件的默认值，由用户指定的默认值解析器解析，找不到解析器的按字符串常量解析*/
 	private String defaults;
 	/**查询过滤类型，= 相等，like 模糊匹配，date>= 日期>=，date<=日期<=，dateRange日期范围，userdefine自定义*/
@@ -35,7 +35,7 @@ public class SearchColumn {
 	public SearchColumn() {
 		super();
 	}
-	public SearchColumn(String vcTitle, String vcCode, String vcEditorType, int width, String defaults, String sqlSearchType,
+	public SearchColumn(String vcTitle, String vcCode, String vcEditorType, String defaults, String sqlSearchType,
 			String sqlFragment) {
 		super();
 		this.vcTitle = vcTitle;
@@ -43,7 +43,7 @@ public class SearchColumn {
 		this.vcEditorType = vcEditorType;
 //		this.vcInputHtml = vcInputHtml;
 //		this.vcInputJs = vcInputJs;
-		this.width = width;
+//		this.width = width;
 		this.defaults = defaults;
 		this.sqlSearchType = sqlSearchType;
 		this.sqlFragment = sqlFragment;
@@ -90,9 +90,9 @@ public class SearchColumn {
 //		this.vcInputHtml = vcInputHtml;
 //	}
 	
-	public int getWidth() {
-		return width;
-	}
+//	public int getWidth() {
+//		return width;
+//	}
 	public String getVcEditorType() {
 		return vcEditorType;
 	}
@@ -105,9 +105,9 @@ public class SearchColumn {
 	public void setVcEditorJs(String vcEditorJs) {
 		this.vcEditorJs = vcEditorJs;
 	}
-	public void setWidth(int width) {
-		this.width = width;
-	}
+//	public void setWidth(int width) {
+//		this.width = width;
+//	}
 	public String getDefaults() {
 		return defaults;
 	}

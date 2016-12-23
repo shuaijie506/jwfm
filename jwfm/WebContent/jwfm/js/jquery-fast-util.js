@@ -95,7 +95,7 @@
 		return params;
 	};
 	//将最后一列的输入框进行右边对齐，同时对.subtitle增加收起与展开功能
-	$.fn.autoInputWidth = function(){
+	$.fn.initPage = function(){
 		if(!$(this).is('table')){
 			return;
 		}

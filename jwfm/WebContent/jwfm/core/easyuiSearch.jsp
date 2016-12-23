@@ -19,6 +19,7 @@ String addActionName = bpath+"_"+method+actionExt;
 <script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-util-easyui.js"></script>  <!-- easyui通用工具类 -->
 <f:write>${REQUEST_FAST_MODEL.modelStructure.search.headHTML }</f:write> 
 <SCRIPT type=text/javascript>
+window.path = '<%=path%>';
     	$(function(){
     		var fcols = <f:result type="easyui" frozen="true" hasChkCol="true"/>;
     		var cols = <f:result type="easyui" frozen="false"/>;

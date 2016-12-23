@@ -9,6 +9,33 @@
   	<description>Fast平台演示</description>
   	
 	<filter>
+		<description>登录验证拦截器</description>
+		<filter-name>checkLoginFilter</filter-name>
+		<filter-class>
+			com.dx.jwfm.framework.web.filter.CheckLoginFilter
+		</filter-class>
+        <init-param>
+			<description>默认字符集，建议设置为UTF-8</description>
+            <param-name>charset</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<description>不进行验证的URL，支持使用REG:使用正则表达式，同时支持使用,匹配多个规则</description>
+			<param-name>excludeURI</param-name>
+			<param-value>/jwfm/core/main*</param-value>
+		</init-param>
+		<init-param>
+			<description>登录用户在session中的key值</description>
+			<param-name>userSessionKey</param-name>
+			<param-value>FAST_USER</param-value>
+		</init-param>
+		<init-param>
+			<description>根据用户ID创建Session中的user对象，此处配置类名</description>
+			<param-name>loginUserCreator</param-name>
+			<param-value>com.dx.jwfm.framework.web.filter.FrameworkUserCreator</param-value>
+		</init-param>
+	</filter>
+	<filter>
 		<description>Fast平台拦截器</description>
 		<filter-name>fastFilter</filter-name>
 		<filter-class>
@@ -32,7 +59,7 @@
 		<init-param>
 			<description>根据用户请求时加载板块的映射路径</description>
 			<param-name>classModelBasePath</param-name>
-			<param-value>/mis</param-value>
+			<param-value>*Action.action</param-value>
 		</init-param>
 		<init-param>
 			<description>根据用户请求时加载板块的基础包路径</description>
@@ -51,6 +78,14 @@
 		</init-param>
 	</filter>
     
+    <filter-mapping>
+    	<filter-name>checkLoginFilter</filter-name>
+    	<url-pattern>*.action</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+    	<filter-name>checkLoginFilter</filter-name>
+    	<url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
     <filter-mapping>
     	<filter-name>fastFilter</filter-name>
     	<url-pattern>/*</url-pattern>

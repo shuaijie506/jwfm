@@ -60,8 +60,8 @@ public class FastModelStructure {
 	/**菜单按钮权限列表*/
 	private List<ButtonAuth> buttonAuths = new ArrayList<ButtonAuth>();
 	/**action中的转向页面*/
-	private List<Node> forwards = new ArrayList<Node>();
-	private LinkedHashMap<String,String> forwardsMap = new LinkedHashMap<String, String>();
+	private LinkedHashMap<String,String> forwards = new LinkedHashMap<String,String>();
+//	private LinkedHashMap<String,String> forwardsMap = new LinkedHashMap<String, String>();
 	
 	/**业务主表表结构*/
 	private FastTable mainTable = new FastTable();
@@ -87,15 +87,15 @@ public class FastModelStructure {
 	private List<FastModelUpdateLog> updateLogs = new ArrayList<FastModelUpdateLog>();
 	
 	public String getForward(String name){
-		if(forwardsMap.size()!=forwards.size()){
-			setForwards(forwards);
-		}
-		return forwardsMap.get(name);
+//		if(forwardsMap.size()!=forwards.size()){
+//			setForwards(forwards);
+//		}
+		return forwards.get(name);
 	}
 	
 	public void setForward(String name,String uri){
-		forwards.add(new Node(name,uri));
-		forwardsMap.put(name,uri);
+//		forwards.add(new Node(name,uri));
+		forwards.put(name,uri);
 	}
 
 	public void setPageHTML(String id, String text, String data){
@@ -194,18 +194,18 @@ public class FastModelStructure {
 //		this.actionDefaultValueParser = actionDefaultValueParser;
 //	}
 
-	public List<Node> getForwards() {
+	public LinkedHashMap<String, String> getForwards() {
 		return forwards;
 	}
 
-	public void setForwards(List<Node> forwards) {
+	public void setForwards(LinkedHashMap<String, String> forwards) {
 		this.forwards = forwards;
-		if(forwards!=null){
-			forwardsMap.clear();
-			for(Node n:forwards){
-				forwardsMap.put(n.getId(), n.getText());
-			}
-		}
+//		if(forwards!=null){
+//			forwardsMap.clear();
+//			for(Node n:forwards){
+//				forwardsMap.put(n.getId(), n.getText());
+//			}
+//		}
 	}
 
 	public String getVcNote() {

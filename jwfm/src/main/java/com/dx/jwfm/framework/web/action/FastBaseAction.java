@@ -53,8 +53,10 @@ public class FastBaseAction extends BaseAction {
 	/**
 	 * 默认执行方法
 	 * @return
+	 * @throws DatagridBuilderNotFound 
+	 * @throws ClassNotFoundException 
 	 */
-	public String execute(){
+	public String execute() throws ClassNotFoundException, DatagridBuilderNotFound{
 //		if(FastUtil.isNotBlank(op)){//此代码将产生权限漏洞
 //			try {
 //				Method m = this.getClass().getMethod(op, new Class[0]);
@@ -65,6 +67,12 @@ public class FastBaseAction extends BaseAction {
 //				logger.error(e.getMessage(),e);
 //			}
 //		}
+		if("searchDataAjax".equals(op)){
+			return searchDataAjax();
+		}
+		else if("searchData".equals(op)){
+			return searchData();
+		}
 		FastModel fmodel = RequestContext.getFastModel();
 		if(fmodel!=null && fmodel.getModelStructure().isDefaultSearchData()){
 			searchData();
@@ -82,7 +90,7 @@ public class FastBaseAction extends BaseAction {
 	public String searchDataAjax() throws ClassNotFoundException, DatagridBuilderNotFound{
 		searchData();
 		List<FastPo> list = (List<FastPo>) RequestContext.getRequest().getAttribute("searchResultData");
-		String type = RequestContext.getParameter("datagrid_type");
+		String type = FastUtil.nvl(RequestContext.getParameter("datagrid_type"),"easyui");
 		IDatagridBuilder builder = SystemContext.getDatagridBuilder(type);
 		if(builder!=null){
 			String json = builder.buildResultJson(list, pager,search);

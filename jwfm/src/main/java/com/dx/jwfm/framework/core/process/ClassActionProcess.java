@@ -92,7 +92,10 @@ public class ClassActionProcess implements IFastProcess {
 			mpos = endpos;
 		}
 		String clsNameExt = path.substring(bpos+1,mpos);
-		String className = basePackage+clsNameExt.replaceAll("\\/+", ".");
+		String className = clsNameExt.replaceAll("\\/+", ".");
+		if(!className.startsWith("com.")){
+			className = basePackage + className;
+		}
 		String method = mpos==endpos?"execute":path.substring(mpos+1,endpos);
 		String uriPre = path.substring(0,mpos);//解析出菜单URL前缀
 		String menuUrl = uriPre+actionExt;//解析出菜单URL

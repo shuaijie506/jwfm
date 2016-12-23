@@ -1,10 +1,12 @@
 package com.dx.jwfm.framework.web.action;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 import com.dx.jwfm.framework.core.FastFilter;
 import com.dx.jwfm.framework.core.RequestContext;
+import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
@@ -148,6 +150,21 @@ public class MenuAction extends FastBaseAction {
 		return res;
 	}
 
+	@Override
+	public String look() {
+		String res = super.look();
+		setModel();
+		return res;
+	}
+//	
+//	public String loadHistory(){
+//		String url = getParameter("url");
+//		if(FastUtil.isNotBlank(url)){
+//			DbHelper db = new DbHelper();
+//			List<FastPo> list = db.executeSqlQuery("select vc_id,vc_name,vc_url,vc_version,vc_modify,dt_modify from "+SystemContext.dbObjectPrefix+"T_MENU_LIB where n_del=2 and vc_url=?",new Object[]{url});
+//		}
+//	}
+
 	private void setModel() {
 		FastModel fm = new FastModel(po);
 		fm.undoPersistent();
@@ -164,8 +181,29 @@ public class MenuAction extends FastBaseAction {
 		model.setNewMenu(false);
 		initModel();
 		FastModel fm = new FastModel(po);
+		DbHelper db = new DbHelper();
+		String struct = null;
+		try {
+			struct = db.getFirstStringSqlQuery("select VC_STRUCTURE from "+SystemContext.dbObjectPrefix+"T_MENU_LIB where vc_id=?",new Object[]{po.getVcId()});
+		} catch (SQLException e) {
+			logger.error(e.getMessage(),e);
+		}
+		String res = null;
+		if(struct!=null && !struct.equals(fm.getVcStructure())){
+			String oldId = po.getVcId();
+			po.setPropt("VC_ID", FastUtil.getUuid());
+			res = super.addItem();
+			try {
+				db.executeSqlUpdate("update "+SystemContext.dbObjectPrefix+"T_MENU_LIB set n_del=2 where vc_id=?",new Object[]{oldId});
+			} catch (SQLException e) {
+				logger.error(e.getMessage(),e);
+			}
+		}
+		else{
+			res = super.modifyItem();
+		}
 		FastFilter.updateFastModel(fm );
-		return super.modifyItem();
+		return res;
 	}
 
 	private void initModel() {
