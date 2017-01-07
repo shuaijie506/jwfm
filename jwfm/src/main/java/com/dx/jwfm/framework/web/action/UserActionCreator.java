@@ -122,7 +122,7 @@ public class UserActionCreator extends ActionCreator {
 		return buttonAuths;
 	}
 
-	private String lvlDictName = "FAST框架-用户级别";
+	private String lvlDictName = "框架-用户级别";
 	@Override
 	protected void initModel(FastModel model) {
 		model.getModelStructure().setActionName(this.getClass().getName());

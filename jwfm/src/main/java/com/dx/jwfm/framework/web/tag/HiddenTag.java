@@ -35,7 +35,7 @@ public class HiddenTag extends BaseViewTag {
 				}
 			}
 			out.print(" value=\"");
-	    	out.print(getValue().replaceAll("\"", "\\\""));
+	    	out.print(getValue().replaceAll("\"", "&quot;"));
 	    	out.print("\"");
 			out.println(" />");
 		} catch (IOException ex) {

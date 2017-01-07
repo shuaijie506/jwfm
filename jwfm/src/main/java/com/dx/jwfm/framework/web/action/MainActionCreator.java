@@ -72,10 +72,16 @@ public class MainActionCreator {
 		list.add(new UserActionCreator().getFastModel());
 		list.add(new MenuActionCreator().getFastModel());
 		list.add(new ToolsAction().getFastModel());
+		list.add(new FileUploadAction().getFastModel());
+		list.add(new UserFileUploadAction().getFastModel());
 		for(FastModel model:list){
+			String key = SystemContext.getPath()+model.getVcUrl()+actionExt;
+			FastModel old = menuMap.get(key);
+			if(old!=null && old.getVcVersion().equals(model.getVcVersion())){
+				continue;
+			}
+			menuMap.put(key , model);
 			flist.add(model);
-			model.init();
-			menuMap.put(SystemContext.getPath()+model.getVcUrl()+actionExt, model);
 		}
 	}
 

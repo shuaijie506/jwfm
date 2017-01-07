@@ -1,4 +1,4 @@
-package com.dx.jwfm.framework.core.handle;
+package com.dx.jwfm.framework.core.parser;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -24,15 +24,13 @@ import org.apache.log4j.Logger;
 import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMap;
 import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMapEntry;
-import com.dx.jwfm.framework.core.process.IActionHandel;
 
-public class ParameterActionHandle implements IActionHandel {
+public class ParameterActionParser {
 
 	static Logger logger = Logger.getLogger(RequestContext.class);
-	@SuppressWarnings("unchecked")
 	
-	public boolean beforeExecute(Object action, String method) {
-		HttpServletRequest request = RequestContext.getRequest();
+	@SuppressWarnings("unchecked")
+	public boolean parseParam(HttpServletRequest request, Object action) {
 		String ctype = request.getHeader("content-type");
 		if(ctype!=null && ctype.indexOf("multipart/form-data")>=0){
 			dealMultiPartForm(request,action);
@@ -216,11 +214,6 @@ public class ParameterActionHandle implements IActionHandel {
 			return getField(sc,fieldName);
 		}
 		return null;
-	}
-
-	
-	public void afterExecute(Object action, String method) {
-		
 	}
 
 }

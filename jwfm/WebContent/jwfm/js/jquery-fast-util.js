@@ -1,4 +1,4 @@
-
+window.path = document.location.href.replace(/.{8}[^\/]+(\/[^\/]+).*/,'$1');
 (function($){
 	if($('.searchDiv',this).length>0){//查询条件框自动隐藏
 		$('.searchDiv',this).each(function(){
@@ -46,6 +46,9 @@
 			for(var i=0;i<opt.butParams.length;i++){
 				$('<a></a>').appendTo(btnArea).linkbutton(opt.butParams[i]);
 			}
+			$('a[id=btn-close]',btnArea).click(function(){
+				$(this).closest('.window-body').window('close');
+			});
 		}
 		else{
 			btnArea.height(0);
@@ -396,6 +399,7 @@
 	};
 
 	String.prototype.trim = String.prototype.trim||function () {return this.replace(/(^\s*)|(\s*$)/g,"");};
+	String.prototype.cutString = String.prototype.cutString||function (bytesize) {var bytelen = 0;for(var i=0;i<this.length;i++){bytelen += this.charCodeAt(i)>=256?2:1;if(bytelen>=bytesize-3 && this.length-i>2){return this.substr(0,i+1)+'...';}}return this.toString();};
 	String.prototype.startWith = String.prototype.startWith||function (arg) {return arg==null || arg.length==0?true:(arg.length>this.length?false:this.substr(0,arg.length)==arg);};
 	String.prototype.endWith = String.prototype.endWith||function (arg) {return arg==null || arg.length==0?true:(arg.length>this.length?false:this.substr(this.length-arg.length)==arg);};
 
@@ -467,4 +471,492 @@
 	Array.prototype.lastIndexOf=Array.prototype.lastIndexOf||function(val,startindex){for(var i=startindex||this.length-1;i>=0;i--){if(val==this[i])return i;}return -1;};
 	jQuery.cookie = function (name, value, options) { if (typeof value != "undefined") { options = options || {}; if (value === null) { value = ""; options.expires = -1; } var expires = ""; if (options.expires && (typeof options.expires == "number" || options.expires.toUTCString)) { var date; if (typeof options.expires == "number") { date = new Date(); date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000)); } else { date = options.expires; } expires = "; expires=" + date.toUTCString(); } var path = options.path ? "; path=" + options.path : ""; var domain = options.domain ? "; domain=" + options.domain : ""; var secure = options.secure ? "; secure" : ""; document.cookie = [name, "=", encodeURIComponent(value), expires, path, domain, secure].join(""); } else { var cookieValue = null; if (document.cookie && document.cookie != "") { var cookies = document.cookie.split(";"); for (var i = 0; i < cookies.length; i++) { var cookie = jQuery.trim(cookies[i]); if (cookie.substring(0, name.length + 1) == (name + "=")) { cookieValue = decodeURIComponent(cookie.substring(name.length + 1)); break; } } } return cookieValue; } };
 
+})(jQuery);
+
+//文件上传组件
+(function($){
+	$.unsupportBreakpointUpload = typeof history.pushState == "function";//是否支持断点续传
+	if($.unsupportBreakpointUpload && navigator.appVersion.match(/.*(Chrome)\/(\d+).*/g) && parseInt(RegExp.$2)<38){
+		$.unsupportBreakpointUpload = false;
+	}
+	$.showFileInWindow = function (opt){//将指定的文件显示在新窗口中
+		var opt = $.extend({},$.showFileInWindow.defaults,opt);
+		if(!opt.ids){
+			$.messager.alert('提示','请指定要显示的文件！');return;
+		}
+		if($('.show-file-info-div').length==0){
+			$('<div class=show-file-info-div></div>').appendTo('body');
+			$('.show-file-info-div').window(opt);
+		}
+		$('.show-file-info-div').window('open');
+		$('.show-file-info-div').html('<div class=file-body></div>');
+		var opt2 = $.extend({},$.fn.fileupload.defaults,{maxFileSize:10240*1024*1024,maxFileCount:999,titleMaxByte:44});
+		loadExistFileInfo(opt2,opt.ids,function(success,data){
+			if(success){
+				var htm = [];
+				var filebody = $('.show-file-info-div>.file-body')
+				for(var i=0;data&&i<data.length;i++){
+					var span = addFileHtmlEle(filebody,opt2,data[i].VC_NAME,data[i].N_BYTES);
+					if(!span)return;
+					span.attr('fileId',data[i].VC_ID).attr('state','complete');
+					$('.upload-info',span).text('');
+					$('.icon-del',span).hide();
+					$('.file-progress-bar',span).width($('.file-progress',span).width());//进度条更新
+					$('.file-name',span).width(270).html('<a href="'+opt2.loadFileUrl+data[i].VC_ID+'" target=_blank>'+data[i].VC_NAME.cutString(opt2.titleMaxByte)+'</a>');
+				}
+			}
+			else{
+				$('.show-file-info-div').text(data);
+			}
+		});
+	};
+	$.showFileInWindow.defaults = {ids:'',width:670,height:480,title:'查看文件',collapsible:false,minimizable:false};
+	$.fn.fileupload = function(opt){//主方法
+		if(!opt.fileType || opt.fileType=='当前模块英文简称'){
+			alert('请指定fileType参数值！');return;
+		}
+		var th = $(this).hide();
+		if(th.length==0){
+			return;
+		}
+		if(!th.is('textarea,:text,:hidden')){
+			alert('请在文本框上使用文件上传控件！');return;
+		}
+		if ($.unsupportBreakpointUpload) {//支持断点续传
+			if(opt=='fileName'){//获取文件名称，返回数组对象
+				var ary = [];
+				var body = th.data('file-body');
+				$('.file-span .file-name',body).each(function(){ary.push($(this).attr('title'));});
+				return ary;
+			}
+			var opt = $.extend({target:this},$.fn.fileupload.defaults,opt);
+			th.after('<input type=file /><span class=file-body></span>');
+			var f = th.next(),body=f.next();
+			$('<input type=button value=选择文件 />').insertBefore(f.hide()).click(function(){//隐藏选择文件按钮，使用按钮触发选择文件事件
+				f.click();
+			});
+			th.data('file-body',body).bind('setValue',function(){
+				var ary = [];
+				$('.file-span',body).each(function(){ary.push($(this).attr('fileId'));});
+				$(this).val(ary.join(','));
+			})
+			var errinfo = $('<div class=err-info></div>').appendTo(body);
+			f.width(69).attr('multiple',opt.multiple);
+			f[0].addEventListener("change",function(event){//上传文件按钮事件
+				var evt = $.event.fix(event);
+				var files = evt.target.files;
+				for(var i=0;i<files.length;i++){
+					if(!addFileInfo(files[i],body,opt)){
+						break;
+					}
+				}
+				$(this).val('');
+				if(opt.autoStartUpload){
+					$('.file-span[state=wait]:first',body).trigger('upload');
+				}
+			});
+			var hisfile = $('<span class=history-file>历史上传</span>').insertAfter(f).toggle(!opt.hideHistory).click(function (){
+				var wsize = {width:Math.min($(window).width(),600),height:Math.min($(window).height(),400)};
+				if($('.history-file-div').length==0){
+					$('<div class=history-file-div></div>').appendTo('body');
+					$('.history-file-div').window($.extend({title:'请选择文件（此处列出您以前成功上传的文件，选中所需文件后关闭本窗口即可）',minimizable:false,collapsible:false},wsize));
+				}
+				$('.history-file-div .pagination-num').width(40);
+				$('.history-file-div').empty().html('<div class=history-file-grid></div><a class="ok-btn" iconcls=icon-ok>确定</a>').window('open').window('resize',wsize);
+				$('.history-file-div .ok-btn').linkbutton({plain:true}).click(function(){
+					$('.history-file-div').window('close');
+				});
+				var cols = [[   
+						{field:'VC_NAME',title:'文件名',width:240,sortable:true,editor:'text'},
+						{field:'DT_UPLOAD:yyyy-MM-dd HH:mm',title:'上传时间',width:110,sortable:true,editor:'text',align:'center'},
+						{field:'N_BYTES:filesize',title:'文件大小',width:60,sortable:true,editor:'text',align:'right'},
+						{field:'VC_USER_NAME',title:'上传人',width:70,sortable:true,editor:'text',align:'center'},
+						{title:'下载',width:48,field:'action',align:'center',formatter:function(value,row,index){
+							return '<a href="'+opt.loadFileUrl+row.VC_ID+'" target=_blank>下载</a>';
+						}}
+				]];
+				$('.history-file-grid').datagrid({pagination:true,rownumbers:true,fit:true,
+					url:opt.historyFileUrl,
+					queryParams:$.fn.datagrid.dealParam({"search.VC_NAME":"","search.DT_UPLOADBegin":"","search.DT_UPLOADEnd":""},[[]],cols),  //用于查询的参数以及初始值
+					//数据列，根据显示的内容进行修改
+					columns:cols,
+					onSelect:function(idx,row){
+						if(opt.maxFileCount==1){//如果只允许选择一个文件，则先清空已选择文件框
+							body.empty();
+						}
+						var span = addFileHtmlEle(body,opt,row.VC_NAME,row.N_BYTES);
+						if(!span)return;
+						span.attr('fileId',row.vcId).attr('state','complete');
+						$('.upload-info',span).text('上传成功');
+						$('.file-progress-bar',span).width($('.file-progress',span).width());//进度条更新
+						$('.file-name',span).html('<a href="'+opt.loadFileUrl+row.vcId+'" target=_blank>'+row.vcFilename.cutString(opt.titleMaxByte)+'</a>');
+						$(opt.target).trigger('setValue');
+						if(opt.maxFileCount==1){//如果只允许选择一个文件，选择后自动关闭窗口
+							$('.history-file-div').window('close');
+						}
+					}
+				});
+			});
+			//已上传文件显示
+			if(th.val()!=''){
+				var bodyspan = body;
+				loadExistFileInfo(opt,th.val(),function(success,data){
+					if(success){
+						var htm = [];
+						for(var i=0;data&&i<data.length;i++){
+							var span = addFileHtmlEle(bodyspan,opt,data[i].VC_NAME,data[i].N_BYTES);
+							if(!span)return;
+							span.attr('fileId',data[i].fileId).attr('state','complete');
+							$('.upload-info',span).text('上传成功');
+							$('.file-progress-bar',span).width($('.file-progress',span).width());//进度条更新
+							$('.file-name',span).html('<a href="'+opt.loadFileUrl+data[i].fileId+'" target=_blank>'+data[i].fileName.cutString(opt.titleMaxByte)+'</a>');
+						}
+					}
+					else{
+						errinfo.text(data);
+					}
+				});
+			}
+		}
+		else{//不支持断点续传
+			var ext = new Date().getTime()+'-'+($.fn.fileupload.defaults.fileBoxIndex++);
+			if(!th.attr('id')){
+				th.attr('id','fileId'+ext);
+			}
+			th.after('<a class=upload-btn>上传附件</a> <font color=red>您的浏览器不支持断点续传，请使用高版本谷歌浏览器(38以上)或其他推荐浏览器</font>'+
+					'<div id="fileHtml'+ext+'" class=file-html-div></div>');
+			var btn = th.next();
+			btn.click(function(){
+				fileupload(th.attr('id'),null,'fileHtml'+ext,opt.fileType,{param:{fileTypes:opt.allowExt,fileTypeDescription:opt.allowExt,
+						maxFileCnt:opt.maxFileCount,urlSplit:'<br/>'}});
+			});
+			//已上传文件显示
+			if(th.val()!=''){
+				var opt = $.fn.fileupload.defaults;
+				loadExistFileInfo(opt,th.val(),function(success,data){
+					if(success){
+						var htm = [];
+						for(var i=0;data&&i<data.length;i++){
+							htm.push('<a href="'+opt.loadFileUrl+data[i].fileId+'" target=_blank>'+data[i].fileName+'</a>');
+						}
+						$('#fileHtml'+ext).html(htm.join('<br/>'));
+					}
+					else{
+						$('#fileHtml'+ext).html(data);
+					}
+				});
+			}
+		}
+	};
+	function loadExistFileInfo(opt,ids,callback){
+		$.post(opt.loadFileInfoUrl,{ids:ids},function(res){
+			try {
+				var json = $.parseJSON(res);
+			} catch (e) {
+				callback(false,res.indexOf('重新登录系统')>0?'请先登录系统！':'加载已上传文件信息时发生错误：'+e+'');
+				return;
+			}
+			callback(true,json);
+		});
+	}
+	//根据文件信息在页面上添加显示控件
+	function addFileInfo(file,body,opt){
+		if($('.file-span',body).length>=opt.maxFileCount){
+			$.messager.alert('提示','最多允许上传'+opt.maxFileCount+'个文件');
+			return false;
+		}
+		if(file.size>opt.maxFileSize){
+			$.messager.alert('提示','您选择的文件['+file.name+']'+fileSizeFormat(file.size)+'，超过了最大允许文件大小'+fileSizeFormat(opt.maxFileSize));
+			return false;
+		}
+		var span = addFileHtmlEle(body,opt,file.name,file.size);
+		if(!span)return false;
+		span.data('file',file);
+		return true;
+	}
+	function addFileHtmlEle(body,opt,fileName,fileSize){
+		if($('.file-span',body).length>=opt.maxFileCount){
+			$.messager.alert('提示','最多允许上传'+opt.maxFileCount+'个文件');
+			return false;
+		}
+		if(!opt.testAllowExt(fileName)){
+			return false;//文件名校验失败后返回 false
+		}
+		var htm = '<span class=file-span><span class=file-icon></span><span class=file-name></span>'+
+				'<span class=btnarea><span class="btn icon-pause">暂停</span><span class="btn icon-del">删除</span></span>'+
+				'<span class=file-progress><span class=file-progress-bar-box><span class=file-progress-bar></span></span><span class=file-progress-text></span></span><span class=upload-info>等待上传</span></span>';
+		var span = $(htm).appendTo(body).data('opt',opt).attr('state','wait').attr('tid',new Date().getTime()).bind('upload',function(){
+			var filespan = $(this);
+			if(filespan.data('timeHandel')){
+				clearInterval(filespan.data('timeHandel'));
+				filespan.data('timeHandel',null);
+			}
+			startUpload($(this).data('pause',false));//上传事件
+		}).bind('error',function(event,errInfo){
+			var filespan = $(this);
+			$('.upload-info',filespan).text(errInfo);
+			filespan.attr('state','error').data('pause',true);
+			$('.icon-pause',this).text('继续');
+			if(opt.errTimeout>0){//指定时间内重新尝试上传
+				var timeCount = parseInt(opt.errTimeout);
+				$('.upload-info',filespan).text(errInfo+' ('+(timeCount)+')');
+				var handel = setInterval(function(){//计时器
+					$('.upload-info',filespan).text(errInfo+' ('+(--timeCount)+')');
+					if(timeCount<=0){
+						filespan.trigger('upload');
+						clearInterval(handel);
+					}
+				},1000);
+				filespan.data('timeHandel',handel);
+			}
+		});
+		$('.file-name',span).attr('title',fileName).text(fileName.cutString(opt.titleMaxByte));
+		$('.btn',span).mouseover(function(){
+			$('.btn.hover').removeClass('hover');
+			$(this).addClass('hover');
+		}).mouseleave(function(){
+			$(this).removeClass('hover');
+		});
+		$('.file-progress-text',span).append(fileSizeFormat(fileSize));
+		$('.icon-pause',span).hide();//隐藏暂停按钮
+		$('span.icon-pause',span).click(function(){//暂停，继续上传按钮
+			if($(this).text()=='暂停'){
+				span.data('pause',true);
+				if(span.data('xhr')){
+					span.data('xhr').abort();
+				}
+				$(this).text('继续');
+				$('.upload-info',span).text('已暂停');
+			}
+			else{
+				span.data('pause',false);
+				$(this).text('暂停');
+				span.trigger('upload');
+			}
+		});
+		$('span.icon-del',span).click(function(){//删除按钮
+			if(span.attr('fileId') && opt.delFileUrl){//如果是已上传的文件，需要到服务器上标记删除
+				$.get(opt.delFileUrl,{delIds:span.attr('fileId')});
+			}
+			span.remove();
+			$(opt.target).trigger('setValue');
+		});
+		return span;
+	}
+	//开始上传指定的文件，上传完成后自动上传后续文件
+	function startUpload(filespan,container){
+		if(typeof(filespan)=='string'){
+			filespan = $(filespan,container);
+		}
+		var stat = filespan.data('filestate');
+		if(stat==2){//已完成上传
+			if(filespan.next().length>0){
+				startUpload(filespan.next());return;
+			}
+		}
+		else if(stat==1){//正在上传
+			return;
+		}
+		else{//未开始上传
+			uploadFile(filespan,function(){
+				var span = $('.file-span[state=wait]:first',filespan.parent());
+				if(span.length>0){
+					setTimeout(function(){
+						startUpload(span);
+					},300);
+				}
+			});
+		}
+	}
+	//执行文件上传操作(分段上传)
+	function uploadFile(filespan,callback){
+		if(filespan.data('pause')){
+			return;//如果已暂停，则不再继续上传
+		}
+		var opt = filespan.data('opt');
+		var file = filespan.data('file');
+		var start = filespan.data('filePos')||0;
+		if(!file)return;
+		$('.file-progress-bar',filespan).width($('.file-progress',filespan).width()*start/file.size);//进度条更新
+		if(start>=file.size){//如果文件已上传完毕，则调用回调方法
+			$('.file-name',filespan).html('<a href="'+opt.loadFileUrl+filespan.attr('fileId')+'" target=_blank>'+$('.file-name',filespan).text()+'</a>');
+			$('.upload-info',filespan).text('上传成功');
+			filespan.attr('state','complete');
+			$('.icon-pause',filespan).hide();//隐藏暂停按钮
+			if(typeof(callback)=='function'){
+				callback.call();
+			}
+			return;
+		}
+		if(start==0){
+			$('.upload-info',filespan).text('准备上传');
+		}
+		var data = new FormData();
+		data.append("fileType", opt.fileType);
+		data.append("fileName", file.name);
+		data.append("fileSize", file.size+'');
+		data.append("lastModify", file.lastModified+'');
+		data.append("start", start+'');
+		//第一次先上传1K的内容，确认文件是否以前上传过，如果以前上传过，则使用断点续传
+		var endPos = start + (start==0?1024:opt.splitSize);
+		data.append("file", file.slice(start, endPos));
+		// XMLHttpRequest 2.0 请求
+		var xhr = new XMLHttpRequest();
+		filespan.data('xhr',xhr);//绑定对象，供暂停按钮调用
+		xhr.open("post", opt.uploadUrl, true);				
+		//xhr.setRequestHeader("X_Requested_With", location.href.split("/")[5].replace(/[^a-z]+/g,"$"));
+		// 上传进度中
+		xhr.upload.addEventListener("progress", function(e) {
+			var wid = $('.file-progress',filespan).width();
+			$('.file-progress-bar',filespan).width(Math.min(wid,wid*(e.loaded + start) / file.size));
+			showUploadInfo(filespan,file.size,e.loaded + start);
+		}, false);
+		// ajax成功后
+		xhr.onreadystatechange = function(e) {
+			if (xhr.readyState == 4) {
+				filespan.data('xhr',null);//解绑对象，释放内存
+				if (xhr.status == 200) {
+					try {
+						var json = $.parseJSON(xhr.responseText);
+					} catch (e) {
+						return filespan.trigger('error',['上传时发生错误：'+(e)]);
+					} 
+					if (!json || !json.success) {
+						return filespan.trigger('error',['上传时发生错误：'+(json&&json.info)]);
+					}
+					filespan.data('filePos',json.length);
+					if(json.length>endPos){//如果返回大小比上传的大，则是断点续传，要重置速度显示缓存，避免显示速度不准确
+						$('.upload-info',filespan).text('开始续传');
+						resetUploadInfo(filespan);
+					}
+					if(json.fileId){
+						filespan.attr('fileId',json.fileId);//将服务器回传的文件ID写入filespan对象中
+						var th = $(opt.target),ary=th.val()==''?[]:th.val().split(',');
+						ary.push(json.fileId);
+						th.val(ary.join(','));//将所有文件ID写入源文本框内
+					}
+					uploadFile(filespan,callback);//成功返回后递归调用，在调用后再判断是否上传完成
+				} else if(!filespan.data('pause')){
+					return filespan.trigger('error',['上传时发生错误：HTTP CODE '+xhr.status]);
+				}
+			}
+		};
+		try{
+			xhr.send(data);
+		}
+		catch(e){
+			filespan.trigger('error',['上传时发生错误：'+e]);
+		}
+		$('.icon-pause',filespan).show();//显示暂停按钮
+	}
+	//上传时显示上传进度、上传速度、剩余时间
+	function showUploadInfo(filespan,fileSize,uploadSize){
+		var tid = filespan.attr('tid');
+		var timeary = showUploadInfo[tid+'time']||[];//时间队列
+		var sizeary = showUploadInfo[tid+'size']||[];//已上传字节数队列
+		var now = new Date().getTime();
+		timeary.push(now);
+		sizeary.push(uploadSize);
+		showUploadInfo[tid+'time'] = timeary;
+		showUploadInfo[tid+'size'] = sizeary;
+		var remain = fileSize-uploadSize;//剩余字节大小 byte
+		if(remain<=0){
+			$('.upload-info',filespan).text('文件已上传，服务器正在处理，请稍候！');
+		}
+		if(now-(showUploadInfo[tid+'lastUpdate']||0)<1000){
+			return;
+		}
+		showUploadInfo[tid+'lastUpdate'] = now;
+		if(timeary.length>1 && timeary[0]!=timeary[timeary.length-1]){
+			while(timeary[timeary.length-1]-timeary[0]>5000){//按5秒内数据统计速度
+				timeary.shift();sizeary.shift();
+			}
+			var speed = 1000*(sizeary[sizeary.length-1]-sizeary[0])/(timeary[timeary.length-1]-timeary[0]);//上传速度 byte/s
+			var time = parseInt(remain/speed);//剩余秒数 s
+			$('.upload-info',filespan).text(addDot0(fileSizeFormat(uploadSize))+'/'+fileSizeFormat(fileSize)+' '+
+					addDot0(fileSizeFormat(speed))+'/s '+timeFormat(time));
+			var opt = filespan.data('opt');
+			if(speed*10<opt.splitSize*2/3 || speed*10>opt.splitSize*1.5){//根据上传速度自动调整分块大小，提高上传效率
+				opt.splitSize = speed*10;//分拆成10秒能传送1个包
+			}
+		}
+	}
+	//重置速度显示缓存，避免显示速度不准确
+	function resetUploadInfo(filespan){
+		var tid = filespan.attr('tid');
+		showUploadInfo[tid+'time']=[];
+		showUploadInfo[tid+'size']=[];
+		showUploadInfo[tid+'lastUpdate']=0;
+	}
+	function fileSizeFormat(size){
+		if(size<1024){
+			return size+'B';
+		}
+		else if(size<1024*1024){
+			return parseInt(size/102.4)/10+'K';
+		}
+		else if(size<1024*1024*1024){
+			return parseInt(size/1024/102.4)/10+'M';
+		}
+		else{
+			return parseInt(size/1024/1024/102.4)/10+'G';
+		}
+	}
+	function addDot0(str){
+		return str.indexOf('.')>0?str:str.replace(/(\d+)/g,'$1.0');
+	}
+	function add0(i){
+		return i<10?'0'+i:i;
+	}
+	function timeFormat(time){
+		if(time<60*60){
+			return parseInt(time/60)+':'+add0(time%60);
+		}
+		else{
+			return parseInt(time/60/60)+':'+add0(parseInt((time%(60*60))/60))+':'+add0(time%60);
+		}
+	}
+	$.fn.fileupload.defaults = {multiple:true,maxFileSize:100*1024*1024,maxFileCount:10,splitSize:1024*1024,
+			fileType:'other',autoStartUpload:true,fileBoxIndex:1,titleMaxByte:34,allowExt:'',hideHistory:false,errTimeout:0,
+			testAllowExt:function(fileName){
+				if(!this.allowExt || this.allowExt=='*.*')return true;
+				var ary = this.allowExt.split(',');
+				fileName = fileName.toLowerCase();
+				for(var i=0;i<ary.length;i++){
+					if(fileName.length>ary[i].length-1 && fileName.substr(fileName.length-ary[i].length+1).toLowerCase()==ary[i].substr(1).toLowerCase()){
+						return true;
+					}
+				}
+				$.messager.alert('提示','您选择的文件不符合要求('+this.allowExt+')');
+				return false;
+			},
+			uploadUrl:path+'/jwfm/userFileUpload_uploadFile.action',
+			loadFileInfoUrl:path+'/jwfm/userFileUpload_loadFileInfo.action',delFileUrl:path+'/jwfm/userFileUpload_delFiles.action',
+			loadFileUrl:path+'/jwfm/userFileUpload_loadFile.action?vcId=',historyFileUrl:path+'/jwfm/userFileUpload.action?op=searchDataAjax&datagrid_type=easyui'};
+	$('head').append('<style>'+
+			'.history-file{cursor:pointer;color:#6666CC;margin-left:10px;vertical-align:bottom;line-height:14px;}'+
+			'.history-file-div{overflow:hidden;}'+
+			'.history-file-grid{width:100%;height:100%;}'+
+			'.file-body{display:block;padding-top:4px;}'+
+			'.file-body span{display:inline-block;font-size:12px;}'+
+			'.file-body .err-info{color:red;}'+
+			'.file-body span.file-span{border:0px solid #ccc;margin:0px 8px 8px 0px;width:310px;height:44px;position:relative;background:#efefef;}'+
+			'.file-span span.file-icon{background:url(/mis/images/docs-32.png);position:absolute;left:2px;top:6px;width:32px;height:32px;}'+
+			'.file-span span.file-name{width:210px;height:14px;position:absolute;left:36px;top:7px;text-overflow:ellipsis;cursor:default;}'+
+			'.file-span span.btnarea{width:70px;height:16px;position:absolute;right:5px;top:7px;text-align:right;}'+
+			'.file-span span.btn{padding:0px 2px;cursor:pointer;}'+
+			'.file-span span.btn.hover{background:#0066CC;color:#fff;}'+
+			'.file-span .file-progress{width:50px;height:12px;position:absolute;left:36px;bottom:7px;text-align:center;font-size:8px;line-height:12px;border:1px solid #99CCFF;overflow:hidden;}'+
+			'.file-span .file-progress-bar-box{width:100%;height:100%;position:relative;}'+
+			'.file-span .file-progress-bar{width:0px;height:12px;background:#99CCFF;position:absolute;left:0px;bottom:0px;}'+
+			'.file-span .file-progress-text{width:100%;height:100%;position:absolute;left:0px;bottom:0px;}'+
+			'.file-span .upload-info{position:absolute;left:90px;height:14px;line-height:12px;bottom:6px;color:gray;}'+
+			'.upload-btn{color:blue;cursor:pointer;}'+
+			'.file-html-div{padding-top:5px;line-height:18px;}'+
+			'.history-file-div .pagination-num{width:25px;}'+
+			'.history-file-div .pagination-info{padding-right:60px;}'+
+			'.history-file-div{position:relative;}'+
+			'.history-file-div .ok-btn{position:absolute;right:2px;bottom:3px;}'+ 
+			'.show-file-info-div .file-body{padding:7px;}'+ 
+			'</style>');
 })(jQuery);

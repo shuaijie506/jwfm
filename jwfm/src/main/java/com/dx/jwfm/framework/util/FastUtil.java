@@ -469,10 +469,45 @@ public class FastUtil {
 				return new DecimalFormat().format(n);
 			}
 			else{
-				return new DecimalFormat(format).format(n);
+				if("filesize".equals(format)){
+					return formatFileSize(n.longValue());
+				}
+				else{
+					return new DecimalFormat(format).format(n);
+				}
 			}
 		}
 		return val.toString();
+	}
+	/**
+	 * 开发人： 宋帅杰
+	 * 开发时间： 2011-6-23 上午11:30:18
+	 * 功能描述：将文件大小格式化成易读的字符串
+	 * 方法的参数和返回值
+	 * @param fileSize
+	 * @return
+	 * String 
+	 * ==================================
+	 * 修改历史
+	 * 修改人        修改时间      修改原因及内容
+	 *
+	 * ==================================
+	 */
+	public static String formatFileSize(long fileSize){
+        DecimalFormat formater = new DecimalFormat();
+        formater.applyPattern("###.##");
+        if(fileSize < 1024){
+            return fileSize + " B";
+        }
+        else if(fileSize < 1024*1024){
+            return formater.format(fileSize/1024f) + " KB";
+        }
+        else if(fileSize < 1024*1024*1024){
+            return formater.format(fileSize/(1024*1024f)) + " MB";
+        }
+        else{
+            return formater.format(fileSize/(1024*1024*1024f)) + " GB";
+        }
 	}
 	private static String sessionid;
 	public static String getUrlContent(String testUrl) throws IOException {

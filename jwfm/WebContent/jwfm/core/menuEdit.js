@@ -100,6 +100,7 @@ function initSysMenuPresetData(){
 				{value:'select:sql:',text:'SQL结果下拉框',handle:function(field){return '${$select$'+field+':sql:SQL语句}';}},
 				{value:'combobox:',text:'JSON动态下拉框',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combobox({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
 				{value:'combotree:',text:'JSON动态下拉树',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').combotree({url:"JSON结果URL",valueField:"id",textField:"text"});</script>';}},
+				{value:'file:',text:'文件上传',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\').fileupload({fileType:"当前模块英文简称",multiple:true,maxFileSize:100*1024*1024,maxFileCount:10,allowExt:""});</script>';}},
 				{value:'html:',text:'自定义输入控件',handle:function(field){return '<input type=text id="'+field.replace(/\./g,'_')+'" name="'+field+'" value="${'+field+'}" />\n<script>$(\'#'+field.replace(/\./g,'_')+'\');</script>';}}
 			],'value'),
 			searchType:new MenuList([/*如果在生成SQL时需要进行JAVA运算，则请实现SQLConditionParser接口并将类名配置到参数searchSQLConditionParser中。禁止使用数字做为value值*/
@@ -319,6 +320,9 @@ function openHTMLEditorWin(opt){
 	window.editor = CodeMirror($('#htmlEWBox')[0],{value:opt.html,lineNumbers:true,mode:opt.codetype,theme:'eclipse',
 		tabSize:2,lineWrapping: true
 	});
+	if(opt.selectAll){
+		editor.setSelection({line:0,ch:0},{line:editor.lastLine(),ch:9999});
+	}
 	$('#btn-htmlEWSave').click(function(){
 		if(opt.saveFun){
 			opt.saveFun(editor.getValue());
@@ -505,6 +509,16 @@ function loadForwards(){
 	});
 	$('<i class="opt-icon fa fa-home" title="使用默认控制类"></i>').insertAfter('.classaction-info input[name$=actionName]').click(function(){
 		$('.classaction-info input[name$=actionName]').val('com.dx.jwfm.framework.web.action.FastBaseAction');
+	});
+	$('<i class="opt-icon fa fa-plus-circle" title="创建新的查询类"></i>').insertAfter('.classaction-info input[name$=searchClassName]').click(function(){
+		var model = $('#editForm').data('model')||{};
+		var url = $('#po_VC_URL').val();
+		var pos = url.lastIndexOf('/');
+		url = url.substr(pos+1,1).toUpperCase()+url.substr(pos+2);
+		$('.classaction-info input[name$=actionName]').val((model.packageName||'com.xxx')+'.search.'+url+'Search');
+	});
+	$('<i class="opt-icon fa fa-home" title="使用默认查询类"></i>').insertAfter('.classaction-info input[name$=searchClassName]').click(function(){
+		$('.classaction-info input[name$=searchClassName]').val('');
 	});
 	//将已有按钮组显示
 	function toArray(obj){
@@ -901,7 +915,7 @@ function loadPageInfo(){
 		var txt = $('#pageMapDiv textarea[code='+code+']');
 		$('#pageMapDiv>span.selected').removeClass('selected');
 		txt.parent().addClass('selected');
-		$('#pageHTMLDiv').data('textarea',txt).data('editorstack',[txt.val()]).html(txt.val());
+		$('#pageHTMLDiv').data('textarea',txt).data('editorstack',[txt.val()])[0].innerHTML=(txt.val());
 	}).change();
 	//添加指定行
 	function addEditTblCols(items,viewMode){
@@ -1014,8 +1028,8 @@ function loadPageInfo(){
 			$.messager.alert('提示','每次仅能编辑一个单元格，如需编辑整个表格，请不要选中任何单元格！');
 		}
 		else{//编辑一个单元格
-			openHTMLEditorWin({html:tds.html(),saveFun:function(html){
-				tds.html(html);
+			openHTMLEditorWin({html:tds.html(),selectAll:true,saveFun:function(html){
+				tds[0].innerHTML = (html);
 				$('#pageHTMLDiv').trigger('change');
 			}});
 			var dbpnl = $('#htmlEditorWin>div.layout').layout('add',{region:'west',title:'业务表字段列表',split:true,width:200}).layout('panel','west');
@@ -1357,7 +1371,8 @@ function loadPageInfo(){
 		var tds = $('#pageHTMLDiv .selected');
 		if(tds.length==0){//编辑整个表格
 			openHTMLEditorWin({html:$('#pageHTMLDiv').html(),saveFun:function(html){
-				$('#pageHTMLDiv').html(html).trigger('change');
+				$('#pageHTMLDiv')[0].innerHTML = (html);
+				$('#pageHTMLDiv').trigger('change');
 			}});
 		}
 		else if(tds.length==1){//编辑一个单元格

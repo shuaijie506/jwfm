@@ -161,7 +161,7 @@ public class EncryptUtil {
 			int idx = i*11;
 			int desidx = i<<3;
 			for(int j=0;j<11;j++){
-				charbuff[j] = (byte) (encryptString.charAt(idx+j)-32);
+				charbuff[j] = (byte) (encryptString.charAt(idx+j)-33);
 			}
 			buff[desidx] = (byte) (charbuff[0]<<2|charbuff[1]>>4);
 			buff[desidx+1] = (byte) (charbuff[1]<<4|charbuff[2]>>2);
@@ -174,7 +174,13 @@ public class EncryptUtil {
 		}
 		return buff;
 	}
+	public static String getSsoKey(String userId) {
+		long l = System.currentTimeMillis();
+		String time = String.valueOf(l^((long)(Math.random()*1000000000))).substring(0,8);
+		String userId2 = userId==null||userId.length()==0?"defaultUser":EncryptUtil.encryptDes(userId, time);
+		return EncryptUtil.encryptDes(time+"|"+l+"|"+userId2,"hh123~!@");
+	}
 	private static char tochar(int i){
-		return (char)(i+32);
+		return (char)(i+33);
 	}
 }

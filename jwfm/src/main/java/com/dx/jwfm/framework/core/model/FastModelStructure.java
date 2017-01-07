@@ -49,8 +49,8 @@ public class FastModelStructure {
 	
 	/**业务Action类名*/
 	private String actionName;
-	/**业务Action辅助类类名*/
-//	private String actionHandleName;
+	/**查询辅助类类名，要继承com.dx.jwfm.framework.web.search.Search */
+	private String searchClassName;
 	/**默认打开页面时是否执行查询数据操作*/
 	private boolean defaultSearchData;
 	/**是否使用Ajax执行增删改操作*/
@@ -380,6 +380,14 @@ public class FastModelStructure {
 
 	public void setNewMenu(boolean newMenu) {
 		this.newMenu = newMenu;
+	}
+
+	public String getSearchClassName() {
+		return searchClassName;
+	}
+
+	public void setSearchClassName(String searchClassName) {
+		this.searchClassName = searchClassName;
 	}
 	
 }

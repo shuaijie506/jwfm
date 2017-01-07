@@ -10,6 +10,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.FastFilter;
@@ -19,6 +20,7 @@ import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.exception.ForwardException;
 import com.dx.jwfm.framework.core.model.FastModel;
+import com.dx.jwfm.framework.core.parser.ParameterActionParser;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.action.MainActionCreator;
 
@@ -38,16 +40,15 @@ public class FastActionProcess implements IFastProcess {
 	 */
 	private String actionExt;
 
-	/**
-	 * 用户自定义Action处理器
-	 */
-	private ArrayList<IActionHandel> actionHandels = new ArrayList<IActionHandel>();
+	/** 参数转换处理器 */
+	private ParameterActionParser paramParser = new ParameterActionParser();
 
 	private HashMap<String,FastModel> menuMap = new HashMap<String, FastModel>();
 	
 	
 	public void init(FastFilter filter) {
 //		this.filter = filter;
+		filter.actionProc = this;
 		errorPage = FastUtil.nvl(filter.getInitParameter("errorPage"), DEFAULT_ERROR_PAGE);
 		actionExt = filter.getActionExt();
 		FastModel main = MainActionCreator.getModel();//主框架模型
@@ -60,7 +61,23 @@ public class FastActionProcess implements IFastProcess {
 			list = db.executeSqlQuery(sql);
 			for(FastPo po:list){
 				FastModel fm = new FastModel(po);
-				menuMap.put(SystemContext.getPath()+fm.getVcUrl()+actionExt, fm);
+				fm.setFromDB(true);
+				String key = SystemContext.getPath()+fm.getVcUrl()+actionExt;
+				FastModel old = menuMap.get(key);
+				if(old!=null && old.getVcVersion().compareTo(fm.getVcVersion())>0){
+					flist.add(old);
+					continue;
+				}
+				menuMap.put(key , fm);
+				flist.add(fm);
+			}
+			for(FastModel fm:filter.defaultModels){
+				String key = SystemContext.getPath()+fm.getVcUrl()+actionExt;
+				FastModel that = menuMap.get(key);
+				if(that!=null && that.getVcVersion().compareTo(fm.getVcVersion())>=0){
+					continue;//如果数据库中的版本比当前版本新或一样，则不处理
+				}
+				menuMap.put(key , fm);
 				flist.add(fm);
 			}
 		} catch (SQLException e) {
@@ -74,21 +91,6 @@ public class FastActionProcess implements IFastProcess {
 				}
 			}
 		}.start();
-		//加载系统指定拦截处理器
-		String val = filter.getInitParameter("ActionHandle");
-		String[] ary = FastUtil.nvl(val,"").split(",");
-		for(int i=0;i<ary.length;i++){
-			if(ary[i]==null || ary[i].trim().length()==0){
-				continue;
-			}
-			String clsName = ary[i].trim();
-			try {
-				IActionHandel proc = (IActionHandel) FastUtil.newInstance(clsName);
-				actionHandels.add(proc);
-			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
-			}
-		}
 	}
 	/**
 	 * 处理用户请求，已处理完成返回true，否则返回false,由WEB容器继续处理
@@ -96,23 +98,16 @@ public class FastActionProcess implements IFastProcess {
 	 * @param response
 	 * @return
 	 */
-	public boolean processRequest(HttpServletRequest request,HttpServletResponse response){
-		String uri = request.getRequestURI();
-		if(!uri.endsWith(actionExt)){//如果不是以指定内容结尾，则不处理
+	public boolean processRequest(HttpServletRequest request,HttpServletResponse response,String uri,String uriExt){
+		if(!uriExt.equals(actionExt)){//如果不是以指定内容结尾，则不处理
 			return false;
 		}
 		uri = uri.substring(0,uri.length()-actionExt.length());
-		String method = null;
+		String method = "execute";//如果没有指定方法，默认调用execute方法
 		int pos = uri.lastIndexOf("_");
 		if(pos>=0){
 			method = uri.substring(pos+1);//解析出指定要执行的方法
 			uri = uri.substring(0,pos);
-		}
-//		if(method==null){//先从.action之前截取方法名，取不到时取op参数值做为参数名
-//			method = request.getParameter("op");
-//		}
-		if(method==null){//如果没有指定方法，默认调用execute方法
-			method = "execute";
 		}
 		String menuUrl = uri+actionExt;//解析出菜单URL
 		request.setAttribute("path", SystemContext.path);
@@ -128,27 +123,19 @@ public class FastActionProcess implements IFastProcess {
 		request.setAttribute(RequestContants.REQUEST_FAST_MODEL, model);
 		try {
 			Object action = model.getActionClass().newInstance();//得到Action实例
-			request.setAttribute(RequestContants.REQUEST_FAST_ACTION, action);
-			for(IActionHandel ah:actionHandels){//执行系统定义处理器
-				if(ah.beforeExecute(action,method)){
-					return true;//返回true时跳过action的处理代码
+			if(FastUtil.isNotBlank(model.getModelStructure().getSearchClassName())){
+				try{
+					Object srh = FastUtil.newInstance(model.getModelStructure().getSearchClassName());
+					PropertyUtils.setProperty(action, "search", srh);
+				}
+				catch(Exception e){
+					logger.error(e.getMessage(),e);
 				}
 			}
-			IActionHandel actionHandle = null;
-			if(model.getActionHandel()!=null) {
-				actionHandle = model.getActionHandel().newInstance();
-			}
-			if(actionHandle!=null && actionHandle.beforeExecute(action,method)){
-				return true;//返回true时跳过action的处理代码
-			}
+			paramParser.parseParam(request, action);
+			request.setAttribute(RequestContants.REQUEST_FAST_ACTION, action);
 			Method m = model.getActionClass().getMethod(method, new Class[0]);
 			String res = (String) m.invoke(action, new Object[0]);//反射调用方法
-			if(actionHandle!=null){
-				actionHandle.afterExecute(action, method);
-			}
-			for(IActionHandel ah:actionHandels){//执行系统定义处理器
-				ah.afterExecute(action,method);
-			}
 			if(res!=null){
 				if(res.charAt(0)!='/'){//以/开头的返回值默认为forward到指定的JSP页面，否则从配置中获取JSP路径
 					String forwardname = res;

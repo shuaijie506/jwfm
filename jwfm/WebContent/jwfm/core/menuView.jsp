@@ -35,7 +35,10 @@ long ltime = System.currentTimeMillis();
 	$(function(){
 		//最大化，不使用最大化是为了防止恢复窗口大小之后表单中的输入框变形
 		$('#menuEditWin').window('resize',{width:$(window).width()-30,height:$(window).height()-20}).window('center').window('maximize');
-		$('<div class="left-btn-div"><a id="testUrlBtn">新窗口中测试</a><a id="showHistory">查看历史版本</a></div>').insertBefore('#closeBtn');
+		$('#closeBtn').click(function(){
+			$(this).closest('.window-body').window('close');
+		});
+		$('<div class="left-btn-div"><a id="testUrlBtn">新窗口中测试</a><a id="showHistory">查看历史版本</a><a id="showModules">查看配置</a></div>').insertBefore('#closeBtn');
 		//点击添加按钮操作
 	    $('#testUrlBtn').linkbutton({iconCls:'fa-fighter-jet'}).click(function(){
 			window.open('${path}${po.VC_URL}.action');
@@ -56,6 +59,10 @@ long ltime = System.currentTimeMillis();
 					{"field":"VC_NOTE","title":"功能说明及更改历史","width":245,"sortable":false,"align":"left"}
 					]]
 			});
+		});
+	    $('#showModules').linkbutton({iconCls:'icon-coms'}).click(function(){
+			$.openWin({parWin:'#operateWindow',divId:'moduleconfWin',title:'菜单功能配置信息',content:'<textarea id=modulesConfTxt style="width:100%;height:100%;"></textarea>'});
+			$('#modulesConfTxt').val('<?xml version="1.0" encoding="UTF-8"?>\n<fast>\n<modules>\n	<item uri="${po.VC_URL}" name="${po.VC_NAME}" version="${po.VC_VERSION}"><![CDATA['+$('#po_VC_STRUCTURE').val()+']]></item>\n</modules>\n</fast>');
 		});
 		var model = ${modeljson};
 		tableTrHover('.fast-edit-table');
@@ -133,6 +140,7 @@ i.opt-icon.fa{font-size:14px;margin-left:3px;cursor:pointer;}
 <form id="editForm" method="post">
 <input type=hidden name=op value="save" >
 <f:hidden name="po.VC_ID"/>
+<f:hidden id="po_VC_STRUCTURE" name="po.VC_STRUCTURE"/>
 <f:hidden name="model.packageName"/>
 <table class="fast-edit-table" >
 <colgroup>
@@ -185,6 +193,9 @@ i.opt-icon.fa{font-size:14px;margin-left:3px;cursor:pointer;}
 	<tbody>
 	<tr>
 	<td colspan=3 align=left>控制器类<input type=text name=model.actionName readonly="true" style="width:85%" /></td>
+	</tr>
+	<tr>
+	<td colspan=3 align=left>查询类<input type=text name=model.searchClassName readonly="true" style="width:85%" /></td>
 	</tr>
 	</tbody></table>
 	<table class=fast-child-table cellpadding="0" cellspacing="0">

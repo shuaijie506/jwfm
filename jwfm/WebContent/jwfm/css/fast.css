@@ -123,3 +123,6 @@ border-top:#a5c2e8 1px solid;text-align:right; padding:4px 10px 0px;width:99%;ov
 .fast-edit-table td textarea{ width:80%; height:60px}
 .fast-edit-table tbody tr .hvcenter{text-align:center;vertical-align:middle;}
 .subtitle{font-weight: bold;background: #ccffff;font-size: 14px;color: #555;}
+
+.file-span span.file-icon{background:url(images/docs-32.png);}
+

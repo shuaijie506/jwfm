@@ -1,5 +1,10 @@
 package com.dx.jwfm.framework.web.action;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,14 +17,15 @@ import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.annotations.FastModelInfo;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastTable;
-import com.dx.jwfm.framework.core.model.ButtonAuth;
+import com.dx.jwfm.framework.core.dao.po.FastPo;
 import com.dx.jwfm.framework.core.model.FastModel;
-import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.parser.MacroValueNode;
 import com.dx.jwfm.framework.util.FastUtil;
+import com.dx.jwfm.framework.util.NetFileUtil;
 import com.dx.jwfm.framework.web.view.Node;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 @FastModelInfo(group = "Fast开发平台", name = "工具Action", url = "/jwfm/tools", author="宋帅杰", devDate = "2015-12-03", updateInfo = "")
@@ -72,80 +78,28 @@ public class ToolsAction extends ActionCreator {
 		ary.addAll(list,conf);
 		return writeHTML(ary.toString());
 	}
-/*
-	private File file;
-	public String uploadSplitFile(){
-		String fileType = getParameter("fileType");//文件归属模块类别
-		String fileName = getParameter("fileName");
-		String fileSize = getParameter("fileSize");
-		String lastModify = getParameter("lastModify");
-		String start = getParameter("start");
-		String md5 = FastUtil.toMd5String(fileSize+fileName+lastModify);
-		String basePath = System.getProperty("java.io.tmpdir");
-		File f = new File(basePath,md5);
-		JSONObject obj = new JSONObject();
-		if(file!=null){//如果上传文件不为空，则执行文件写入操作
-			try {
-				long fileLen = Long.parseLong(fileSize);
-				long startPos = Long.parseLong(start);
-				RandomAccessFile out = new RandomAccessFile(f,"rw");//随机读写
-				out.seek(startPos);//文件指针移动到指定位置
-				BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-				byte[] buff = new byte[8192];
-				int len = 0;
-				while((len=in.read(buff))>=0){//合并文件
-					out.write(buff,0,len);
+
+	static{
+		new Thread(){
+			public void run() {
+				this.setName("clear tmp file thread");
+				String basePath = System.getProperty("java.io.tmpdir");
+				File[] fs = new File(basePath).listFiles();
+				for(File f:fs){
+					try {
+						if(f.isFile() && f.getName().startsWith("tmpsplitfile-") && 
+								System.currentTimeMillis()-f.lastModified()>3*24*60*60000){//最后修改时间超过3天的自动清除
+							f.delete();
+						}
+					} catch (Exception e) {
+						Logger.getLogger(ToolsAction.class).error(e.getMessage(),e);
+					}
 				}
-				in.close();
-				out.close();
-				obj.put("success", true);
-				obj.put("length", f.length());
-				String fileId = null;
-				if(f.length()>=fileLen){//存入文件池
-					fileId = NetFileUtil.saveFile(f, fileName, fileType);
-					f.delete();
-				}
-				obj.put("fileId", fileId);
-			} catch (IOException e) {
-				obj.put("success", false);
-				obj.put("info", "文件写入失败:"+e.getMessage());
-				logger.error(e.getMessage(),e);
-			} catch (Exception e) {
-				obj.put("success", false);
-				obj.put("info", "上传过程中发生错误:"+e.getMessage());
-				logger.error(e.getMessage(),e);
+				super.run();
 			}
-		}
-		else{//否则返回文件已上传字节数
-			obj.put("success", true);
-			obj.put("length", f.exists()?f.length():0);
-		}
-		return writeHTML(obj.toString());
+		}.start();
 	}
 	
-	public String loadFileInfo(){
-		String ids = getParameter("ids");
-		String sql = "select vc_id,vc_filename,n_filesize from pub_t_file_upload_log where vc_id in ('"+ids.replaceAll(",", "','")+"')";
-		List<HashMap<String, Object>> list = DbUtil.executeSqlQuery(sql, new ISQLMapper<HashMap<String,Object>>() {
-			public HashMap<String, Object> fromSQLQuery(ResultSet rs, int num) {
-				HashMap<String, Object> view = new HashMap<String, Object>();
-				try {
-					view.put("fileId", rs.getString("vc_id"));
-					view.put("fileName", rs.getString("vc_filename"));
-					view.put("fileSize", rs.getLong("n_filesize"));
-				} catch (SQLException e) {
-					logger.error(e.getMessage(),e);
-				}
-				return view;
-			}
-		});
-		sql = "update pub_t_file_upload_log set vc_del$flag=0 where vc_id in ('"+ids.replaceAll(",", "','")+"')";
-		DbUtil.executeSqlUpdate(sql);//将文件删除标记更新为0
-		JSONArray ary = new JSONArray();
-		ary.addAll(list);
-		return writeHTML(ary.toString());
-	}
-*/
 	@Override
 	protected FastTable getMainTable() {
 		return null;

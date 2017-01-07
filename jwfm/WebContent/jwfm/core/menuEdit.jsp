@@ -198,6 +198,9 @@ i.opt-icon.fa{font-size:14px;margin-left:3px;cursor:pointer;}
 	<tr>
 	<td colspan=3 align=left>控制器类<input type=text name=model.actionName readonly="true" style="width:85%" /></td>
 	</tr>
+	<tr>
+	<td colspan=3 align=left>查询类<input type=text name=model.searchClassName readonly="true" style="width:85%" /></td>
+	</tr>
 	</tbody></table>
 	<table class=fast-child-table cellpadding="0" cellspacing="0">
 	<tbody id="forward-tbl-body"></tbody>

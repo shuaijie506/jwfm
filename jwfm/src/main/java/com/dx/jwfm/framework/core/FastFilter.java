@@ -32,11 +32,8 @@ import com.dx.jwfm.framework.core.dao.dialect.impl.MySqlDialect;
 import com.dx.jwfm.framework.core.dao.dialect.impl.OracleDialect;
 import com.dx.jwfm.framework.core.model.FastModel;
 import com.dx.jwfm.framework.core.parser.MacroValueNode;
-import com.dx.jwfm.framework.core.process.ClassActionProcess;
 import com.dx.jwfm.framework.core.process.FastActionProcess;
-import com.dx.jwfm.framework.core.process.FastResourceProcess;
 import com.dx.jwfm.framework.core.process.IFastProcess;
-import com.dx.jwfm.framework.core.process.JspProcess;
 import com.dx.jwfm.framework.core.servlet.VirtualServletConfig;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.util.UtilPrepareClass;
@@ -58,13 +55,10 @@ public class FastFilter implements Filter {
 	
 	static boolean useSpring;//使用Spring
 	
-	/**
-	 * 正常URL请求的扩展名
-	 */
+	/** 正常URL请求的扩展名 */
 	private String actionExt = "action";
-	
-	/** 快速开发配置。根据用户请求时加载板块的映射路径 */
-	private String classModelBasePath;
+	/** 下载文件时的虚拟路径前缀 */
+	private String uploadfilePrev = "/uploadfile/";
 	
 	DatabaseDialect dialect;
 	
@@ -76,13 +70,8 @@ public class FastFilter implements Filter {
 	/**
 	 * 用户自定义拦截处理器
 	 */
-	private ArrayList<IFastProcess> userProc = new ArrayList<IFastProcess>();
+	private ArrayList<IFastProcess> procList = new ArrayList<IFastProcess>();
 
-	private ClassActionProcess classActionProc = new ClassActionProcess();
-	private FastActionProcess actionProc = new FastActionProcess();
-	private FastResourceProcess resourceProc = new FastResourceProcess();
-	private JspProcess jspProc = new JspProcess();
-	
 	/**
 	 * 用户自定义默认值处理类
 	 */
@@ -90,6 +79,9 @@ public class FastFilter implements Filter {
 
 	/** 用户请求字符集设置 */
 	private String charset;
+	/** 系统启动时预置的业务模块 */
+	public List<FastModel> defaultModels = new ArrayList<FastModel>();
+	public FastActionProcess actionProc;
 
 	@SuppressWarnings("unchecked")
 	
@@ -127,30 +119,15 @@ public class FastFilter implements Filter {
 				SystemContext.path = "";
 			}
 		}
-		classModelBasePath = SystemContext.path+getInitParameter("classModelBasePath");
 		logger.info("启动War包："+SystemContext.path);
 		logger.info("系统目录："+SystemContext.appPath);
 		actionExt = "."+FastUtil.nvl(getInitParameter("actionExt"),actionExt);
-		//加载系统指定拦截处理器
-		String[] ary = (FastUtil.nvl(SystemContext.systemParam.get("ActionProcess"),"")+","+FastUtil.nvl(map.get("ActionProcess"),"")).split(",");
-		for(int i=0;i<ary.length;i++){
-			if(ary[i]==null || ary[i].trim().length()==0){
-				continue;
-			}
-			String clsName = ary[i].trim();
-			try {
-				IFastProcess proc = (IFastProcess) FastUtil.newInstance(clsName);
-				proc.init(this);
-				userProc.add(proc);
-			} catch (Exception e) {
-				logger.error(e.getMessage(),e);
-			}
+		uploadfilePrev = SystemContext.path+FastUtil.nvl(getInitParameter("uploadfilePrev"),uploadfilePrev);
+		
+		//初始化拦截处理器
+		for(IFastProcess proc:procList){
+			proc.init(this);
 		}
-		//初始化三个拦截处理器
-		actionProc.init(this);
-		classActionProc.init(this);
-		resourceProc.init(this);
-		jspProc.init(this);
 	}
 
 	
@@ -160,31 +137,23 @@ public class FastFilter implements Filter {
 		request.setCharacterEncoding(charset);
 		response.setCharacterEncoding(charset);
 		String uri = request.getRequestURI();
-		String uriExt = uri.length()<actionExt.length()?uri:uri.substring(uri.length()-actionExt.length());
-		if(actionExt.equals(uriExt) || uriExt.toLowerCase().endsWith(".jsp")){
+		int pos = uri.lastIndexOf(".");
+		
+		String uriExt = pos>0?uri.substring(pos):"";
+		RequestContext.setRequestInfo(this, request, response);
+		String uriExtLow = uriExt.toLowerCase();
+		if(".jsp".equals(uriExtLow) || actionExt.equals(uriExtLow)){//如果由拦截处理器处理，则打印URL
 			urlLogger.info(uri);
 		}
-		RequestContext.setRequestInfo(this, request, response);
 		boolean finish = false;
-		for(int i=0;i<userProc.size();i++){//使用用户自定义拦截处理器
-			finish = userProc.get(i).processRequest(request, response);
+		for(int i=0;i<procList.size();i++){//使用用户自定义拦截处理器
+			finish = procList.get(i).processRequest(request, response, uri, uriExt);
 			if(finish){//如果已完成处理，则跳出循环，不再执行下面的拦截处理器
-				return;
+				break;
 			}
 		}
-		if(classModelBasePath!=null && uri.startsWith(classModelBasePath) && uri.endsWith(actionExt)){//类映射路径匹配
-			finish = classActionProc.processRequest(request, response);
-		}
-		else if(uri.endsWith(actionExt)){//先使用actionProc处理请求
-			finish = actionProc.processRequest(request, response);
-		}
-		if(!finish){//如果actionProc未完成请求的处理，则使用resourceProc处理
-			finish = resourceProc.processRequest(request, response);
-		}
-		if(!finish && uri.endsWith(".jsp")){
-			finish = jspProc.processRequest(request, response);
-		}
-		if(!finish){//如果均未处理，把控制权交回系统，由系统继续处理
+		if(!finish){
+			//如果均未处理，把控制权交回系统，由系统继续处理
 			arg2.doFilter(arg0, arg1);
 		}
 		//处理结束后关闭所有打开的数据库链接并提交数据
@@ -201,6 +170,7 @@ public class FastFilter implements Filter {
 	@SuppressWarnings("unchecked")
 	private void loadFastInitParam() {
 		HashMap<String,String> map = new HashMap<String, String>();
+		SystemContext.systemParam = map;
 		try {
 			Enumeration<URL> urls = RequestContext.class.getClassLoader().getResources("fast.properties");
 			while(urls.hasMoreElements()){
@@ -245,6 +215,22 @@ public class FastFilter implements Filter {
 							macroValueMap.put(n.getCode(), n);
 						}
 					}
+					list = root.selectNodes("modules/item");//系统内置模块处理
+					for(Element e:list){
+						FastModel n = new FastModel(e.attributeValue("name"), e.attributeValue("uri"), e.attributeValue("version"), e.getText());
+						defaultModels .add(n);
+					}
+					//加载系统指定拦截处理器
+					list = root.selectNodes("actionProc/item");//系统拦截处理器
+					for(Element e:list){
+						String clsName = e.getText();
+						try {
+							IFastProcess proc = (IFastProcess) FastUtil.newInstance(clsName);
+							procList.add(proc);
+						} catch (Exception e1) {
+							logger.error(e1.getMessage(),e1);
+						}
+					}
 				} catch (Exception e) {
 					logger.error(e.getMessage(),e);
 				}
@@ -252,7 +238,6 @@ public class FastFilter implements Filter {
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 		}
-		SystemContext.systemParam = map;
 	}
 
 	/**
@@ -292,7 +277,9 @@ public class FastFilter implements Filter {
 	 * @param model
 	 */
 	public static void updateFastModel(FastModel model){
-		filter.actionProc.updateFastModel(model);
+		if(filter.actionProc!=null){
+			filter.actionProc.updateFastModel(model);
+		}
 	}
 	public static void addDbHelper(DbHelper db){
 		RequestContext rc = RequestContext.context.get();

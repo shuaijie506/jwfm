@@ -1,7 +1,5 @@
 package com.dx.jwfm.framework.core.model;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -9,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.dx.jwfm.framework.core.SystemContext;
+import com.dx.jwfm.framework.util.FastUtil;
 
 public class MapObject implements Map<String,Object> {
 
@@ -101,18 +100,13 @@ public class MapObject implements Map<String,Object> {
 			if(val==null){//如果冒号前部分为键值取值为null，则输出null值
 				return null;
 			}
-			if(fmt!=null && fmt.length()>0 && fmt.charAt(0)==':'){
-				return val;
-			}
-			if(val instanceof Date){
-				Date d = (Date)val;
-				return new SimpleDateFormat(fmt).format(d);
-			}
-			else if(val instanceof Number){
-				return new DecimalFormat(fmt).format(val);
-			}
-			else{
-				return val.toString();
+			if(fmt!=null && fmt.length()>0){
+				if(fmt.charAt(0)==':'){
+					return val;
+				}
+				else{
+					return FastUtil.format(val, fmt);
+				}
 			}
 		}
 		if(SystemContext.getDbDelFlagField().equals(k) && !map.containsKey(k)){
