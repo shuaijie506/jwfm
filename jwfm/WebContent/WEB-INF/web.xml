@@ -59,7 +59,7 @@
 		<init-param>
 			<description>根据用户请求时加载板块的映射路径</description>
 			<param-name>classModelBasePath</param-name>
-			<param-value>*Action.action</param-value>
+			<param-value>/mis</param-value>
 		</init-param>
 		<init-param>
 			<description>根据用户请求时加载板块的基础包路径</description>

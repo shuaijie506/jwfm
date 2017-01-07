@@ -5,7 +5,7 @@
 <item name="databaseDialect" comment="此值为空时可根据连接名称自动匹配数据库方言，如自动匹配失效时，请手动指定类的全名"></item>
 <item name="useSpring" comment="是否使用spring的bean">false</item>
 <item name="actionExt" comment="URL扩展名后缀">action</item>
-<item name="updateDir" comment="模块更新文件存放目录">/modelupd</item>
+<item name="uploadFileDir" comment="上传文件的虚拟路径，下载时可以使用/jwfm/uploadfile/[fileId]">/uploadfile</item>
 <item name="ActionProcess" comment="在Action处理前的预处理类，需要继承IFastProcess接口"></item>
 <item name="ActionHandle" comment="在Action处理前的预处理类，需要继承IActionHandel接口">
 com.dx.jwfm.framework.core.handle.ParameterActionHandle</item>
@@ -18,6 +18,17 @@ com.dx.jwfm.framework.web.builder.impl.HtmlDatagridBuilder</item>
 <item name="searchSQLConditionParser" comment="查询条件过滤处理类，多个类之间使用逗号分隔，必须实现SQLConditionParser接口">
 com.dx.jwfm.framework.web.logic.DefaultSQLConditionParser</item>
 </config>
+<actionProc>
+	<info>在Action处理前的预处理类，需要继承IFastProcess接口</info>
+	<item>com.dx.jwfm.framework.core.process.FastActionProcess</item>
+	<item>com.dx.jwfm.framework.core.process.ClassActionProcess</item>
+	<item>com.dx.jwfm.framework.core.process.FastResourceProcess</item>
+	<item>com.dx.jwfm.framework.core.process.JspProcess</item>
+	<item>com.dx.jwfm.framework.core.process.UploadFileProcess</item>
+</actionProc>
+<modules>
+	<item uri="/jwfm/tools" name="工具Action" version="2015-12-03"><![CDATA[P4J[/@'MQJI"Q'0O*_?%1Q1"3!#4^4`P%!9LY<E@V!"YR^\.L+EB6@9OO@T;9=!0C%>R:XM&S)D;QSU!C#,4[TJU'#QX)*`6$<U-D+:"--#8,AJ%K6MP3$,,YSOQCKEY5*HEZ_+Y61$=`MYK%0(G-1QD[QN@%'.PHV=DYT71G\6%7+)-M'`.SU[VXVM>/=M)'"5HOIM\9GFV.X8.1H+BYLSG@F85J`?0QXW3'WI,VR"N9X.^G]+!2]%7IPAW5"FKV6M*!`H]4C(M4;H5_IIR^VVJ2(OGT5]'9A:J]P3>MU"4%_J86-F%21^3<^L!;H%\/.9DJW>)YM@D*Q:9#(K^M2H?N1Z:C<;1K^/'L(UO!#U<L&4B#90;O5>!5IG5H],TA!FP\H`==D9UKQ*BH4CX5C5>BPV4;V=`4)V;$B8("]I&QOK/[X!]G\`AAHP`1A/NZ!I:*,OQ"FWG#]=;.G?-"VP\=#JA00LY;L*]I/XRACY:S,%AW.%]!NDPK!EW&UO%BJ"KAV`N2D/M^BXQ;7R!/C:9Q?YL''@.03<Z4![%Z%ZS"#.]A0W*V;7:&F"=]FN4D$&*OTM'<\1^$N=D(A<O'GT[Z139%&[P$*LF]`Y%KO'8`Z20I8=E">JM(^N!L))_8SU81MST5!B\MJ5@50;-/Z/N`$(ZB6MO*C:88&PKH9N4B42--82=-OE`W;)4(_M!'H^-6,9=2!!YD2U(>[X*X-48J#RHICQR5/F%B6TN*Y#%9H?Q.^30AQY7%F$!KZ;@LI5%9#S_U,3MUJR!U<_!^H)1<%U^#)X4*WIN-HH&C"XLLI]]></item>
+</modules>
 <macrovalue>
 	<info>宏定义值可以使用在SQL查询的参数定义、业务表的默认值、查询条件和独立界面的${}变量中，不能用在Jsp原生El表达式中</info>
 	<info>默认值实现类必须实现IMacroValueGenerator接口，多个默认值可对应一个类</info>

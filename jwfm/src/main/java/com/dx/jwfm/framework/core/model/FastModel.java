@@ -25,13 +25,14 @@ import com.dx.jwfm.framework.core.model.search.SearchColumn;
 import com.dx.jwfm.framework.core.model.search.SearchModel;
 import com.dx.jwfm.framework.core.model.search.SearchResultColumn;
 import com.dx.jwfm.framework.core.model.view.DictNode;
-import com.dx.jwfm.framework.core.process.IActionHandel;
 import com.dx.jwfm.framework.util.EncryptUtil;
 import com.dx.jwfm.framework.util.FastUtil;
 import com.dx.jwfm.framework.web.action.FastBaseAction;
 import com.dx.jwfm.framework.web.view.Node;
 
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 public class FastModel {
 
@@ -66,10 +67,10 @@ public class FastModel {
 	private String vcStructure;
 	/**控制器*/
 	private Class<?> actionClass;
-	/**AOP处理器，用于处理action方法执行前后的预处理和后处理*/
-	private Class<IActionHandel> actionHandel;
 	/**模型结构对象*/
 	private FastModelStructure modelStructure;
+	/**是否从数据库表中加载的数据，如果是，则不再执行数据库对象升级*/
+	private boolean fromDB;
 
 
 	private String encryptKey = SystemContext.getSysParam("GLOBA_ENCRYPT_KEY", "hhkjcsmis");
@@ -98,11 +99,28 @@ public class FastModel {
 		this.vcVersion = modelStructure.getVcVersion();
 	}
 
+	public FastModel(String vcName, String vcUrl, String vcVersion, String vcStructure) {
+		super();
+		this.vcName = vcName;
+		this.vcUrl = vcUrl;
+		this.vcVersion = vcVersion;
+		this.vcStructure = vcStructure;
+	}
+
 	/**
 	 * 将结构化数据转换为字符串，以便于持久化到数据库
 	 */
 	public void doPersistent(){
-		JSONObject obj = JSONObject.fromObject(modelStructure);
+		JsonConfig conf = new JsonConfig();
+		conf.setJsonPropertyFilter(new PropertyFilter() {
+			public boolean apply(Object obj, String proptName, Object val) {
+				if(obj instanceof Date){
+					return "timezoneOffset".equals(proptName) || "day".equals(proptName);
+				}
+				return false;
+			}
+		});
+		JSONObject obj = JSONObject.fromObject(modelStructure,conf);
 		vcStructure = EncryptUtil.encryptMix(obj.toString(),encryptKey );
 	}
 	
@@ -115,9 +133,10 @@ public class FastModel {
 			modelStructure = new FastModelStructure();
 		}
 		else{
-			if(vcStructure.charAt(0)!='{'){
-				vcStructure = EncryptUtil.decryptMix(vcStructure, encryptKey);
-			}
+			String vcStructure = EncryptUtil.decryptMix(this.vcStructure, encryptKey);
+//			if(vcStructure.charAt(0)!='{'){
+//				vcStructure = EncryptUtil.decryptMix(vcStructure, encryptKey);
+//			}
 			JSONObject obj = JSONObject.fromObject(vcStructure);
 			Map<String, Class> cmap = new HashMap<String, Class>();
 			cmap.put("buttonAuths", ButtonAuth.class);
@@ -157,6 +176,9 @@ public class FastModel {
 					new FastPo(ft);
 				}
 			}
+			if(fromDB){//如果是从数据库表中加载的数据，则不再执行数据库对象升级
+				return;
+			}
 			//以下对数据库结构进行更新
 			DbHelper db = new DbHelper();
 			String version = null;
@@ -167,7 +189,6 @@ public class FastModel {
 			} catch (SQLException e1) {
 				logger.error(e1.getMessage(),e1);
 			}
-//			if(modelStructure==null)return;//因反序列代码尚未开发，所以结构为空的不执行
 			if(version==null || version.compareTo(this.vcVersion)<0){
 				//比对主业务表并进行表结构更新
 				FastTable tbl = modelStructure.getMainTable();
@@ -393,14 +414,6 @@ public class FastModel {
 	public void setActionClass(Class<?> actionClass) {
 		this.actionClass = actionClass;
 	}
-
-	public Class<IActionHandel> getActionHandel() {
-		return actionHandel;
-	}
-
-	public void setActionHandel(Class<IActionHandel> actionHandel) {
-		this.actionHandel = actionHandel;
-	}
 	
 	public String getVcId() {
 		return vcId;
@@ -507,6 +520,14 @@ public class FastModel {
 
 	public void setVcVersion(String vcVersion) {
 		this.vcVersion = vcVersion;
+	}
+
+	public boolean isFromDB() {
+		return fromDB;
+	}
+
+	public void setFromDB(boolean fromDB) {
+		this.fromDB = fromDB;
 	}
 
 }

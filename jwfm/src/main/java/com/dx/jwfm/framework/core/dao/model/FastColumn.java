@@ -2,7 +2,9 @@ package com.dx.jwfm.framework.core.dao.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.regex.Pattern;
 
+import com.dx.jwfm.framework.core.exception.UnsupportNameException;
 import com.dx.jwfm.framework.util.FastUtil;
 
 public class FastColumn {
@@ -115,6 +117,9 @@ public class FastColumn {
 	}
 
 	public void setName(String name) {
+		if(!Pattern.matches("\\w+", name)){
+			throw new UnsupportNameException("please use a-zA-Z_0-9单词字符");
+		}
 		this.name = name==null?null:name.toUpperCase();
 	}
 

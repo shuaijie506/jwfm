@@ -23,6 +23,6 @@ public interface IFastProcess {
 	 * @param response
 	 * @return	已处理完成返回true，否则返回false,由WEB容器继续处理
 	 */
-	public boolean processRequest(HttpServletRequest request,HttpServletResponse response);
+	public boolean processRequest(HttpServletRequest request,HttpServletResponse response,String uri,String uriExt);
 
 }

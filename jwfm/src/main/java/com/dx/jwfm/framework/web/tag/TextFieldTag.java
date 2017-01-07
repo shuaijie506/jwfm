@@ -39,7 +39,7 @@ public class TextFieldTag extends HiddenTag {
 	    	}
 	    	else{
 				out.print(" value=\"");
-		    	out.print(getValue().replaceAll("\"", "\\\""));
+		    	out.print(getValue().replaceAll("\"", "&quot;"));
 		    	out.print("\"");
 				out.println(" />");
 	    	}

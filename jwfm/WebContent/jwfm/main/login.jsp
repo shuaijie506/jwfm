@@ -59,7 +59,7 @@ String basePath = path + request.getRequestURI();
     	    	}
     	    });
     	    $(window).resize(function(){
-    	    	$('.login').css('margin-top',parseInt(Math.max(($(window).height()-$('.login').height())*2/5,0))+'px');
+    	    	$('.login').css('margin-top',parseInt(Math.max(($('body').height()-$('.login').height())*2/5,0))+'px');
     	    }).resize();
     	    <%if(request.getAttribute("SYSTEM_FIRST_LOGIN")!=null){//系统初始化后第一次登录 %>
 	    		$('#username').val('<%=request.getAttribute("SYSTEM_USERNAME")%>');
@@ -85,6 +85,7 @@ html,body{background:#ccc;height:100%;overflow:hidden;}
 <BODY >
 <form action="" method=post>
 <input type=hidden name=op value="login"/>
+<center>
 <div class=login >
 <input type=text name=username id=username class="easyui-validatebox" data-options="required:true" />
 <input type=password name=password id=password class="easyui-validatebox" data-options="required:true" />
@@ -92,6 +93,7 @@ html,body{background:#ccc;height:100%;overflow:hidden;}
 <div id=loginError></div>
 <div class=copyright><%=FastUtil.nvl(FastUtil.getRegVal("SYSTEM_COPYRIGHT"),"") %></div>
 </div>
+</center>
 </form>
 </BODY>
 </HTML>

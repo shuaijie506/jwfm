@@ -26,6 +26,7 @@ var isAlertShow = false;
 			    $('#mainDiv').height($(window).height());
 			    $('#mainDiv').layout('resize');
     	    }).resize();
+    	    $('#browser-name').text($.browserName);
     	});
     </SCRIPT>
 <style type="text/css">
@@ -42,6 +43,7 @@ html,body{overflow:hidden;height:100%;}
 <div id="titleDiv" region="north" style="height:40px;position:relative;overflow:hidden;">
 <span class=title >
 辉煌WEB程序快速开发平台</span>
+<a id="browser-name" style="position:absolute;right:2px;top:0px;color:#aaa;opacity:0.4; filter:alpha(opacity=40);"></a>
 <span style="position:absolute;right:65px;bottom:3px;">当前登录：${FAST_USER.VC_NAME}</span>
 <a style="position:absolute;right:25px;bottom:3px;" href="?op=logout">退出</a>
 </div>

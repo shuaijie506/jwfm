@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -25,7 +27,9 @@ import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
+import com.dx.jwfm.framework.util.EncryptUtil;
 import com.dx.jwfm.framework.util.FastUtil;
+import com.dx.jwfm.framework.util.LinkedQueueSet;
 
 public class CheckLoginFilter implements Filter {
 
@@ -39,6 +43,8 @@ public class CheckLoginFilter implements Filter {
 	private String loginUrl;
 	/** 根据用户ID创建Session中的user对象 */
 	private LoginUserCreator loginUserCreator;
+	
+	private LinkedQueueSet ssoKeys = new LinkedQueueSet(1000);
 	
 	private List<String> excludeURI = new ArrayList<String>();
 	private List<String> excludeURIStartWith = new ArrayList<String>();
@@ -78,6 +84,22 @@ public class CheckLoginFilter implements Filter {
 				}
 			}
 		}
+		new Thread(){
+			public void run() {
+				this.setName("clearSsoInfoData");
+				while(true){//每小时执行一次
+					try {
+						Thread.sleep(60*6000);
+						DbHelper db = new DbHelper();
+						Calendar c = Calendar.getInstance();
+						c.add(Calendar.DAY_OF_MONTH, -1);
+						db.executeSqlUpdate("delete from "+SystemContext.dbObjectPrefix+"T_SSO_INFO where dt_add<?",new Object[]{c.getTime()});
+					} catch (Exception e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
+			}
+		}.start();
 	}
 
 	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2)
@@ -97,16 +119,26 @@ public class CheckLoginFilter implements Filter {
         }
         Object user = request.getSession().getAttribute(userSessionKey);
         String sessionSsoId = (String)request.getSession().getAttribute("SSO_ID");
-        String ssoId = getSsoid(request);
-        if(user!=null && ssoId!=null && !ssoId.equals(sessionSsoId)){//如果请求的SSO_ID与Session中的SSO_ID不一致，此时表示系统已切换了登录用户，要将原用户退出重新登录
+        String ssoId = null;
+        String ssoKey = null;
+        if(user!=null && (ssoId=getParamValue(request,"SSO_ID"))!=null && !ssoId.equals(sessionSsoId)){//如果请求的SSO_ID与Session中的SSO_ID不一致，此时表示系统已切换了登录用户，要将原用户退出重新登录
         	removeSession(request.getSession());
         	user = null;
         }
-        if(user==null && ssoId!=null){//如果用户未登录，且有SSO_ID，此时尝试模拟登录
+        if(user==null && (ssoId=getParamValue(request,"SSO_ID"))!=null){//如果用户未登录，且有SSO_ID，此时尝试模拟登录
         	String userId = getUserId(ssoId);
         	if(FastUtil.isNotBlank(userId)){//如果查找到用户ID，模拟登录
         		user = loginUserCreator.createUser(userId);
             	setSessionUser(request, response, user, userId, ssoId);
+        	}
+        }
+        if(user==null && (ssoKey=getParamValue(request,"SSO_KEY"))!=null){//如果用户未登录，且有SSO_KEY，此时尝试模拟登录
+        	if(!ssoKeys.contains(ssoKey)){//如果SSO_KEY值已经被使用过，则不能再次被使用
+        		String userId = getUserIdBySsoKey(ssoKey);
+            	if(FastUtil.isNotBlank(userId)){//如果查找到用户ID，模拟登录
+            		user = loginUserCreator.createUser(userId);
+                	setSessionUser(request, response, user, userId, ssoId);
+            	}
         	}
         }
         if(user==null){
@@ -123,23 +155,44 @@ public class CheckLoginFilter implements Filter {
 		arg2.doFilter(arg0, response);
 	}
 
+	private String getUserIdBySsoKey(String ssoKey) throws UnsupportedEncodingException {
+    	String str = EncryptUtil.decryptDes(ssoKey, FastUtil.nvl(FastUtil.getRegVal("SYSTEM_SSO_KEY"), SystemContext.getSysParam("SYSTEM_SSO_KEY","dx123~!@")));
+    	int pos = 0;
+    	if(str!=null && (pos=str.indexOf("|"))>0){
+    		int pos2 = str.indexOf("|",pos+1);
+    		String timekey = str.substring(0, pos);
+    		String timestr = str.substring(pos+1, pos2);
+    		String userIdDes = str.substring(pos2+1);
+    		long l = 0;
+    		try {
+				l = Long.valueOf(timestr);
+			} catch (NumberFormatException e) {
+				logger.error(e.getMessage(),e);
+			}
+    		if(Math.abs(System.currentTimeMillis()-l)>30*60000){//时间误差控制在30分钟之内，如果超出时间，则认为是超时无效key
+    			return null;
+    		}
+			String userId = EncryptUtil.decryptDes(userIdDes, timekey);
+			if("defaultUser".equals(userId)){
+				userId = FastUtil.nvl(FastUtil.getRegVal("SYSTEM_SSO_DEFAULT_USER"), SystemContext.getSysParam("SYSTEM_SSO_DEFAULT_USER"));
+			}
+			return userId;
+    	}
+    	return null;
+	}
+
 	static public void setSessionUser(HttpServletRequest request, HttpServletResponse response, Object user, String userId, String ssoId) {
 		removeSession(request.getSession());
 		request.getSession().setAttribute(userSessionKey, user);
+		request.getSession().setAttribute("curUserId", userId);
+		request.getSession().setAttribute("curUserName", FastUtil.getProptValue(user, "VC_NAME"));
+
 		if(FastUtil.isBlank(ssoId)){
 			ssoId = FastUtil.getUuid();
 			DbHelper db = new DbHelper();
 			try {
-				String id = db.getFirstStringSqlQuery("select vc_id from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 "
-						+ "and VC_GROUP='SYS_REGEDIT' and vc_code='SSO_ID' and vc_user_id=?",new Object[]{userId});
-				if(FastUtil.isBlank(id)){
-					db.executeSqlUpdate("insert into "+SystemContext.dbObjectPrefix+"T_DICT(vc_id,vc_user_id,vc_group,vc_code,vc_text,n_del,n_seq) values(?,?,?,?,?,?,0)",
-							new Object[]{FastUtil.getUuid(),userId,"SYS_REGEDIT","SSO_ID",ssoId,0});
-				}
-				else{
-					db.executeSqlUpdate("update "+SystemContext.dbObjectPrefix+"T_DICT set vc_text=? where vc_id=?",
-							new Object[]{ssoId,id});
-				}
+				db.executeSqlUpdate("insert into "+SystemContext.dbObjectPrefix+"T_SSO_INFO(sso_id,vc_user_id,dt_add) values(?,?,?)",
+						new Object[]{ssoId,userId,new Date()});
 			} catch (SQLException e) {
 				logger.error(e.getMessage(),e);
 			}
@@ -152,8 +205,10 @@ public class CheckLoginFilter implements Filter {
 		DbHelper db = new DbHelper();
 		String userId = null;
 		try {
-			userId = db.getFirstStringSqlQuery("select vc_user_id from "+SystemContext.dbObjectPrefix+"T_DICT where n_del=0 "
-					+ "and VC_GROUP='SYS_REGEDIT' and vc_code='SSO_ID' and vc_text=?",new Object[]{ssoId});
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DAY_OF_MONTH, -1);
+			userId = db.getFirstStringSqlQuery("select vc_user_id from "+SystemContext.dbObjectPrefix+
+					"T_SSO_INFO where dt_add>? and sso_id=?",new Object[]{c.getTime(),ssoId});
 		} catch (SQLException e) {
 			logger.error(e.getMessage(),e);
 		}
@@ -170,14 +225,17 @@ public class CheckLoginFilter implements Filter {
 		return userId;
 	}
 
-	private static String getSsoid(HttpServletRequest request){
+	private static String getParamValue(HttpServletRequest request, String name){
+		if(name==null || name.length()==0){
+			return null;
+		}
 		String ssoid = null;
-		if((ssoid=request.getParameter("SSO_ID"))!=null){
+		if((ssoid=request.getParameter(name))!=null){
 			return ssoid;
 		}
     	if(request.getCookies()!=null){
         	for(Cookie c:request.getCookies()){
-        		if("SSO_ID".equals(c.getName())){//使用COOKIE中的UUID登录
+        		if(name.equals(c.getName())){//使用COOKIE中的UUID登录
         			return c.getValue();
         		}
         	}

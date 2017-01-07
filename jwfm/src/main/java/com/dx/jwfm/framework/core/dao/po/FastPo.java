@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.model.FastColumn;
@@ -97,16 +98,16 @@ public class FastPo extends MapObject implements Serializable {
 	}
 
 	private void initDefaults(FastColumn col) {
-		if(FastUtil.isNotBlank(col.getDefaults())){
+		if(FastUtil.isBlank(getString(col.getName())) && FastUtil.isNotBlank(col.getDefaults())){
 			String defaults = col.getDefaults();
 			if(defaults.indexOf("$")>=0){
 				Matcher mat = varPat.matcher(defaults);
-				if(mat.matches()){//完整匹配时，可以是任意对象
-					put(col.getName(),SystemContext.getMacroValue(mat.group(1)));
+				if(mat.matches()){//完整匹配时，可以是任意类型对象
+					put(col.getName(),RequestContext.getBeanValue(mat.group(1)));
 				}
 				else{
 					while(mat.find()){//组合匹配时，按字符串处理
-						Object obj = SystemContext.getMacroValue(mat.group(1));
+						Object obj = RequestContext.getBeanValue(mat.group(1));
 						defaults = defaults.replace(mat.group(), obj==null?"":obj.toString());
 					}
 					put(col.getName(),defaults);

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 
+import com.dx.jwfm.framework.core.FastFilter;
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
 import com.dx.jwfm.framework.core.dao.po.FastPo;
@@ -52,10 +53,12 @@ public class DbHelper {
 	private static Object[] emptyParam=new Object[0];
 
 	public DbHelper() {
+		FastFilter.addDbHelper(this);
 	}
 
 	public DbHelper(String datasourceName) {
 		this.dataSourceName = datasourceName;
+		FastFilter.addDbHelper(this);
 	}
 
 	public int execute(JdbcConnExecuter executer) throws SQLException{

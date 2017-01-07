@@ -25,7 +25,7 @@ public class MainActionCreator {
 			return model;
 		}
 		model = new FastModel();
-		model.vcVersion = "2016-12-16v2";
+		model.vcVersion = "2017-01-09";
 		model.setVcId("fast-main");
 		model.setVcGroup("Fast开发平台");
 		model.setVcName("Fast开发平台");
@@ -53,7 +53,7 @@ public class MainActionCreator {
 		struct.setForward("loginsuccess","redirect:"+model.getVcUrl().substring(model.getVcUrl().lastIndexOf("/")+1));
 		struct.setMainTable(getMainTable());
 		struct.getOtherTables().add(getFastDictTable());
-//		struct.getOtherTables().add(getFastDbUpdateTable());
+		struct.getOtherTables().add(getSessionInfoTable());
 		struct.setSearch(getSearchModel());
 		struct.getDictData().add(new DictNode("SYS_REGEDIT", "SYS_SSOID_REMOTE_URL", "", "如果需要使用远程URL进行SSO_ID到USER_ID的转换时，请配置此地址。如：http://10.0.0.1/mis/check.jsp?ssoid=", 0));
 		return model;
@@ -72,10 +72,16 @@ public class MainActionCreator {
 		list.add(new UserActionCreator().getFastModel());
 		list.add(new MenuActionCreator().getFastModel());
 		list.add(new ToolsAction().getFastModel());
+		list.add(new FileUploadAction().getFastModel());
+		list.add(new UserFileUploadAction().getFastModel());
 		for(FastModel model:list){
+			String key = SystemContext.getPath()+model.getVcUrl()+actionExt;
+			FastModel old = menuMap.get(key);
+			if(old!=null && old.getVcVersion().equals(model.getVcVersion())){
+				continue;
+			}
+			menuMap.put(key , model);
 			flist.add(model);
-			model.init();
-			menuMap.put(SystemContext.getPath()+model.getVcUrl()+actionExt, model);
 		}
 	}
 
@@ -95,6 +101,17 @@ public class MainActionCreator {
 		tbl.getColumns().add(new FastColumn("备注", "VC_NOTE", "", FastColumnType.String, 500, "", null, true, false));
 		tbl.getColumns().add(new FastColumn("排序", "N_SEQ", null, FastColumnType.Integer, 0, "", null, false, false));
 		tbl.getColumns().add(new FastColumn("删除标记", "N_DEL", null, FastColumnType.Integer, 0, "0", null, false, false));
+		tbl.setColumns(tbl.getColumns());
+		return tbl;
+	}
+	
+	private static FastTable getSessionInfoTable() {
+		FastTable tbl = new FastTable();
+		tbl.setTitle("Fast字典表");
+		tbl.setName(SystemContext.dbObjectPrefix+"T_SSO_INFO");
+		tbl.getColumns().add(new FastColumn("主键", "SSO_ID", null, FastColumnType.String, 50, null, null, false, true));
+		tbl.getColumns().add(new FastColumn("用户ID", "VC_USER_ID", "用户ID，此字段值为sys时表示为系统参数和字典", FastColumnType.String, 50, "sys", null, false, false));
+		tbl.getColumns().add(new FastColumn("创建时间", "DT_ADD", null, FastColumnType.Date, 0, "${nowTime}", null, false, false));
 		tbl.setColumns(tbl.getColumns());
 		return tbl;
 	}

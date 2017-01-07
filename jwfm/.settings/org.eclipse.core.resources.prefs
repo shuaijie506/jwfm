@@ -5,4 +5,5 @@ encoding//src/main/resources=UTF-8
 encoding//src/main/resources/log4j.properties=UTF-8
 encoding//src/test/java=UTF-8
 encoding//src/test/resources=UTF-8
+encoding//target/m2e-wtp/web-resources/jwfm/css/fast.css=UTF-8
 encoding/<project>=UTF-8

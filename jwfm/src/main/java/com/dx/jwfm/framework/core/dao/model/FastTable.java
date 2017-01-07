@@ -5,12 +5,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
 import com.dx.jwfm.framework.core.SystemContext;
 import com.dx.jwfm.framework.core.dao.DbHelper;
 import com.dx.jwfm.framework.core.dao.dialect.DatabaseDialect;
+import com.dx.jwfm.framework.core.exception.UnsupportNameException;
 import com.dx.jwfm.framework.web.logic.DataTranser;
 
 public class FastTable implements DatabaseObject,Serializable {
@@ -167,6 +169,9 @@ public class FastTable implements DatabaseObject,Serializable {
 	}
 
 	public void setName(String name) {
+		if(!Pattern.matches("\\w+", name)){
+			throw new UnsupportNameException("please use a-zA-Z_0-9单词字符");
+		}
 		this.name = name==null?null:name.toUpperCase();
 	}
 

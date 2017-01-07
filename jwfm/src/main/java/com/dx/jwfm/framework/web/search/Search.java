@@ -18,11 +18,14 @@ public class Search extends MapObject  {
 		this.put(delField , 0);
 	}
 	
-
-	public String getSearchSql(){
+	protected SearchModel getSearchModel(){
 		FastModel fmodel = RequestContext.getFastModel();
 		if(fmodel==null)return null;
-		SearchModel model = fmodel.getModelStructure().getSearch();
+		return fmodel.getModelStructure().getSearch();
+	}
+
+	public String getSearchSql(){
+		SearchModel model = getSearchModel();
 		StringBuffer sql = new StringBuffer(model.getSearchSelectSql());
 		if(sql.toString().toLowerCase().indexOf("where")<0){
 			sql.append(" where ").append(delField).append("=${").append(delField).append("}");
@@ -30,9 +33,10 @@ public class Search extends MapObject  {
 		for(String key:map.keySet()){
 			SearchColumn col = model.getSearchColumn(key);
 			String sqlFrag = null;
-			if(col==null || FastUtil.isBlank(sqlFrag=col.getSqlFragmentFinal(map)))continue;
+			if(col==null || isBlank(col))continue;
 			String val = (String)map.get(key);
 			if(FastUtil.isNotBlank(val)){
+				sqlFrag = getSqlFragment(col);
 				sql.append(" ").append(sqlFrag);
 			}
 		}
@@ -46,6 +50,30 @@ public class Search extends MapObject  {
 		sql.append(model.getSearchOrderBySql());
 		return replaceMacro(sql.toString());
 	}
+
+	protected String getSqlFragment(SearchColumn col) {
+		return col.getSqlFragmentFinal(map);
+	}
+
+
+	/**
+	 * 开发人：宋帅杰
+	 * 开发日期: 2016年12月29日 上午9:29:12
+	 * 功能描述: 判断字段的内容是否为空
+	 * 方法的参数和返回值: 
+	 * @param fieldName
+	 * @return
+	 */
+	protected boolean isBlank(SearchColumn col) {
+		if(col==null || col.getVcCode()==null)return true;
+		String fieldName = col.getVcCode();
+		if(col.getSqlSearchType()!=null && col.getSqlSearchType().endsWith("Range")){//范围
+			return FastUtil.isBlank(getString(fieldName)) && 
+					FastUtil.isBlank(getString(fieldName+"Begin")) && FastUtil.isBlank(getString(fieldName+"End"));
+		}
+		return FastUtil.isBlank(getString(fieldName));
+	}
+
 
 	/**
 	 * 开发人：宋帅杰
@@ -85,13 +113,15 @@ public class Search extends MapObject  {
 	}
 
 	public String getSearchCntSql(String sql){
-		int pos = sql.toLowerCase().indexOf(" from ");
+		String lsql = sql.toLowerCase();
+		int pos = lsql.indexOf(" from ");
 		if(pos>0){
-			return "select count(*) "+sql.substring(pos);
+			int pos2 = lsql.lastIndexOf("select",pos);
+			if(pos2<6){
+				return "select count(*) "+sql.substring(pos);
+			}
 		}
-		else{
-			return "select count(*) from ("+sql+")";
-		}
+		return "select count(*) from ("+sql+")";
 	}
 
 	public String getOrderby() {

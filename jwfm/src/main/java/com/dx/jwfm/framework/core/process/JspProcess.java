@@ -40,16 +40,18 @@ public class JspProcess implements IFastProcess {
 	}
 
 	
-	public boolean processRequest(HttpServletRequest request, HttpServletResponse response) {
-		String uri = request.getServletPath();
+	public boolean processRequest(HttpServletRequest request, HttpServletResponse response,String uri,String uriExt) {
+		if(!".jsp".equals(uriExt.toLowerCase())){
+			return false;
+		}
 		String baseDir = SystemContext.getAppPath();
+		uri = uri.substring(SystemContext.path.length());
 		File f = new File(baseDir+uri);
 		if(f.exists()){//如果文件（包含JSP文件）在系统中存在，则不处理，使用系统自动处理
 			return false;
 		}
-//		if(uri.endsWith(".jsp")){//如果是JSP文件，则判断是否从类中加载
-			processJsp(request,response,uri);
-//		}
+		//如果是JSP文件，则判断是否从类中加载
+		processJsp(request,response,uri);
 		return true;
 	}
 	

@@ -11,6 +11,9 @@ public class HelloWorld extends FastBaseAction {
 	}
 	
 	public String toJsp(){
+//		setCookie("PATH", "/path", 0, ".");
+//		setCookie("PATH", "/path2", 0, ".");
+//		setCookie("PATH3", "/path3", 0, ".");
 		setAttribute("name", "张三");
 		return "hello.jsp";
 	}

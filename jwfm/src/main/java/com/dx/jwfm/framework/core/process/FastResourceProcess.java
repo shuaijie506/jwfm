@@ -38,15 +38,14 @@ public class FastResourceProcess implements IFastProcess {
 	 * @param response
 	 * @return
 	 */
-	public boolean processRequest(HttpServletRequest request,HttpServletResponse response){
-		String uri = request.getServletPath();
+	public boolean processRequest(HttpServletRequest request,HttpServletResponse response,String uri,String uriExt){
 		String baseDir = SystemContext.getAppPath();
 		File f = new File(baseDir+uri);
 		if(f.exists()){//如果文件（包含JSP文件）在系统中存在，则不处理，使用系统自动处理
 			return false;
 		}
 		String uril = uri.toLowerCase();
-		if(uril.endsWith(".jsp")){//如果是JSP文件，则判断是否从类中加载
+		if(".jsp".equals(uriExt.toLowerCase())){//如果是JSP文件，则判断是否从类中加载
 //			processJsp(request,response,uri);
 			return false;
 		}

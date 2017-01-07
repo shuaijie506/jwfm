@@ -1,6 +1,7 @@
-package com.dx.jwfm.framework.core.handle;
+package com.dx.jwfm.framework.core.parser;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
@@ -24,15 +26,13 @@ import org.apache.log4j.Logger;
 import com.dx.jwfm.framework.core.RequestContext;
 import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMap;
 import com.dx.jwfm.framework.core.model.view.ParamLinkedHashMapEntry;
-import com.dx.jwfm.framework.core.process.IActionHandel;
 
-public class ParameterActionHandle implements IActionHandel {
+public class ParameterActionParser {
 
 	static Logger logger = Logger.getLogger(RequestContext.class);
-	@SuppressWarnings("unchecked")
 	
-	public boolean beforeExecute(Object action, String method) {
-		HttpServletRequest request = RequestContext.getRequest();
+	@SuppressWarnings("unchecked")
+	public boolean parseParam(HttpServletRequest request, Object action) {
 		String ctype = request.getHeader("content-type");
 		if(ctype!=null && ctype.indexOf("multipart/form-data")>=0){
 			dealMultiPartForm(request,action);
@@ -52,6 +52,9 @@ public class ParameterActionHandle implements IActionHandel {
 	private void setObjectPropt(Object obj,String fieldName,HttpServletRequest request,Object value){
 		int pos = fieldName.indexOf(".");
 		if(pos<0){//参数名中没有带. 做为普通参数
+			if(fieldName.endsWith("[]")){
+				fieldName = fieldName.substring(0,fieldName.length()-2);
+			}
 			if(obj instanceof Map){
 				((Map) obj).put(fieldName, value);
 			}
@@ -59,11 +62,32 @@ public class ParameterActionHandle implements IActionHandel {
 				try {//如果没有指定属性时，cls==null
 					Class cls = PropertyUtils.getPropertyType(obj, fieldName);
 					if(cls!=null && PropertyUtils.isWriteable(obj, fieldName)){
-						Object val = cls.isArray()?(value==null?null:value.toString().split("\\s*,\\s*")):value;
+						//文件上传类型的请求参数不正确，抛出异常
+						if((File.class.isAssignableFrom(cls)||File[].class.isAssignableFrom(cls)) && (value instanceof String)){
+							throw new FileUploadException("please use form type as method=post enctype=multipart/form-data and <input type=file >");
+						}
+						Object val = value;
+						if(cls.isArray()){//数组属性特殊处理
+							Object oldVal = PropertyUtils.getProperty(obj, fieldName);
+							Object ary = null;
+							if(oldVal==null){
+								ary = Array.newInstance(cls.getComponentType(), 1);
+								Array.set(ary, 0, value);
+							}
+							else{
+								int len = Array.getLength(oldVal);
+								ary = Array.newInstance(cls.getComponentType(), len+1);
+								for(int i=0;i<len;i++){
+									Array.set(ary, i, Array.get(oldVal, i));
+								}
+								Array.set(ary, len, value);
+							}
+							val = ary;
+						}
 						BeanUtils.setProperty(obj, fieldName, val);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -125,7 +149,7 @@ public class ParameterActionHandle implements IActionHandel {
 						setObjectPropt(row,fieldName.substring(pos+1),request,value);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(),e);
 				}
 			}
 			else{//简单的对象
@@ -137,7 +161,7 @@ public class ParameterActionHandle implements IActionHandel {
 					}
 					setObjectPropt(propt,fieldName.substring(pos+1),request,value);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -216,11 +240,6 @@ public class ParameterActionHandle implements IActionHandel {
 			return getField(sc,fieldName);
 		}
 		return null;
-	}
-
-	
-	public void afterExecute(Object action, String method) {
-		
 	}
 
 }

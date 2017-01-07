@@ -47,7 +47,7 @@ public abstract class ActionCreator extends FastBaseAction {
 		}
 		model = new FastModel();
 		modelMap.put(clsName, model);
-		model.setVcId(clsName);
+		model.setVcId(clsName.length()>50?clsName.substring(clsName.length()-50):clsName);
 //		model.setDtAdd(new Date());
 		FastModelInfo info = this.getClass().getAnnotation(FastModelInfo.class);
 		if(info!=null){
@@ -83,7 +83,6 @@ public abstract class ActionCreator extends FastBaseAction {
 		struct.setButtonAuths(getButtonList());
 		
 		initModel(model);
-		model.init();
 		return model;
 	}
 	protected String getSimpleEditTableHtml(String[] hiddenCols,String[] cols,int editColCnt){

@@ -16,7 +16,6 @@ String addActionName = bpath+"_"+method+actionExt;
    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 <META http-equiv=Content-Type content="text/html; charset=utf-8">
 <jsp:include page="/common/common.jsp"></jsp:include>
-<script type="text/javascript" src="<%=path %>/jwfm/js/jquery-fast-util-easyui.js"></script>  <!-- easyui通用工具类 -->
 <f:write>${REQUEST_FAST_MODEL.modelStructure.search.headHTML }</f:write> 
 <SCRIPT type=text/javascript>
 window.path = '<%=path%>';
